@@ -14,6 +14,7 @@ import SalesConversations from "./pages/SalesConversations";
 import AdCreatives from "./pages/AdCreatives";
 import AgentPage from "./pages/Agent";
 import SettingsPage from "./pages/Settings";
+import LeadSearch from "./pages/LeadSearch";
 import NotFound from "./pages/NotFound";
 import { useMetaSdkInit } from "./hooks/use-meta-sdk";
 
