@@ -54,17 +54,8 @@ export function AppSidebar() {
       className="flex h-screen flex-col border-r border-sidebar-border bg-sidebar shrink-0 overflow-hidden"
     >
       {/* Logo */}
-      <div className="flex h-16 items-center gap-3 px-4">
-        <img src={angelflowsLogo} alt="AngelFlows" className="h-9 w-9 shrink-0 object-contain" />
-        {!collapsed && (
-          <motion.span
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="text-base font-bold tracking-tight text-foreground"
-          >
-            AngelFlows
-          </motion.span>
-        )}
+      <div className="flex h-20 items-center justify-center px-4">
+        <img src={angelflowsLogo} alt="AngelFlows" className={cn("shrink-0 object-contain transition-all", collapsed ? "h-10 w-10" : "h-14 w-14")} />
       </div>
 
       <Separator />
