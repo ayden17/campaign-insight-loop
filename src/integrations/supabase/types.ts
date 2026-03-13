@@ -238,6 +238,72 @@ export type Database = {
           },
         ]
       }
+      saved_prospects: {
+        Row: {
+          company_name: string | null
+          country_code: string | null
+          created_at: string
+          department: string | null
+          email: string | null
+          enriched: boolean | null
+          first_name: string | null
+          full_name: string | null
+          id: string
+          job_level: string | null
+          last_name: string | null
+          linkedin_url: string | null
+          location: string | null
+          phone: string | null
+          prospect_id: string | null
+          raw_data: Json | null
+          search_filters: Json | null
+          search_label: string | null
+          title: string | null
+        }
+        Insert: {
+          company_name?: string | null
+          country_code?: string | null
+          created_at?: string
+          department?: string | null
+          email?: string | null
+          enriched?: boolean | null
+          first_name?: string | null
+          full_name?: string | null
+          id?: string
+          job_level?: string | null
+          last_name?: string | null
+          linkedin_url?: string | null
+          location?: string | null
+          phone?: string | null
+          prospect_id?: string | null
+          raw_data?: Json | null
+          search_filters?: Json | null
+          search_label?: string | null
+          title?: string | null
+        }
+        Update: {
+          company_name?: string | null
+          country_code?: string | null
+          created_at?: string
+          department?: string | null
+          email?: string | null
+          enriched?: boolean | null
+          first_name?: string | null
+          full_name?: string | null
+          id?: string
+          job_level?: string | null
+          last_name?: string | null
+          linkedin_url?: string | null
+          location?: string | null
+          phone?: string | null
+          prospect_id?: string | null
+          raw_data?: Json | null
+          search_filters?: Json | null
+          search_label?: string | null
+          title?: string | null
+        }
+        Relationships: []
+      }
       slack_connections: {
         Row: {
           bot_access_token: string
