@@ -55,7 +55,7 @@ export function AppSidebar() {
     >
       {/* Logo */}
       <div className="flex h-20 items-center justify-center px-4">
-        <img src={angelflowsLogo} alt="AngelFlows" className={cn("shrink-0 object-contain transition-all", collapsed ? "h-10 w-10" : "h-14 w-14")} />
+        <img src={angelflowsLogo} alt="AngelFlows" className={cn("shrink-0 object-contain transition-all", collapsed ? "h-10 w-10" : "h-20 w-full max-w-[12rem]")} />
       </div>
 
       <Separator />

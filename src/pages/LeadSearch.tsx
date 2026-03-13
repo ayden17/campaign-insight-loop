@@ -73,11 +73,11 @@ const LeadSearch = () => {
 
   const currentFilters = () => {
     const f: Record<string, any> = {};
-    if (titleFilter) f.title = titleFilter;
-    if (companyFilter) f.company_name = companyFilter;
-    if (jobLevel && jobLevel !== "all") f.job_level = jobLevel;
-    if (department && department !== "all") f.department = department;
-    if (locationFilter) f.location = locationFilter;
+    if (titleFilter) f.title = { values: [titleFilter] };
+    if (companyFilter) f.company_name = { values: [companyFilter] };
+    if (jobLevel && jobLevel !== "all") f.job_level = { values: [jobLevel] };
+    if (department && department !== "all") f.sub_department = { values: [department] };
+    if (locationFilter) f.country_code = { values: [locationFilter] };
     return f;
   };
 
