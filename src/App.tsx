@@ -14,6 +14,7 @@ import SalesConversations from "./pages/SalesConversations";
 import AdCreatives from "./pages/AdCreatives";
 import AgentPage from "./pages/Agent";
 import SettingsPage from "./pages/Settings";
+import LeadSearch from "./pages/LeadSearch";
 import NotFound from "./pages/NotFound";
 import { useMetaSdkInit } from "./hooks/use-meta-sdk";
 
@@ -32,6 +33,7 @@ const App = () => {
           <Route path="/campaigns" element={<Campaigns />} />
           <Route path="/campaigns/:id" element={<CampaignDetail />} />
           <Route path="/ad-creatives" element={<AdCreatives />} />
+          <Route path="/lead-search" element={<LeadSearch />} />
           <Route path="/funnel" element={<FunnelView />} />
           <Route path="/sales" element={<SalesConversations />} />
           <Route path="/leads" element={<LeadsPage />} />
