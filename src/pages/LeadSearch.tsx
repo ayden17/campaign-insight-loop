@@ -2,6 +2,7 @@ import { useState } from "react";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
@@ -10,7 +11,7 @@ import {
 } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Search, Loader2, Download, User, ExternalLink, Mail, Phone } from "lucide-react";
+import { Search, Loader2, Download, User, ExternalLink, Mail, Phone, Save } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
@@ -57,35 +58,41 @@ const departmentOptions = [
 const LeadSearch = () => {
   const [prospects, setProspects] = useState<Prospect[]>([]);
   const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [enriching, setEnriching] = useState<string | null>(null);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [titleFilter, setTitleFilter] = useState("");
   const [companyFilter, setCompanyFilter] = useState("");
   const [jobLevel, setJobLevel] = useState("");
   const [department, setDepartment] = useState("");
-  const [titleFilter, setTitleFilter] = useState("");
   const [locationFilter, setLocationFilter] = useState("");
+  const [searchLabel, setSearchLabel] = useState("");
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [totalResults, setTotalResults] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const { toast } = useToast();
+
+  const currentFilters = () => {
+    const f: Record<string, any> = {};
+    if (titleFilter) f.title = titleFilter;
+    if (companyFilter) f.company_name = companyFilter;
+    if (jobLevel && jobLevel !== "all") f.job_level = jobLevel;
+    if (department && department !== "all") f.department = department;
+    if (locationFilter) f.location = locationFilter;
+    return f;
+  };
 
   const handleSearch = async (page = 1) => {
     setLoading(true);
     try {
       const filters: Record<string, any> = {};
       if (companyFilter) filters.company_name = [companyFilter];
-      if (jobLevel) filters.job_level = [jobLevel];
-      if (department) filters.department = [department];
+      if (jobLevel && jobLevel !== "all") filters.job_level = [jobLevel];
+      if (department && department !== "all") filters.department = [department];
       if (titleFilter) filters.title = [titleFilter];
       if (locationFilter) filters.country_code = [locationFilter];
 
       const { data, error } = await supabase.functions.invoke('prospect-search', {
-        body: {
-          action: 'search',
-          filters,
-          page,
-          page_size: 20,
-        },
+        body: { action: 'search', filters, page, page_size: 20 },
       });
 
       if (error) throw error;
@@ -102,6 +109,45 @@ const LeadSearch = () => {
     setLoading(false);
   };
 
+  const handleSaveResults = async () => {
+    const toSave = selectedIds.size > 0
+      ? prospects.filter(p => selectedIds.has(p.prospect_id || ''))
+      : prospects;
+    if (toSave.length === 0) return;
+
+    setSaving(true);
+    try {
+      const filters = currentFilters();
+      const rows = toSave.map(p => ({
+        prospect_id: p.prospect_id || null,
+        full_name: p.full_name || `${p.first_name || ''} ${p.last_name || ''}`.trim() || null,
+        first_name: p.first_name || null,
+        last_name: p.last_name || null,
+        title: p.title || null,
+        company_name: p.company_name || null,
+        department: p.department || null,
+        job_level: p.job_level || null,
+        linkedin_url: p.linkedin_url || null,
+        location: p.location || p.country_code || null,
+        country_code: p.country_code || null,
+        email: p.email || null,
+        phone: p.phone || null,
+        enriched: !!(p as any).enriched,
+        search_filters: filters,
+        search_label: searchLabel || null,
+        raw_data: p,
+      }));
+
+      const { error } = await supabase.from('saved_prospects' as any).insert(rows as any);
+      if (error) throw error;
+
+      toast({ title: "Saved", description: `${toSave.length} prospects saved to database.` });
+    } catch (err: any) {
+      toast({ title: "Save Error", description: err.message, variant: "destructive" });
+    }
+    setSaving(false);
+  };
+
   const handleEnrich = async (prospectId: string) => {
     setEnriching(prospectId);
     try {
@@ -109,7 +155,6 @@ const LeadSearch = () => {
         body: { action: 'enrich', prospect_id: prospectId },
       });
       if (error) throw error;
-
       setProspects(prev => prev.map(p =>
         p.prospect_id === prospectId ? { ...p, ...data, enriched: true } : p
       ));
@@ -143,14 +188,8 @@ const LeadSearch = () => {
     const headers = ["Name", "Title", "Company", "Department", "Level", "Location", "LinkedIn", "Email", "Phone"];
     const rows = toExport.map(p => [
       p.full_name || `${p.first_name || ''} ${p.last_name || ''}`.trim(),
-      p.title || '',
-      p.company_name || '',
-      p.department || '',
-      p.job_level || '',
-      p.location || p.country_code || '',
-      p.linkedin_url || '',
-      p.email || '',
-      p.phone || '',
+      p.title || '', p.company_name || '', p.department || '', p.job_level || '',
+      p.location || p.country_code || '', p.linkedin_url || '', p.email || '', p.phone || '',
     ]);
     const csv = [headers.join(","), ...rows.map(r => r.map(v => `"${(v || '').replace(/"/g, '""')}"`).join(","))].join("\n");
     const blob = new Blob([csv], { type: "text/csv" });
@@ -173,45 +212,51 @@ const LeadSearch = () => {
           <CardTitle className="text-sm font-medium">Search Filters</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
-            <Input
-              placeholder="Job title..."
-              value={titleFilter}
-              onChange={e => setTitleFilter(e.target.value)}
-              className="text-sm"
-            />
-            <Input
-              placeholder="Company..."
-              value={companyFilter}
-              onChange={e => setCompanyFilter(e.target.value)}
-              className="text-sm"
-            />
-            <Select value={jobLevel} onValueChange={setJobLevel}>
-              <SelectTrigger className="text-sm"><SelectValue placeholder="Job Level" /></SelectTrigger>
-              <SelectContent>
-                {jobLevelOptions.map(o => (
-                  <SelectItem key={o.value} value={o.value || "all"}>{o.label}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Select value={department} onValueChange={setDepartment}>
-              <SelectTrigger className="text-sm"><SelectValue placeholder="Department" /></SelectTrigger>
-              <SelectContent>
-                {departmentOptions.map(o => (
-                  <SelectItem key={o.value} value={o.value || "all"}>{o.label}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Input
-              placeholder="Location / Country..."
-              value={locationFilter}
-              onChange={e => setLocationFilter(e.target.value)}
-              className="text-sm"
-            />
-            <Button onClick={() => handleSearch(1)} disabled={loading} className="gap-2">
-              {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
-              Search
-            </Button>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            <div className="space-y-1.5">
+              <Label className="text-xs text-muted-foreground">Job Title</Label>
+              <Input placeholder="e.g. Marketing Manager" value={titleFilter} onChange={e => setTitleFilter(e.target.value)} className="text-sm" />
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-xs text-muted-foreground">Company</Label>
+              <Input placeholder="e.g. Acme Corp" value={companyFilter} onChange={e => setCompanyFilter(e.target.value)} className="text-sm" />
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-xs text-muted-foreground">Job Level</Label>
+              <Select value={jobLevel} onValueChange={setJobLevel}>
+                <SelectTrigger className="text-sm"><SelectValue placeholder="All Levels" /></SelectTrigger>
+                <SelectContent>
+                  {jobLevelOptions.map(o => (
+                    <SelectItem key={o.value} value={o.value || "all"}>{o.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-xs text-muted-foreground">Department</Label>
+              <Select value={department} onValueChange={setDepartment}>
+                <SelectTrigger className="text-sm"><SelectValue placeholder="All Departments" /></SelectTrigger>
+                <SelectContent>
+                  {departmentOptions.map(o => (
+                    <SelectItem key={o.value} value={o.value || "all"}>{o.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-xs text-muted-foreground">Location / Country</Label>
+              <Input placeholder="e.g. US" value={locationFilter} onChange={e => setLocationFilter(e.target.value)} className="text-sm" />
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-xs text-muted-foreground">Search Label</Label>
+              <Input placeholder="e.g. Q1 Outreach" value={searchLabel} onChange={e => setSearchLabel(e.target.value)} className="text-sm" />
+            </div>
+            <div className="flex items-end">
+              <Button onClick={() => handleSearch(1)} disabled={loading} className="gap-2 w-full">
+                {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
+                Search
+              </Button>
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -224,11 +269,14 @@ const LeadSearch = () => {
               Showing {prospects.length} of {totalResults} results
             </p>
             <div className="flex items-center gap-2">
+              <Button variant="outline" size="sm" onClick={handleSaveResults} disabled={saving} className="gap-1.5">
+                <Save className="h-4 w-4" />
+                {saving ? "Saving..." : `Save ${selectedIds.size > 0 ? `(${selectedIds.size})` : 'all'}`}
+              </Button>
               <Button variant="outline" size="sm" onClick={handleExport} className="gap-1.5">
                 <Download className="h-4 w-4" />
                 Export {selectedIds.size > 0 ? `(${selectedIds.size})` : 'all'}
               </Button>
-              <span className="text-xs text-muted-foreground">Select all</span>
             </div>
           </div>
 
@@ -237,10 +285,7 @@ const LeadSearch = () => {
               <TableHeader>
                 <TableRow className="bg-muted/50">
                   <TableHead className="w-10">
-                    <Checkbox
-                      checked={selectedIds.size === prospects.length && prospects.length > 0}
-                      onCheckedChange={toggleSelectAll}
-                    />
+                    <Checkbox checked={selectedIds.size === prospects.length && prospects.length > 0} onCheckedChange={toggleSelectAll} />
                   </TableHead>
                   <TableHead className="text-xs font-semibold uppercase tracking-wide">Name</TableHead>
                   <TableHead className="text-xs font-semibold uppercase tracking-wide">Links</TableHead>
@@ -256,10 +301,7 @@ const LeadSearch = () => {
                   return (
                     <TableRow key={id} className="hover:bg-muted/30">
                       <TableCell>
-                        <Checkbox
-                          checked={selectedIds.has(id)}
-                          onCheckedChange={() => toggleSelect(id)}
-                        />
+                        <Checkbox checked={selectedIds.has(id)} onCheckedChange={() => toggleSelect(id)} />
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-3">
@@ -271,52 +313,28 @@ const LeadSearch = () => {
                       </TableCell>
                       <TableCell>
                         {prospect.linkedin_url && (
-                          <a href={prospect.linkedin_url} target="_blank" rel="noopener noreferrer" className="text-info hover:text-info/80">
+                          <a href={prospect.linkedin_url} target="_blank" rel="noopener noreferrer" className="text-primary hover:text-primary/80">
                             <ExternalLink className="h-4 w-4" />
                           </a>
                         )}
                       </TableCell>
                       <TableCell>
                         <span className="text-sm text-foreground">{prospect.title || '—'}</span>
-                        {prospect.job_level && (
-                          <Badge variant="secondary" className="ml-2 text-[10px]">{prospect.job_level}</Badge>
-                        )}
+                        {prospect.job_level && <Badge variant="secondary" className="ml-2 text-[10px]">{prospect.job_level}</Badge>}
                       </TableCell>
                       <TableCell>
                         <span className="text-sm text-foreground">{prospect.company_name || '—'}</span>
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-2">
-                          {prospect.email && (
-                            <a href={`mailto:${prospect.email}`} className="text-muted-foreground hover:text-foreground">
-                              <Mail className="h-4 w-4" />
-                            </a>
-                          )}
-                          {prospect.phone && (
-                            <a href={`tel:${prospect.phone}`} className="text-muted-foreground hover:text-foreground">
-                              <Phone className="h-4 w-4" />
-                            </a>
-                          )}
-                          {!prospect.email && !prospect.phone && (
-                            <span className="text-xs text-muted-foreground">—</span>
-                          )}
+                          {prospect.email && <a href={`mailto:${prospect.email}`} className="text-muted-foreground hover:text-foreground"><Mail className="h-4 w-4" /></a>}
+                          {prospect.phone && <a href={`tel:${prospect.phone}`} className="text-muted-foreground hover:text-foreground"><Phone className="h-4 w-4" /></a>}
+                          {!prospect.email && !prospect.phone && <span className="text-xs text-muted-foreground">—</span>}
                         </div>
                       </TableCell>
                       <TableCell>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="text-xs"
-                          disabled={enriching === id || (prospect as any).enriched}
-                          onClick={() => handleEnrich(id)}
-                        >
-                          {enriching === id ? (
-                            <Loader2 className="h-3 w-3 animate-spin" />
-                          ) : (prospect as any).enriched ? (
-                            "Enriched"
-                          ) : (
-                            "Enrich"
-                          )}
+                        <Button variant="outline" size="sm" className="text-xs" disabled={enriching === id || (prospect as any).enriched} onClick={() => handleEnrich(id)}>
+                          {enriching === id ? <Loader2 className="h-3 w-3 animate-spin" /> : (prospect as any).enriched ? "Enriched" : "Enrich"}
                         </Button>
                       </TableCell>
                     </TableRow>
@@ -328,23 +346,9 @@ const LeadSearch = () => {
 
           {/* Pagination */}
           <div className="flex items-center justify-center gap-2 mt-4">
-            <Button
-              variant="outline"
-              size="sm"
-              disabled={currentPage <= 1 || loading}
-              onClick={() => handleSearch(currentPage - 1)}
-            >
-              Previous
-            </Button>
+            <Button variant="outline" size="sm" disabled={currentPage <= 1 || loading} onClick={() => handleSearch(currentPage - 1)}>Previous</Button>
             <span className="text-sm text-muted-foreground">Page {currentPage}</span>
-            <Button
-              variant="outline"
-              size="sm"
-              disabled={prospects.length < 20 || loading}
-              onClick={() => handleSearch(currentPage + 1)}
-            >
-              Next
-            </Button>
+            <Button variant="outline" size="sm" disabled={prospects.length < 20 || loading} onClick={() => handleSearch(currentPage + 1)}>Next</Button>
           </div>
         </>
       )}

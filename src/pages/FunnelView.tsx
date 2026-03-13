@@ -4,11 +4,11 @@ import { motion } from "framer-motion";
 import { MousePointerClick, Eye, MessageSquare, UserCheck, DollarSign } from "lucide-react";
 
 const stages = [
-  { label: "Impressions", value: "12,450", icon: Eye, color: "bg-info/15 text-info border-info/30", width: "100%" },
-  { label: "Clicks", value: "3,200", icon: MousePointerClick, color: "bg-primary/15 text-primary border-primary/30", width: "75%" },
-  { label: "Leads", value: "840", icon: MessageSquare, color: "bg-warning/15 text-warning border-warning/30", width: "50%" },
-  { label: "Qualified", value: "310", icon: UserCheck, color: "bg-success/15 text-success border-success/30", width: "30%" },
-  { label: "Closed", value: "78", icon: DollarSign, color: "bg-chart-4/15 text-chart-4 border-chart-4/30", width: "15%" },
+  { label: "Impressions", value: "12,450", icon: Eye, color: "bg-muted text-foreground border-border", width: "100%" },
+  { label: "Clicks", value: "3,200", icon: MousePointerClick, color: "bg-muted text-foreground border-border", width: "75%" },
+  { label: "Leads", value: "840", icon: MessageSquare, color: "bg-muted text-foreground border-border", width: "50%" },
+  { label: "Qualified", value: "310", icon: UserCheck, color: "bg-muted text-foreground border-border", width: "30%" },
+  { label: "Closed", value: "78", icon: DollarSign, color: "bg-primary text-primary-foreground border-primary", width: "15%" },
 ];
 
 const FunnelView = () => (
