@@ -11,3 +11,9 @@ verify_jwt = false
 
 [functions.fathom-auth]
 verify_jwt = false
+
+[functions.fathom-meetings]
+verify_jwt = false
+
+[functions.analyze-meeting]
+verify_jwt = false
