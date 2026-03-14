@@ -8,3 +8,6 @@ verify_jwt = false
 
 [functions.prospect-search]
 verify_jwt = false
+
+[functions.fathom-auth]
+verify_jwt = false
