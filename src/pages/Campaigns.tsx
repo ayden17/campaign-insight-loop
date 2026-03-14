@@ -1,5 +1,6 @@
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { CampaignTable } from "@/components/dashboard/CampaignTable";
+import { CreateCampaignDialog } from "@/components/dashboard/CreateCampaignDialog";
 import { useMetaAdsStore, useCampaigns } from "@/lib/meta-ads-store";
 import { useState } from "react";
 import {

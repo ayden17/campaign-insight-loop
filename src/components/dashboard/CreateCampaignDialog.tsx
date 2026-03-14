@@ -33,7 +33,7 @@ export function CreateCampaignDialog({ adAccountId, accessToken, onCreated }: Pr
     if (!name.trim() || !window.FB) return;
     setLoading(true);
 
-    window.FB.api(
+    (window.FB.api as any)(
       `/${adAccountId}/campaigns`,
       "POST",
       {
@@ -42,7 +42,7 @@ export function CreateCampaignDialog({ adAccountId, accessToken, onCreated }: Pr
         status: "PAUSED",
         special_ad_categories: "[]",
         access_token: accessToken,
-      } as any,
+      },
       (res: any) => {
         setLoading(false);
         if (res?.id) {
