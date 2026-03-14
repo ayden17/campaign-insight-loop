@@ -1,5 +1,6 @@
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { CampaignTable } from "@/components/dashboard/CampaignTable";
+import { CreateCampaignDialog } from "@/components/dashboard/CreateCampaignDialog";
 import { useMetaAdsStore, useCampaigns } from "@/lib/meta-ads-store";
 import { useState } from "react";
 import {
@@ -22,7 +23,7 @@ import { useNavigate } from "react-router-dom";
 const Campaigns = () => {
   const { adAccounts, accessToken } = useMetaAdsStore();
   const [selectedAccount, setSelectedAccount] = useState<string | null>(null);
-  const { campaigns, insights, loading } = useCampaigns(selectedAccount);
+  const { campaigns, insights, loading, refetch } = useCampaigns(selectedAccount);
   const navigate = useNavigate();
 
   const notConnected = !accessToken || adAccounts.length === 0;
@@ -92,11 +93,20 @@ const Campaigns = () => {
       )}
 
       {selectedAccount && (
-        <CampaignTable
-          metaCampaigns={campaigns}
-          metaInsights={insights}
-          loading={loading}
-        />
+        <div className="space-y-4">
+          <div className="flex justify-end">
+            <CreateCampaignDialog
+              adAccountId={selectedAccount}
+              accessToken={accessToken!}
+              onCreated={() => refetch()}
+            />
+          </div>
+          <CampaignTable
+            metaCampaigns={campaigns}
+            metaInsights={insights}
+            loading={loading}
+          />
+        </div>
       )}
     </DashboardLayout>
   );
