@@ -93,11 +93,20 @@ const Campaigns = () => {
       )}
 
       {selectedAccount && (
-        <CampaignTable
-          metaCampaigns={campaigns}
-          metaInsights={insights}
-          loading={loading}
-        />
+        <div className="space-y-4">
+          <div className="flex justify-end">
+            <CreateCampaignDialog
+              adAccountId={selectedAccount}
+              accessToken={accessToken!}
+              onCreated={() => refetch()}
+            />
+          </div>
+          <CampaignTable
+            metaCampaigns={campaigns}
+            metaInsights={insights}
+            loading={loading}
+          />
+        </div>
       )}
     </DashboardLayout>
   );
