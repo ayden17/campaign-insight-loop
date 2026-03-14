@@ -23,7 +23,7 @@ import { useNavigate } from "react-router-dom";
 const Campaigns = () => {
   const { adAccounts, accessToken } = useMetaAdsStore();
   const [selectedAccount, setSelectedAccount] = useState<string | null>(null);
-  const { campaigns, insights, loading } = useCampaigns(selectedAccount);
+  const { campaigns, insights, loading, refetch } = useCampaigns(selectedAccount);
   const navigate = useNavigate();
 
   const notConnected = !accessToken || adAccounts.length === 0;
