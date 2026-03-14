@@ -22,8 +22,6 @@ declare global {
   }
 }
 
-const CONFIG_ID = "1968010944098901";
-
 export function FacebookLoginButton() {
   const { accessToken, adAccounts } = useMetaAdsStore();
   const [loading, setLoading] = useState(false);
@@ -53,7 +51,7 @@ export function FacebookLoginButton() {
         }
         setLoading(false);
       },
-      { config_id: CONFIG_ID, override_default_response_type: true } as any
+      { scope: "ads_read,ads_management,business_management", auth_type: "rerequest" }
     );
   }, []);
 
