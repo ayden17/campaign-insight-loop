@@ -6,7 +6,7 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const FATHOM_AUTH_URL = "https://app.fathom.video/oauth/authorize";
+const FATHOM_AUTH_URL = "https://fathom.video/oauth/authorize";
 const FATHOM_TOKEN_URL = "https://api.fathom.ai/external/v1/oauth2/token";
 const FATHOM_MEETINGS_URL = "https://api.fathom.ai/external/v1/meetings?calendar_invitees_domains_type=all";
 
