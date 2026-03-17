@@ -18,8 +18,8 @@ const GoogleIcon = () => (
 
 const TESTIMONIAL = {
   text: "We started AngelFlows to give companies an unfair advantage at targeting high-intent customers. We help you not only find them, but sync them into platforms so you can skip the learning phase.",
-  authorName: "AngelFlows",
-  authorTitle: "Intent-Powered Advertising",
+  authorName: "Ayden Haoken",
+  authorTitle: "Founder of AngelFlows",
 };
 
 export default function AuthPage() {
