@@ -112,6 +112,7 @@ const LeadsPage = () => {
   const [leads, setLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("all");
+  const [sourceFilter, setSourceFilter] = useState("all");
   const [search, setSearch] = useState("");
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [editing, setEditing] = useState(false);
@@ -120,6 +121,8 @@ const LeadsPage = () => {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [hoveredObjection, setHoveredObjection] = useState<string | null>(null);
   const [importingFbLeads, setImportingFbLeads] = useState(false);
+  const [fbImportSince, setFbImportSince] = useState("");
+  const [fbImportAccount, setFbImportAccount] = useState("all");
   const { toast } = useToast();
   const { accessToken, adAccounts } = useMetaAdsStore();
 
