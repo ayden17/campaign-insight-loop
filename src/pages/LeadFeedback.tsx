@@ -112,6 +112,7 @@ const LeadsPage = () => {
   const [leads, setLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("all");
+  const [sourceFilter, setSourceFilter] = useState("all");
   const [search, setSearch] = useState("");
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [editing, setEditing] = useState(false);
@@ -120,6 +121,8 @@ const LeadsPage = () => {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [hoveredObjection, setHoveredObjection] = useState<string | null>(null);
   const [importingFbLeads, setImportingFbLeads] = useState(false);
+  const [fbImportSince, setFbImportSince] = useState("");
+  const [fbImportAccount, setFbImportAccount] = useState("all");
   const { toast } = useToast();
   const { accessToken, adAccounts } = useMetaAdsStore();
 
@@ -135,8 +138,8 @@ const LeadsPage = () => {
     setLoading(false);
   };
 
-  // Facebook bulk lead import
-  const importFacebookLeads = useCallback(async () => {
+  // Facebook bulk lead import with filtering
+  const importFacebookLeads = useCallback(async (options?: { sinceTimestamp?: number; adAccountId?: string }) => {
     if (!accessToken || !window.FB || adAccounts.length === 0) {
       toast({ title: "Not connected", description: "Connect Meta Ads first from Ad Accounts.", variant: "destructive" });
       return;
@@ -144,9 +147,12 @@ const LeadsPage = () => {
     setImportingFbLeads(true);
     let totalImported = 0;
 
+    const accountsToProcess = options?.adAccountId
+      ? adAccounts.filter(a => a.id === options.adAccountId)
+      : adAccounts;
+
     try {
-      for (const account of adAccounts) {
-        // Get campaigns with lead forms
+      for (const account of accountsToProcess) {
         const campaigns: any[] = await new Promise((resolve) => {
           window.FB.api(
             `/${account.id}/campaigns`,
@@ -155,7 +161,6 @@ const LeadsPage = () => {
           );
         });
 
-        // Get ads for each campaign to find lead forms
         for (const campaign of campaigns) {
           const ads: any[] = await new Promise((resolve) => {
             window.FB.api(
@@ -166,13 +171,20 @@ const LeadsPage = () => {
           });
 
           for (const ad of ads) {
-            // Try fetching leads directly from the ad
+            const apiParams: any = {
+              fields: "created_time,id,ad_id,form_id,field_data",
+              access_token: accessToken,
+            };
+            if (options?.sinceTimestamp) {
+              apiParams.filtering = JSON.stringify([{
+                field: "time_created",
+                operator: "GREATER_THAN",
+                value: options.sinceTimestamp,
+              }]);
+            }
+
             const fbLeads: any[] = await new Promise((resolve) => {
-              window.FB.api(
-                `/${ad.id}/leads`,
-                { fields: "created_time,id,ad_id,form_id,field_data", access_token: accessToken } as any,
-                (res: any) => resolve(res?.data || [])
-              );
+              window.FB.api(`/${ad.id}/leads`, apiParams, (res: any) => resolve(res?.data || []));
             });
 
             for (const fbLead of fbLeads) {
@@ -186,7 +198,6 @@ const LeadsPage = () => {
               const leadName = fields.full_name || fields.name || `${fields.first_name || ""} ${fields.last_name || ""}`.trim() || "Facebook Lead";
               const email = fields.email || "";
 
-              // Check if already imported
               const { data: existing } = await supabase
                 .from("leads")
                 .select("id")
@@ -207,7 +218,16 @@ const LeadsPage = () => {
                 status: "pending",
                 source: "facebook",
                 source_label: "Facebook Leads",
-                source_metadata: { ad_id: ad.id, form_id: fbLead.form_id, campaign_id: campaign.id, raw_fields: fields },
+                source_metadata: {
+                  ad_id: ad.id,
+                  ad_name: ad.name,
+                  form_id: fbLead.form_id,
+                  campaign_id: campaign.id,
+                  campaign_name: campaign.name,
+                  ad_account_id: account.id,
+                  ad_account_name: account.name,
+                  raw_fields: fields,
+                },
               } as any);
 
               if (!insertError) totalImported++;
@@ -322,9 +342,10 @@ const LeadsPage = () => {
 
   const filtered = leads.filter((l) => {
     const matchesFilter = filter === "all" || l.lead_quality === filter;
+    const matchesSource = sourceFilter === "all" || (l as any).source === sourceFilter;
     const name = getLeadDisplayName(l).toLowerCase();
     const matchesSearch = !search || name.includes(search.toLowerCase()) || l.offer?.toLowerCase().includes(search.toLowerCase());
-    return matchesFilter && matchesSearch;
+    return matchesFilter && matchesSearch && matchesSource;
   });
 
   const handleExport = () => {
@@ -553,22 +574,54 @@ const LeadsPage = () => {
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
+          <Select value={sourceFilter} onValueChange={setSourceFilter}>
+            <SelectTrigger className="h-8 w-[130px] text-xs"><SelectValue placeholder="Source" /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Sources</SelectItem>
+              <SelectItem value="facebook">Facebook</SelectItem>
+              <SelectItem value="fathom">Sales Calls</SelectItem>
+            </SelectContent>
+          </Select>
           {accessToken && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={importFacebookLeads}
-              disabled={importingFbLeads}
-              className="gap-1.5 text-xs"
-            >
-              {importingFbLeads ? (
-                <Loader2 className="h-3.5 w-3.5 animate-spin" />
-              ) : (
-                <Facebook className="h-3.5 w-3.5" />
+            <>
+              <Input
+                type="date"
+                value={fbImportSince}
+                onChange={(e) => setFbImportSince(e.target.value)}
+                className="h-8 w-[140px] text-xs"
+                placeholder="Since date"
+              />
+              {adAccounts.length > 1 && (
+                <Select value={fbImportAccount} onValueChange={setFbImportAccount}>
+                  <SelectTrigger className="h-8 w-[160px] text-xs"><SelectValue placeholder="Ad Account" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Accounts</SelectItem>
+                    {adAccounts.map((acc) => (
+                      <SelectItem key={acc.id} value={acc.id}>{acc.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               )}
-              {importingFbLeads ? "Importing..." : "Import Facebook Leads"}
-            </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  const sinceTimestamp = fbImportSince ? Math.floor(new Date(fbImportSince).getTime() / 1000) : undefined;
+                  const adAccountId = fbImportAccount !== "all" ? fbImportAccount : undefined;
+                  importFacebookLeads({ sinceTimestamp, adAccountId });
+                }}
+                disabled={importingFbLeads}
+                className="gap-1.5 text-xs"
+              >
+                {importingFbLeads ? (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                ) : (
+                  <Facebook className="h-3.5 w-3.5" />
+                )}
+                {importingFbLeads ? "Importing..." : "Import Facebook Leads"}
+              </Button>
+            </>
           )}
           <Button variant="outline" size="sm" onClick={handleExport} className="gap-1.5 text-xs">
             <Download className="h-3.5 w-3.5" />
@@ -613,11 +666,16 @@ const LeadsPage = () => {
                         />
                       </TableCell>
                       <TableCell>
-                        <div className="flex items-center gap-1.5">
+                        <div className="flex items-center gap-1.5 flex-wrap">
                           <span className="text-sm font-medium text-card-foreground">{getLeadDisplayName(lead)}</span>
                           {(lead as any).source === "facebook" && (
                             <span className="inline-flex items-center rounded-full px-1.5 py-0.5 text-[9px] font-medium bg-info/15 text-info border border-info/20">
                               FB Lead
+                            </span>
+                          )}
+                          {(lead as any).source === "facebook" && (lead as any).source_metadata?.ad_account_name && (
+                            <span className="inline-flex items-center rounded-full px-1.5 py-0.5 text-[9px] font-medium bg-muted text-muted-foreground">
+                              {(lead as any).source_metadata.ad_account_name}
                             </span>
                           )}
                         </div>
