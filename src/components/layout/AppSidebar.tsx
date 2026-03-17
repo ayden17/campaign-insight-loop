@@ -53,7 +53,7 @@ const navSections: NavSection[] = [
   {
     label: "Manage",
     items: [
-      { title: "Ad Accounts", path: "/ad-accounts", icon: Link2 },
+      { title: "Link Accounts", path: "/ad-accounts", icon: Link2 },
       { title: "Settings", path: "/settings", icon: Settings },
     ],
   },
