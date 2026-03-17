@@ -574,22 +574,54 @@ const LeadsPage = () => {
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
+          <Select value={sourceFilter} onValueChange={setSourceFilter}>
+            <SelectTrigger className="h-8 w-[130px] text-xs"><SelectValue placeholder="Source" /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Sources</SelectItem>
+              <SelectItem value="facebook">Facebook</SelectItem>
+              <SelectItem value="fathom">Sales Calls</SelectItem>
+            </SelectContent>
+          </Select>
           {accessToken && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={importFacebookLeads}
-              disabled={importingFbLeads}
-              className="gap-1.5 text-xs"
-            >
-              {importingFbLeads ? (
-                <Loader2 className="h-3.5 w-3.5 animate-spin" />
-              ) : (
-                <Facebook className="h-3.5 w-3.5" />
+            <>
+              <Input
+                type="date"
+                value={fbImportSince}
+                onChange={(e) => setFbImportSince(e.target.value)}
+                className="h-8 w-[140px] text-xs"
+                placeholder="Since date"
+              />
+              {adAccounts.length > 1 && (
+                <Select value={fbImportAccount} onValueChange={setFbImportAccount}>
+                  <SelectTrigger className="h-8 w-[160px] text-xs"><SelectValue placeholder="Ad Account" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Accounts</SelectItem>
+                    {adAccounts.map((acc) => (
+                      <SelectItem key={acc.id} value={acc.id}>{acc.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               )}
-              {importingFbLeads ? "Importing..." : "Import Facebook Leads"}
-            </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  const sinceTimestamp = fbImportSince ? Math.floor(new Date(fbImportSince).getTime() / 1000) : undefined;
+                  const adAccountId = fbImportAccount !== "all" ? fbImportAccount : undefined;
+                  importFacebookLeads({ sinceTimestamp, adAccountId });
+                }}
+                disabled={importingFbLeads}
+                className="gap-1.5 text-xs"
+              >
+                {importingFbLeads ? (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                ) : (
+                  <Facebook className="h-3.5 w-3.5" />
+                )}
+                {importingFbLeads ? "Importing..." : "Import Facebook Leads"}
+              </Button>
+            </>
           )}
           <Button variant="outline" size="sm" onClick={handleExport} className="gap-1.5 text-xs">
             <Download className="h-3.5 w-3.5" />
