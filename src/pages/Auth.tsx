@@ -5,6 +5,7 @@ import { lovable } from "@/integrations/lovable/index";
 import { useToast } from "@/hooks/use-toast";
 import { Eye, EyeOff } from "lucide-react";
 import angelflowsLogo from "@/assets/angelflows-logo.png";
+import aydenAvatar from "@/assets/ayden-avatar.png";
 
 const GoogleIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" className="w-5 h-5">
