@@ -135,8 +135,8 @@ const LeadsPage = () => {
     setLoading(false);
   };
 
-  // Facebook bulk lead import
-  const importFacebookLeads = useCallback(async () => {
+  // Facebook bulk lead import with filtering
+  const importFacebookLeads = useCallback(async (options?: { sinceTimestamp?: number; adAccountId?: string }) => {
     if (!accessToken || !window.FB || adAccounts.length === 0) {
       toast({ title: "Not connected", description: "Connect Meta Ads first from Ad Accounts.", variant: "destructive" });
       return;
@@ -144,9 +144,12 @@ const LeadsPage = () => {
     setImportingFbLeads(true);
     let totalImported = 0;
 
+    const accountsToProcess = options?.adAccountId
+      ? adAccounts.filter(a => a.id === options.adAccountId)
+      : adAccounts;
+
     try {
-      for (const account of adAccounts) {
-        // Get campaigns with lead forms
+      for (const account of accountsToProcess) {
         const campaigns: any[] = await new Promise((resolve) => {
           window.FB.api(
             `/${account.id}/campaigns`,
@@ -155,7 +158,6 @@ const LeadsPage = () => {
           );
         });
 
-        // Get ads for each campaign to find lead forms
         for (const campaign of campaigns) {
           const ads: any[] = await new Promise((resolve) => {
             window.FB.api(
@@ -166,13 +168,20 @@ const LeadsPage = () => {
           });
 
           for (const ad of ads) {
-            // Try fetching leads directly from the ad
+            const apiParams: any = {
+              fields: "created_time,id,ad_id,form_id,field_data",
+              access_token: accessToken,
+            };
+            if (options?.sinceTimestamp) {
+              apiParams.filtering = JSON.stringify([{
+                field: "time_created",
+                operator: "GREATER_THAN",
+                value: options.sinceTimestamp,
+              }]);
+            }
+
             const fbLeads: any[] = await new Promise((resolve) => {
-              window.FB.api(
-                `/${ad.id}/leads`,
-                { fields: "created_time,id,ad_id,form_id,field_data", access_token: accessToken } as any,
-                (res: any) => resolve(res?.data || [])
-              );
+              window.FB.api(`/${ad.id}/leads`, apiParams, (res: any) => resolve(res?.data || []));
             });
 
             for (const fbLead of fbLeads) {
@@ -186,7 +195,6 @@ const LeadsPage = () => {
               const leadName = fields.full_name || fields.name || `${fields.first_name || ""} ${fields.last_name || ""}`.trim() || "Facebook Lead";
               const email = fields.email || "";
 
-              // Check if already imported
               const { data: existing } = await supabase
                 .from("leads")
                 .select("id")
@@ -207,7 +215,16 @@ const LeadsPage = () => {
                 status: "pending",
                 source: "facebook",
                 source_label: "Facebook Leads",
-                source_metadata: { ad_id: ad.id, form_id: fbLead.form_id, campaign_id: campaign.id, raw_fields: fields },
+                source_metadata: {
+                  ad_id: ad.id,
+                  ad_name: ad.name,
+                  form_id: fbLead.form_id,
+                  campaign_id: campaign.id,
+                  campaign_name: campaign.name,
+                  ad_account_id: account.id,
+                  ad_account_name: account.name,
+                  raw_fields: fields,
+                },
               } as any);
 
               if (!insertError) totalImported++;
