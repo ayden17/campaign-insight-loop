@@ -123,16 +123,26 @@ const SalesConversations = () => {
 
   useEffect(() => {
     const load = async () => {
-      const { data: conn } = await supabase.from("fathom_connections").select("id").limit(1);
-      if (!conn || conn.length === 0) { setConnected(false); setLoading(false); return; }
-      setConnected(true);
-      const { data, error } = await supabase.functions.invoke("fathom-meetings");
-      if (error) {
-        console.error("Error loading meetings:", error);
-        toast({ title: "Error", description: "Failed to load meetings", variant: "destructive" });
-      } else if (data) {
-        const items = data.meetings || data.items || data.data || (Array.isArray(data) ? data : []);
+      try {
+        const { data, error } = await supabase.functions.invoke("fathom-meetings");
+        if (error) {
+          console.error("Error loading meetings:", error);
+          // Check if it's a reauth issue
+          setConnected(false);
+          setLoading(false);
+          return;
+        }
+        if (data?.reauth_required) {
+          setConnected(false);
+          setLoading(false);
+          return;
+        }
+        setConnected(true);
+        const items = data?.meetings || data?.items || data?.data || (Array.isArray(data) ? data : []);
         setMeetings(items);
+      } catch (e) {
+        console.error("Fathom load error:", e);
+        setConnected(false);
       }
       setLoading(false);
     };
