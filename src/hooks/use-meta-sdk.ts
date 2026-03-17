@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { metaAdsStore } from "@/lib/meta-ads-store";
 
 const APP_ID = "927650746513998";
-const API_VERSION = "v19.0";
+const API_VERSION = "v25.0";
 
 let _initialized = false;
 

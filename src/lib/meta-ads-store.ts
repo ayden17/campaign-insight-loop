@@ -59,7 +59,7 @@ export function useMetaAdsStore() {
   };
 }
 
-const API_VERSION = "v25.0";
+export const API_VERSION = "v25.0";
 
 export function useCampaigns(adAccountId: string | null) {
   const { accessToken } = useMetaAdsStore();

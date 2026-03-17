@@ -1,0 +1,1 @@
+DELETE FROM public.fathom_connections WHERE token_type = 'api_key' OR (refresh_token IS NULL AND expires_at IS NULL);

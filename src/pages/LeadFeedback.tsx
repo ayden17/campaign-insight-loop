@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -14,9 +14,10 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DonutChart, type DonutChartSegment } from "@/components/ui/donut-chart";
 import { cn } from "@/lib/utils";
-import { Search, Eye, X, Save, Loader2, Download, Users, Circle } from "lucide-react";
+import { Search, Eye, X, Save, Loader2, Download, Users, Circle, Facebook } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { motion, AnimatePresence } from "framer-motion";
+import { useMetaAdsStore, API_VERSION } from "@/lib/meta-ads-store";
 
 const qualityBadge: Record<string, string> = {
   high: "bg-success/15 text-success border-success/30",
@@ -118,7 +119,9 @@ const LeadsPage = () => {
   const [saving, setSaving] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [hoveredObjection, setHoveredObjection] = useState<string | null>(null);
+  const [importingFbLeads, setImportingFbLeads] = useState(false);
   const { toast } = useToast();
+  const { accessToken, adAccounts } = useMetaAdsStore();
 
   useEffect(() => { loadLeads(); }, []);
 
@@ -131,6 +134,99 @@ const LeadsPage = () => {
     else setLeads((data || []) as Lead[]);
     setLoading(false);
   };
+
+  // Facebook bulk lead import
+  const importFacebookLeads = useCallback(async () => {
+    if (!accessToken || !window.FB || adAccounts.length === 0) {
+      toast({ title: "Not connected", description: "Connect Meta Ads first from Ad Accounts.", variant: "destructive" });
+      return;
+    }
+    setImportingFbLeads(true);
+    let totalImported = 0;
+
+    try {
+      for (const account of adAccounts) {
+        // Get campaigns with lead forms
+        const campaigns: any[] = await new Promise((resolve) => {
+          window.FB.api(
+            `/${account.id}/campaigns`,
+            { fields: "id,name,objective", effective_status: '["ACTIVE","PAUSED"]', access_token: accessToken } as any,
+            (res: any) => resolve(res?.data || [])
+          );
+        });
+
+        // Get ads for each campaign to find lead forms
+        for (const campaign of campaigns) {
+          const ads: any[] = await new Promise((resolve) => {
+            window.FB.api(
+              `/${account.id}/ads`,
+              { fields: "id,name,creative{id}", effective_status: '["ACTIVE","PAUSED"]', filtering: JSON.stringify([{ field: "campaign.id", operator: "EQUAL", value: campaign.id }]), access_token: accessToken } as any,
+              (res: any) => resolve(res?.data || [])
+            );
+          });
+
+          for (const ad of ads) {
+            // Try fetching leads directly from the ad
+            const fbLeads: any[] = await new Promise((resolve) => {
+              window.FB.api(
+                `/${ad.id}/leads`,
+                { fields: "created_time,id,ad_id,form_id,field_data", access_token: accessToken } as any,
+                (res: any) => resolve(res?.data || [])
+              );
+            });
+
+            for (const fbLead of fbLeads) {
+              const fields: Record<string, string> = {};
+              if (fbLead.field_data) {
+                fbLead.field_data.forEach((f: any) => {
+                  fields[f.name] = f.values?.[0] || "";
+                });
+              }
+
+              const leadName = fields.full_name || fields.name || `${fields.first_name || ""} ${fields.last_name || ""}`.trim() || "Facebook Lead";
+              const email = fields.email || "";
+
+              // Check if already imported
+              const { data: existing } = await supabase
+                .from("leads")
+                .select("id")
+                .eq("meeting_id", `fb_${fbLead.id}`)
+                .limit(1);
+
+              if (existing && existing.length > 0) continue;
+
+              const { error: insertError } = await supabase.from("leads").insert({
+                meeting_id: `fb_${fbLead.id}`,
+                meeting_title: `${campaign.name} — ${ad.name}`,
+                lead_name: leadName,
+                meeting_date: fbLead.created_time || new Date().toISOString(),
+                attendees: [{ name: leadName, email }],
+                summary: `Facebook Lead from campaign "${campaign.name}", ad "${ad.name}"`,
+                offer: Object.entries(fields).map(([k, v]) => `${k}: ${v}`).join("\n"),
+                lead_quality: "medium",
+                status: "pending",
+                source: "facebook",
+                source_label: "Facebook Leads",
+                source_metadata: { ad_id: ad.id, form_id: fbLead.form_id, campaign_id: campaign.id, raw_fields: fields },
+              } as any);
+
+              if (!insertError) totalImported++;
+            }
+          }
+        }
+      }
+
+      toast({
+        title: totalImported > 0 ? "Leads Imported!" : "No New Leads",
+        description: totalImported > 0 ? `${totalImported} Facebook leads imported.` : "All Facebook leads are already imported.",
+      });
+      if (totalImported > 0) loadLeads();
+    } catch (err: any) {
+      console.error("FB lead import error:", err);
+      toast({ title: "Import Failed", description: err.message || "Could not import Facebook leads.", variant: "destructive" });
+    }
+    setImportingFbLeads(false);
+  }, [accessToken, adAccounts, toast]);
 
   // Compute objection breakdown across all leads
   const objectionData = useMemo<DonutChartSegment[]>(() => {
@@ -457,10 +553,28 @@ const LeadsPage = () => {
           </div>
         </div>
 
-        <Button variant="outline" size="sm" onClick={handleExport} className="gap-1.5 text-xs">
-          <Download className="h-3.5 w-3.5" />
-          Export CSV {selectedIds.size > 0 && `(${selectedIds.size})`}
-        </Button>
+        <div className="flex items-center gap-2">
+          {accessToken && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={importFacebookLeads}
+              disabled={importingFbLeads}
+              className="gap-1.5 text-xs"
+            >
+              {importingFbLeads ? (
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              ) : (
+                <Facebook className="h-3.5 w-3.5" />
+              )}
+              {importingFbLeads ? "Importing..." : "Import Facebook Leads"}
+            </Button>
+          )}
+          <Button variant="outline" size="sm" onClick={handleExport} className="gap-1.5 text-xs">
+            <Download className="h-3.5 w-3.5" />
+            Export CSV {selectedIds.size > 0 && `(${selectedIds.size})`}
+          </Button>
+        </div>
       </div>
 
       <div className="rounded-xl border border-border bg-card">
@@ -498,8 +612,15 @@ const LeadsPage = () => {
                           onCheckedChange={() => toggleSelect(lead.id)}
                         />
                       </TableCell>
-                      <TableCell className="text-sm font-medium text-card-foreground">
-                        {getLeadDisplayName(lead)}
+                      <TableCell>
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-sm font-medium text-card-foreground">{getLeadDisplayName(lead)}</span>
+                          {(lead as any).source === "facebook" && (
+                            <span className="inline-flex items-center rounded-full px-1.5 py-0.5 text-[9px] font-medium bg-info/15 text-info border border-info/20">
+                              FB Lead
+                            </span>
+                          )}
+                        </div>
                       </TableCell>
                       <TableCell>
                         <span className={cn("inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold border capitalize", qualityBadge[lead.lead_quality || "medium"])}>
