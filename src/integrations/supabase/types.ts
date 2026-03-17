@@ -50,6 +50,51 @@ export type Database = {
         }
         Relationships: []
       }
+      audiences: {
+        Row: {
+          audience_size: number | null
+          created_at: string
+          filters: Json
+          id: string
+          last_refreshed: string | null
+          name: string
+          next_refresh: string | null
+          refresh_count: number | null
+          results: Json | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          audience_size?: number | null
+          created_at?: string
+          filters?: Json
+          id?: string
+          last_refreshed?: string | null
+          name: string
+          next_refresh?: string | null
+          refresh_count?: number | null
+          results?: Json | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          audience_size?: number | null
+          created_at?: string
+          filters?: Json
+          id?: string
+          last_refreshed?: string | null
+          name?: string
+          next_refresh?: string | null
+          refresh_count?: number | null
+          results?: Json | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       email_connections: {
         Row: {
           api_key: string | null
