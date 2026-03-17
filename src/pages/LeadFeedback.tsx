@@ -612,8 +612,15 @@ const LeadsPage = () => {
                           onCheckedChange={() => toggleSelect(lead.id)}
                         />
                       </TableCell>
-                      <TableCell className="text-sm font-medium text-card-foreground">
-                        {getLeadDisplayName(lead)}
+                      <TableCell>
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-sm font-medium text-card-foreground">{getLeadDisplayName(lead)}</span>
+                          {(lead as any).source === "facebook" && (
+                            <span className="inline-flex items-center rounded-full px-1.5 py-0.5 text-[9px] font-medium bg-info/15 text-info border border-info/20">
+                              FB Lead
+                            </span>
+                          )}
+                        </div>
                       </TableCell>
                       <TableCell>
                         <span className={cn("inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold border capitalize", qualityBadge[lead.lead_quality || "medium"])}>
