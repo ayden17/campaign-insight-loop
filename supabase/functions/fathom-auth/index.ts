@@ -25,7 +25,15 @@ serve(async (req) => {
     }
 
     const url = new URL(req.url);
-    const action = url.searchParams.get("action") || "start";
+    let action = url.searchParams.get("action") || "start";
+
+    // Also check body for action (when called via supabase.functions.invoke)
+    if (action === "start" && req.method === "POST") {
+      try {
+        const body = await req.json();
+        if (body?.action) action = body.action;
+      } catch { /* no body, keep default */ }
+    }
 
     if (action === "start") {
       // Step 1: Generate authorization URL and return it
