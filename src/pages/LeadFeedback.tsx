@@ -666,11 +666,16 @@ const LeadsPage = () => {
                         />
                       </TableCell>
                       <TableCell>
-                        <div className="flex items-center gap-1.5">
+                        <div className="flex items-center gap-1.5 flex-wrap">
                           <span className="text-sm font-medium text-card-foreground">{getLeadDisplayName(lead)}</span>
                           {(lead as any).source === "facebook" && (
                             <span className="inline-flex items-center rounded-full px-1.5 py-0.5 text-[9px] font-medium bg-info/15 text-info border border-info/20">
                               FB Lead
+                            </span>
+                          )}
+                          {(lead as any).source === "facebook" && (lead as any).source_metadata?.ad_account_name && (
+                            <span className="inline-flex items-center rounded-full px-1.5 py-0.5 text-[9px] font-medium bg-muted text-muted-foreground">
+                              {(lead as any).source_metadata.ad_account_name}
                             </span>
                           )}
                         </div>
