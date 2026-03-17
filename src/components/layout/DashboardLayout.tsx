@@ -1,8 +1,9 @@
 import { AppSidebar } from "./AppSidebar";
 import { Separator } from "@/components/ui/separator";
+import { Outlet } from "react-router-dom";
 
 interface DashboardLayoutProps {
-  children: React.ReactNode;
+  children?: React.ReactNode;
   title: string;
   subtitle?: string;
   actions?: React.ReactNode;
@@ -36,6 +37,18 @@ export function DashboardLayout({ children, title, subtitle, actions }: Dashboar
           <Separator />
         </header>
         <div className="p-6">{children}</div>
+      </main>
+    </div>
+  );
+}
+
+/** Persistent layout wrapper — sidebar stays mounted across route changes */
+export function PersistentSidebarLayout() {
+  return (
+    <div className="flex min-h-screen w-full bg-background">
+      <AppSidebar />
+      <main className="flex-1 overflow-auto">
+        <Outlet />
       </main>
     </div>
   );
