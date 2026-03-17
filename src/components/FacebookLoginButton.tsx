@@ -51,7 +51,7 @@ export function FacebookLoginButton() {
         }
         setLoading(false);
       },
-      { scope: "ads_read,ads_management,business_management", auth_type: "rerequest" }
+      { scope: "ads_read,ads_management,business_management,leads_retrieval", auth_type: "rerequest" }
     );
   }, []);
 
@@ -95,7 +95,7 @@ export function FacebookLoginButton() {
         Connect Meta Ads
       </Button>
       <p className="text-[11px] text-muted-foreground">
-        You must have a <span className="font-medium text-card-foreground">Meta Business Account</span> to connect and manage your ads.
+        You must have a <span className="font-medium text-card-foreground">Meta Business Account</span> with <span className="font-medium text-card-foreground">leads retrieval</span> access to sync Facebook leads.
       </p>
     </div>
   );
