@@ -54,6 +54,54 @@ serve(async (req) => {
         timestamp_to: null,
         timestamp_from: null,
       };
+    } else if (action === 'generate_keywords') {
+      // AI keyword generation using Lovable AI gateway
+      const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
+      if (!LOVABLE_API_KEY) {
+        return new Response(JSON.stringify({ error: 'AI not configured' }), {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      const aiResponse = await fetch('https://ai-gateway.lovable.dev/api/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'google/gemini-2.5-flash',
+          messages: [
+            {
+              role: 'system',
+              content: 'You are a marketing keyword expert. Given a business description or audience intent, generate 5-10 highly specific search keywords that people in this target audience would likely search on Google. Return ONLY a JSON array of strings, no other text. Example: ["keyword1","keyword2","keyword3"]'
+            },
+            { role: 'user', content: params.prompt || '' }
+          ],
+          response_format: { type: 'json_object' },
+        }),
+      });
+
+      if (!aiResponse.ok) {
+        const errText = await aiResponse.text();
+        throw new Error(`AI error: ${errText}`);
+      }
+
+      const aiData = await aiResponse.json();
+      const content = aiData?.choices?.[0]?.message?.content || '[]';
+      let keywords: string[] = [];
+      try {
+        const parsed = JSON.parse(content);
+        keywords = Array.isArray(parsed) ? parsed : (parsed?.keywords || parsed?.data || []);
+      } catch {
+        keywords = content.split('\n').map((s: string) => s.replace(/^[\d\-\.\*]+\s*/, '').trim()).filter(Boolean);
+      }
+
+      return new Response(JSON.stringify({ keywords }), {
+        status: 200,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
     } else {
       return new Response(JSON.stringify({ error: 'Invalid action' }), {
         status: 400,
