@@ -553,10 +553,28 @@ const LeadsPage = () => {
           </div>
         </div>
 
-        <Button variant="outline" size="sm" onClick={handleExport} className="gap-1.5 text-xs">
-          <Download className="h-3.5 w-3.5" />
-          Export CSV {selectedIds.size > 0 && `(${selectedIds.size})`}
-        </Button>
+        <div className="flex items-center gap-2">
+          {accessToken && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={importFacebookLeads}
+              disabled={importingFbLeads}
+              className="gap-1.5 text-xs"
+            >
+              {importingFbLeads ? (
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              ) : (
+                <Facebook className="h-3.5 w-3.5" />
+              )}
+              {importingFbLeads ? "Importing..." : "Import Facebook Leads"}
+            </Button>
+          )}
+          <Button variant="outline" size="sm" onClick={handleExport} className="gap-1.5 text-xs">
+            <Download className="h-3.5 w-3.5" />
+            Export CSV {selectedIds.size > 0 && `(${selectedIds.size})`}
+          </Button>
+        </div>
       </div>
 
       <div className="rounded-xl border border-border bg-card">
