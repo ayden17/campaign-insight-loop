@@ -90,6 +90,7 @@ export type Database = {
         Row: {
           access_token: string
           created_at: string
+          expires_at: number | null
           id: string
           refresh_token: string | null
           token_type: string | null
@@ -98,6 +99,7 @@ export type Database = {
         Insert: {
           access_token: string
           created_at?: string
+          expires_at?: number | null
           id?: string
           refresh_token?: string | null
           token_type?: string | null
@@ -106,6 +108,7 @@ export type Database = {
         Update: {
           access_token?: string
           created_at?: string
+          expires_at?: number | null
           id?: string
           refresh_token?: string | null
           token_type?: string | null

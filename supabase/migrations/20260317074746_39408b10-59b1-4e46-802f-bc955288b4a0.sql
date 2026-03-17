@@ -1,0 +1,1 @@
+ALTER TABLE public.fathom_connections ADD COLUMN IF NOT EXISTS expires_at bigint;
