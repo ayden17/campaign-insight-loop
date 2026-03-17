@@ -64,7 +64,7 @@ serve(async (req) => {
         });
       }
 
-      const aiResponse = await fetch('https://ai-gateway.lovable.dev/api/chat/completions', {
+      const aiResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${LOVABLE_API_KEY}`,

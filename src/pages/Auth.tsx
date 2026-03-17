@@ -222,7 +222,7 @@ export default function AuthPage() {
             "{TESTIMONIAL.text}"
           </p>
           <div className="flex items-center gap-3">
-            <img src={angelflowsLogo} alt="AngelFlows" className="h-8 w-8 rounded-full bg-background/10 p-1" />
+            <img src={aydenAvatar} alt="Ayden Haoken" className="h-10 w-10 rounded-full object-cover" />
             <div>
               <p className="font-medium text-background">{TESTIMONIAL.authorName}</p>
               <p className="text-sm text-background/60">{TESTIMONIAL.authorTitle}</p>
