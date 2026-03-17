@@ -18,7 +18,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Separator } from "@/components/ui/separator";
-const angelflowsLogo = new URL("@/assets/angelflows-logo.png", import.meta.url).href;
+import angelflowsLogo from "@/assets/angelflows-logo.png";
 
 const mainNav = [
   { title: "Dashboard", path: "/", icon: LayoutDashboard },
