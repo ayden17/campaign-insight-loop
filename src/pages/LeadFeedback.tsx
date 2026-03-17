@@ -342,9 +342,10 @@ const LeadsPage = () => {
 
   const filtered = leads.filter((l) => {
     const matchesFilter = filter === "all" || l.lead_quality === filter;
+    const matchesSource = sourceFilter === "all" || (l as any).source === sourceFilter;
     const name = getLeadDisplayName(l).toLowerCase();
     const matchesSearch = !search || name.includes(search.toLowerCase()) || l.offer?.toLowerCase().includes(search.toLowerCase());
-    return matchesFilter && matchesSearch;
+    return matchesFilter && matchesSearch && matchesSource;
   });
 
   const handleExport = () => {
