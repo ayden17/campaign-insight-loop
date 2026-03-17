@@ -130,6 +130,9 @@ export type Database = {
           objection_handling: string | null
           objections: string | null
           offer: string | null
+          source: string | null
+          source_label: string | null
+          source_metadata: Json
           status: string | null
           suggested_followups: string | null
           summary: string | null
@@ -149,6 +152,9 @@ export type Database = {
           objection_handling?: string | null
           objections?: string | null
           offer?: string | null
+          source?: string | null
+          source_label?: string | null
+          source_metadata?: Json
           status?: string | null
           suggested_followups?: string | null
           summary?: string | null
@@ -168,6 +174,9 @@ export type Database = {
           objection_handling?: string | null
           objections?: string | null
           offer?: string | null
+          source?: string | null
+          source_label?: string | null
+          source_metadata?: Json
           status?: string | null
           suggested_followups?: string | null
           summary?: string | null

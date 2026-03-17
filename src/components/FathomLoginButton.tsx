@@ -5,44 +5,72 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useSearchParams } from "react-router-dom";
 
+interface FathomStatusResponse {
+  connected: boolean;
+  reason?: string | null;
+}
+
 export function FathomLoginButton() {
   const [connected, setConnected] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [checking, setChecking] = useState(true);
   const { toast } = useToast();
   const [searchParams] = useSearchParams();
 
-  useEffect(() => {
-    // Check if we just came back from OAuth callback
-    if (searchParams.get("fathom") === "connected") {
-      setConnected(true);
-      toast({ title: "Connected!", description: "Fathom account linked successfully." });
-      return;
-    }
+  const validateConnection = useCallback(async (showCallbackToast = false) => {
+    setChecking(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("fathom-auth", {
+        headers: { "Content-Type": "application/json" },
+        body: { action: "status" },
+      });
 
-    const checkConnection = async () => {
-      const { data } = await supabase
-        .from("fathom_connections")
-        .select("id")
-        .limit(1);
-      if (data && data.length > 0) setConnected(true);
-    };
-    checkConnection();
-  }, [searchParams, toast]);
+      if (error) throw error;
+
+      const status = (data ?? {}) as FathomStatusResponse;
+      const isConnected = !!status.connected;
+      setConnected(isConnected);
+
+      if (showCallbackToast) {
+        toast({
+          title: isConnected ? "Connected!" : "Authorization incomplete",
+          description: isConnected
+            ? "Fathom account linked successfully."
+            : "Fathom still needs authorization. Please try connecting again.",
+          variant: isConnected ? "default" : "destructive",
+        });
+      }
+    } catch (err: any) {
+      setConnected(false);
+      if (showCallbackToast) {
+        toast({
+          title: "Connection check failed",
+          description: err.message || "Could not verify your Fathom authorization.",
+          variant: "destructive",
+        });
+      }
+    } finally {
+      setChecking(false);
+    }
+  }, [toast]);
+
+  useEffect(() => {
+    validateConnection(searchParams.get("fathom") === "connected");
+  }, [searchParams, validateConnection]);
 
   const handleConnect = useCallback(async () => {
     setLoading(true);
     try {
       const { data, error } = await supabase.functions.invoke("fathom-auth", {
         headers: { "Content-Type": "application/json" },
-        body: {},
+        body: { action: "start" },
       });
       if (error) throw error;
       if (data?.auth_url) {
-        // Redirect the user to Fathom's OAuth page
         window.location.href = data.auth_url;
-      } else {
-        throw new Error("No authorization URL received");
+        return;
       }
+      throw new Error("No authorization URL received");
     } catch (err: any) {
       console.error("Fathom auth error:", err);
       toast({
@@ -67,16 +95,16 @@ export function FathomLoginButton() {
     <div className="space-y-3">
       <Button
         onClick={handleConnect}
-        disabled={loading}
+        disabled={loading || checking}
         className="gap-2"
         variant="outline"
       >
-        {loading ? (
+        {loading || checking ? (
           <Loader2 className="h-4 w-4 animate-spin" />
         ) : (
           <Headphones className="h-4 w-4" />
         )}
-        Connect Fathom
+        {checking ? "Checking Fathom" : "Connect Fathom"}
       </Button>
       <p className="text-[11px] text-muted-foreground">
         Authorize Fathom via OAuth to sync your sales call recordings and transcripts.

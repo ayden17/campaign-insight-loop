@@ -7,55 +7,98 @@ const corsHeaders = {
 };
 
 const FATHOM_API = "https://api.fathom.ai/external/v1";
+const FATHOM_TOKEN_URL = `${FATHOM_API}/oauth2/token`;
 
-async function getAccessToken(supabase: any): Promise<string> {
-  const { data: conn, error } = await supabase
+async function getLatestConnection(supabase: ReturnType<typeof createClient>) {
+  const { data, error } = await supabase
     .from("fathom_connections")
     .select("*")
+    .order("updated_at", { ascending: false })
     .limit(1)
-    .single();
+    .maybeSingle();
 
-  if (error || !conn) throw new Error("No Fathom connection found. Please connect via Ad Accounts.");
+  if (error) throw error;
+  return data;
+}
 
-  // Check if token is expired (with 5 min buffer)
-  const now = Date.now();
-  const expiresAt = conn.expires_at ? Number(conn.expires_at) : 0;
+async function refreshAccessToken(supabase: ReturnType<typeof createClient>, conn: any) {
+  const clientId = Deno.env.get("FATHOM_CLIENT_ID");
+  const clientSecret = Deno.env.get("FATHOM_CLIENT_SECRET");
 
-  if (expiresAt > 0 && now > expiresAt - 300000 && conn.refresh_token) {
-    // Token expired or about to expire — refresh it
-    const clientId = Deno.env.get("FATHOM_CLIENT_ID")!;
-    const clientSecret = Deno.env.get("FATHOM_CLIENT_SECRET")!;
-
-    const tokenRes = await fetch("https://api.fathom.ai/external/v1/oauth2/token", {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: new URLSearchParams({
-        grant_type: "refresh_token",
-        refresh_token: conn.refresh_token,
-        client_id: clientId,
-        client_secret: clientSecret,
-      }).toString(),
-    });
-
-    if (!tokenRes.ok) {
-      const errText = await tokenRes.text();
-      console.error("Token refresh failed:", tokenRes.status, errText);
-      throw new Error("Fathom token expired and refresh failed. Please reconnect.");
-    }
-
-    const tokenData = await tokenRes.json();
-    const newExpiresAt = Date.now() + (tokenData.expires_in || 7200) * 1000;
-
-    await supabase.from("fathom_connections").update({
-      access_token: tokenData.access_token,
-      refresh_token: tokenData.refresh_token || conn.refresh_token,
-      expires_at: newExpiresAt,
-    }).eq("id", conn.id);
-
-    return tokenData.access_token;
+  if (!clientId || !clientSecret) {
+    throw new Error("Fathom OAuth credentials are missing.");
   }
 
-  return conn.access_token;
+  if (!conn?.refresh_token) {
+    throw new Error("Fathom connection is missing a refresh token. Please reconnect.");
+  }
+
+  const tokenRes = await fetch(FATHOM_TOKEN_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({
+      grant_type: "refresh_token",
+      refresh_token: conn.refresh_token,
+      client_id: clientId,
+      client_secret: clientSecret,
+    }).toString(),
+  });
+
+  if (!tokenRes.ok) {
+    const errText = await tokenRes.text();
+    console.error("Token refresh failed:", tokenRes.status, errText);
+    throw new Error("Fathom token refresh failed. Please reconnect.");
+  }
+
+  const tokenData = await tokenRes.json();
+  const newExpiresAt = Date.now() + (tokenData.expires_in || 7200) * 1000;
+
+  const { error: updateError } = await supabase
+    .from("fathom_connections")
+    .update({
+      access_token: tokenData.access_token,
+      refresh_token: tokenData.refresh_token || conn.refresh_token,
+      token_type: "Bearer",
+      expires_at: newExpiresAt,
+    })
+    .eq("id", conn.id);
+
+  if (updateError) throw updateError;
+
+  return {
+    ...conn,
+    access_token: tokenData.access_token,
+    refresh_token: tokenData.refresh_token || conn.refresh_token,
+    token_type: "Bearer",
+    expires_at: newExpiresAt,
+  };
+}
+
+async function getConnectionWithFreshToken(supabase: ReturnType<typeof createClient>) {
+  let conn = await getLatestConnection(supabase);
+
+  if (!conn) {
+    throw new Error("No Fathom OAuth connection found. Please connect via Ad Accounts.");
+  }
+
+  if (conn.token_type?.toLowerCase() === "api_key") {
+    throw new Error("Legacy Fathom API-key connection detected. Please reconnect with OAuth.");
+  }
+
+  const expiresAt = conn.expires_at ? Number(conn.expires_at) : 0;
+  const shouldRefresh = !!conn.refresh_token && (!expiresAt || Date.now() > expiresAt - 300000);
+
+  if (shouldRefresh) {
+    conn = await refreshAccessToken(supabase, conn);
+  }
+
+  return conn;
+}
+
+async function fetchFromFathom(url: string, token: string) {
+  return fetch(url, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
 }
 
 serve(async (req) => {
@@ -66,7 +109,7 @@ serve(async (req) => {
     const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    const accessToken = await getAccessToken(supabase);
+    let connection = await getConnectionWithFreshToken(supabase);
 
     const url = new URL(req.url);
     const action = url.searchParams.get("action") || req.headers.get("x-action") || "list";
@@ -81,14 +124,21 @@ serve(async (req) => {
       fathomUrl = `${FATHOM_API}/meetings?calendar_invitees_domains_type=all`;
     }
 
-    const fathomRes = await fetch(fathomUrl, {
-      headers: { "Authorization": `Bearer ${accessToken}` },
-    });
+    let fathomRes = await fetchFromFathom(fathomUrl, connection.access_token);
+
+    if (fathomRes.status === 401 && connection.refresh_token) {
+      connection = await refreshAccessToken(supabase, connection);
+      fathomRes = await fetchFromFathom(fathomUrl, connection.access_token);
+    }
 
     if (!fathomRes.ok) {
       const errText = await fathomRes.text();
       console.error("Fathom API error:", fathomRes.status, "body:", errText, "url:", fathomUrl);
-      return new Response(JSON.stringify({ error: "Fathom API error", status: fathomRes.status }), {
+      return new Response(JSON.stringify({
+        error: fathomRes.status === 401 ? "Fathom authorization is invalid. Please reconnect." : "Fathom API error",
+        status: fathomRes.status,
+        reauth_required: fathomRes.status === 401,
+      }), {
         status: fathomRes.status,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
