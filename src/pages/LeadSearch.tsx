@@ -187,12 +187,13 @@ const LeadSearch = () => {
       setCurrentPage(page);
       setSelectedIds(new Set());
 
-      // Update audience in DB
+      // Update audience in DB with filters and results
       if (currentAudienceId) {
         const { data: { user } } = await supabase.auth.getUser();
         if (user) {
           await supabase.from("audiences" as any).update({
             filters: getAllFiltersForSave(),
+            results: Array.isArray(results) ? results : [],
             audience_size: data?.total || data?.total_results || results.length || 0,
             status: "completed",
             last_refreshed: new Date().toISOString(),

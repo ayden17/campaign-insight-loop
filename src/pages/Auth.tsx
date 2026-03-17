@@ -5,6 +5,7 @@ import { lovable } from "@/integrations/lovable/index";
 import { useToast } from "@/hooks/use-toast";
 import { Eye, EyeOff } from "lucide-react";
 import angelflowsLogo from "@/assets/angelflows-logo.png";
+import aydenAvatar from "@/assets/ayden-avatar.png";
 
 const GoogleIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" className="w-5 h-5">
@@ -17,8 +18,8 @@ const GoogleIcon = () => (
 
 const TESTIMONIAL = {
   text: "We started AngelFlows to give companies an unfair advantage at targeting high-intent customers. We help you not only find them, but sync them into platforms so you can skip the learning phase.",
-  authorName: "AngelFlows",
-  authorTitle: "Intent-Powered Advertising",
+  authorName: "Ayden Haoken",
+  authorTitle: "Founder of AngelFlows",
 };
 
 export default function AuthPage() {
@@ -221,7 +222,7 @@ export default function AuthPage() {
             "{TESTIMONIAL.text}"
           </p>
           <div className="flex items-center gap-3">
-            <img src={angelflowsLogo} alt="AngelFlows" className="h-8 w-8 rounded-full bg-background/10 p-1" />
+            <img src={aydenAvatar} alt="Ayden Haoken" className="h-10 w-10 rounded-full object-cover" />
             <div>
               <p className="font-medium text-background">{TESTIMONIAL.authorName}</p>
               <p className="text-sm text-background/60">{TESTIMONIAL.authorTitle}</p>
