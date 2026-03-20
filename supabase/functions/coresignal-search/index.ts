@@ -27,54 +27,57 @@ serve(async (req) => {
       const targetRevenue = params.targetRevenue || 1000000;
       const growthThreshold = params.growthThreshold || 5;
 
+      // Build the must clauses
+      const mustClauses: any[] = [];
+
+      if (userIntent) {
+        mustClauses.push({
+          match: { industry: userIntent }
+        });
+      }
+
+      mustClauses.push({
+        nested: {
+          path: "active_job_postings",
+          query: {
+            bool: {
+              should: [
+                { match: { "active_job_postings.job_posting_title": "marketing" } },
+                { match: { "active_job_postings.job_posting_title": "advertising" } },
+              ],
+              minimum_should_match: 1
+            }
+          }
+        }
+      });
+
+      mustClauses.push({
+        bool: {
+          should: [
+            { range: { "revenue_annual_range.source_4_annual_revenue_range.annual_revenue_range_from": { gte: targetRevenue } } },
+            { range: { "revenue_annual_range.source_6_annual_revenue_range.annual_revenue_range_from": { gte: targetRevenue } } },
+            { range: { "revenue_annual.source_5_annual_revenue.annual_revenue": { gte: targetRevenue } } },
+            { range: { "revenue_annual.source_1_annual_revenue.annual_revenue": { gte: targetRevenue } } },
+          ],
+          minimum_should_match: 1
+        }
+      });
+
+      mustClauses.push({
+        range: {
+          "employees_count_change.change_yearly_percentage": { gte: growthThreshold }
+        }
+      });
+
       const esPayload = {
         query: {
           bool: {
-            must: [
-              ...(userIntent ? [{
-                match: {
-                  industry: userIntent
-                }
-              }] : []),
-              {
-                bool: {
-                  should: [
-                    { range: { "revenue_source_4": { gte: targetRevenue } } },
-                    { range: { "revenue_source_6": { gte: targetRevenue } } },
-                    { range: { "revenue_source_5": { gte: targetRevenue } } },
-                    { range: { "revenue_source_1": { gte: targetRevenue } } },
-                  ],
-                  minimum_should_match: 1
-                }
-              },
-              {
-                range: {
-                  "employees_count_change.change_yearly_percentage": {
-                    gte: growthThreshold
-                  }
-                }
-              },
-              {
-                nested: {
-                  path: "active_job_postings",
-                  query: {
-                    bool: {
-                      should: [
-                        { match: { "active_job_postings.title": "marketing" } },
-                        { match: { "active_job_postings.title": "advertising" } },
-                      ],
-                      minimum_should_match: 1
-                    }
-                  }
-                }
-              }
-            ]
+            must: mustClauses
           }
-        },
-        _source: ["id", "name", "company_name", "website", "linkedin_url", "logo_url", "industry", "employees_count"],
-        size: params.size || 50,
-        from: params.from || 0,
+        }
       };
+
+      console.log('CoreSignal search payload:', JSON.stringify(esPayload));
 
       const response = await fetch('https://api.coresignal.com/cdapi/v2/company_multi_source/search/es_dsl', {
         method: 'POST',
