@@ -5,7 +5,8 @@ import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
-import { Search, Loader2, Download, ExternalLink, Save, SlidersHorizontal, Calendar, Briefcase, DollarSign, UserCheck, Home, MapPin, AtSign, Plus, RefreshCw, Link2, ArrowLeft } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Search, Loader2, Download, ExternalLink, Save, SlidersHorizontal, Calendar, Briefcase, DollarSign, UserCheck, Home, MapPin, AtSign, Plus, RefreshCw, Link2, ArrowLeft, Building2, Globe, Linkedin } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
@@ -20,20 +21,17 @@ import { Label } from "@/components/ui/label";
 
 /* ---------- types ---------- */
 
-interface Prospect {
-  prospect_id?: string;
-  full_name?: string;
-  first_name?: string;
-  last_name?: string;
-  title?: string;
+interface CompanyResult {
+  id: number;
   company_name?: string;
-  department?: string;
-  job_level?: string;
+  name?: string;
+  website?: string;
+  website_domain?: string;
   linkedin_url?: string;
-  location?: string;
-  country_code?: string;
-  email?: string;
-  phone?: string;
+  company_logo_url?: string;
+  logo_url?: string;
+  industry?: string;
+  employees_count?: number;
   [key: string]: any;
 }
 
@@ -71,6 +69,8 @@ const housingFields = ["Home Owner / Renter", "Home Value", "Property Type", "Le
 const dateFields = ["Created After", "Created Before"];
 const contactFields = ["Has Email", "Has Phone", "Has LinkedIn"];
 
+const scoreToGrowth: Record<string, number> = { low: 2, medium: 5, high: 12 };
+
 /* ---------- component ---------- */
 
 const LeadSearch = () => {
@@ -86,12 +86,15 @@ const LeadSearch = () => {
   // Builder state
   const [currentAudienceId, setCurrentAudienceId] = useState<string | null>(null);
   const [audienceName, setAudienceName] = useState("");
-  const [prospects, setProspects] = useState<Prospect[]>([]);
+  const [companies, setCompanies] = useState<CompanyResult[]>([]);
+  const [currentAudienceIds, setCurrentAudienceIds] = useState<number[]>([]);
+  const [enrichedCompany, setEnrichedCompany] = useState<CompanyResult | null>(null);
   const [loading, setLoading] = useState(false);
+  const [enriching, setEnriching] = useState(false);
+  const [audienceGenerated, setAudienceGenerated] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [totalResults, setTotalResults] = useState(0);
-  const [currentPage, setCurrentPage] = useState(1);
+  const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
 
   // Filter dialogs
   const [openDialog, setOpenDialog] = useState<string | null>(null);
@@ -109,20 +112,13 @@ const LeadSearch = () => {
 
   const { toast } = useToast();
 
-  // Load audiences
-  useEffect(() => {
-    loadAudiences();
-  }, []);
+  useEffect(() => { loadAudiences(); }, []);
 
   const loadAudiences = async () => {
     setLoadingAudiences(true);
     try {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        setAudiences([]);
-        setLoadingAudiences(false);
-        return;
-      }
+      if (!user) { setAudiences([]); setLoadingAudiences(false); return; }
       const { data, error } = await supabase.from("audiences" as any).select("*").eq("user_id", user.id).order("created_at", { ascending: false });
       if (error) throw error;
       setAudiences((data as any[]) || []);
@@ -132,7 +128,6 @@ const LeadSearch = () => {
     setLoadingAudiences(false);
   };
 
-  // Count applied filters per tab
   const getAppliedCount = (tabId: string): number => {
     switch (tabId) {
       case "intent": return intentFilters.keywords.length + (intentFilters.intentScore !== "medium" ? 1 : 0);
@@ -148,19 +143,6 @@ const LeadSearch = () => {
     }
   };
 
-  const buildSearchFilters = () => {
-    const f: Record<string, any> = {};
-    if (intentFilters.keywords.length) f.keywords = intentFilters.keywords;
-    if (businessFilters.jobTitles.length) f.title = businessFilters.jobTitles;
-    if (businessFilters.companyNames.length) f.company_name = businessFilters.companyNames;
-    if (businessFilters.seniority && businessFilters.seniority !== "all") f.job_level = [businessFilters.seniority];
-    if (businessFilters.department && businessFilters.department !== "all") f.department = [businessFilters.department];
-    if (locationFilters.countryCode) f.country_code = [locationFilters.countryCode];
-    if (locationFilters.states.length) f.state = locationFilters.states;
-    if (locationFilters.cities.length) f.city = locationFilters.cities;
-    return f;
-  };
-
   const getAllFiltersForSave = () => ({
     intent: intentFilters,
     business: businessFilters,
@@ -173,39 +155,116 @@ const LeadSearch = () => {
     contact: contactFilters,
   });
 
-  const handleSearch = async (page = 1) => {
+  /* ---------- CoreSignal Search ---------- */
+  const handleSearch = async () => {
     setLoading(true);
+    setEnrichedCompany(null);
+    setAudienceGenerated(false);
+
+    // Build userIntent from keywords + AI prompt
+    const userIntent = [...intentFilters.keywords, businessFilters.industry].filter(Boolean).join(" ");
+    const growthThreshold = scoreToGrowth[intentFilters.intentScore] || 5;
+    const targetRevenue = 1000000; // default
+
     try {
-      const filters = buildSearchFilters();
-      const { data, error } = await supabase.functions.invoke("prospect-search", {
-        body: { action: "search", filters, page, page_size: 20 },
+      const { data, error } = await supabase.functions.invoke("coresignal-search", {
+        body: {
+          action: "search",
+          userIntent,
+          targetRevenue,
+          growthThreshold,
+          size: 50,
+        },
+      });
+
+      if (error) throw error;
+
+      // CoreSignal returns an array of IDs or objects
+      let results: any[] = [];
+      if (Array.isArray(data)) {
+        results = data;
+      } else if (data?.hits?.hits) {
+        results = data.hits.hits.map((h: any) => ({ id: h._id, ...h._source }));
+      } else if (data?.results) {
+        results = data.results;
+      }
+
+      if (results.length === 0) {
+        toast({
+          title: "No companies found",
+          description: "No companies found with these specific filters. Try lowering the Minimum Score.",
+          variant: "destructive",
+        });
+        setCompanies([]);
+        setCurrentAudienceIds([]);
+        setTotalResults(0);
+        setLoading(false);
+        return;
+      }
+
+      // Store all IDs for bulk processing
+      const ids = results.map((r: any) => typeof r === 'number' ? r : (r.id || r._id));
+      setCurrentAudienceIds(ids);
+      setTotalResults(ids.length);
+
+      // Enrich the first company for preview
+      const firstId = ids[0];
+      await enrichCompany(firstId);
+
+      // Store basic results
+      setCompanies(results.map((r: any) => typeof r === 'number' ? { id: r } : r));
+
+    } catch (err: any) {
+      console.error("CoreSignal search error:", err);
+      toast({ title: "Search Error", description: err.message || "Failed to search companies", variant: "destructive" });
+    }
+    setLoading(false);
+  };
+
+  /* ---------- CoreSignal Enrich ---------- */
+  const enrichCompany = async (companyId: number) => {
+    setEnriching(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("coresignal-search", {
+        body: { action: "collect", companyId },
       });
       if (error) throw error;
-      const results = data?.prospects || data?.data || data?.results || [];
-      setProspects(Array.isArray(results) ? results : []);
-      setTotalResults(data?.total || data?.total_results || results.length || 0);
-      setCurrentPage(page);
-      setSelectedIds(new Set());
+      setEnrichedCompany(data);
+    } catch (err: any) {
+      console.error("Enrich error:", err);
+    }
+    setEnriching(false);
+  };
 
-      // Update audience in DB with filters and results
+  /* ---------- Generate Audience (saves to DB) ---------- */
+  const handleGenerateAudience = async () => {
+    if (currentAudienceIds.length === 0) {
+      // Run search first
+      await handleSearch();
+      return;
+    }
+
+    setSaving(true);
+    try {
       if (currentAudienceId) {
         const { data: { user } } = await supabase.auth.getUser();
         if (user) {
           await supabase.from("audiences" as any).update({
             filters: getAllFiltersForSave(),
-            results: Array.isArray(results) ? results : [],
-            audience_size: data?.total || data?.total_results || results.length || 0,
+            results: currentAudienceIds as any,
+            audience_size: currentAudienceIds.length,
             status: "completed",
             last_refreshed: new Date().toISOString(),
             updated_at: new Date().toISOString(),
           } as any).eq("id", currentAudienceId);
         }
       }
+      setAudienceGenerated(true);
+      toast({ title: "Audience Generated", description: `${currentAudienceIds.length} companies saved to your audience.` });
     } catch (err: any) {
-      console.error("Search error:", err);
-      toast({ title: "Search Error", description: err.message || "Failed to search prospects", variant: "destructive" });
+      toast({ title: "Save Error", description: err.message, variant: "destructive" });
     }
-    setLoading(false);
+    setSaving(false);
   };
 
   const handleCreateAudience = async () => {
@@ -236,7 +295,6 @@ const LeadSearch = () => {
   const openExistingAudience = (audience: Audience) => {
     setCurrentAudienceId(audience.id);
     setAudienceName(audience.name);
-    // Restore filters
     const f = audience.filters as any;
     if (f?.intent) setIntentFilters(f.intent);
     if (f?.business) setBusinessFilters(f.business);
@@ -247,30 +305,49 @@ const LeadSearch = () => {
     if (f?.housing) setHousingFilters(f.housing);
     if (f?.date) setDateFilters(f.date);
     if (f?.contact) setContactFilters(f.contact);
+    // Restore saved IDs
+    if (Array.isArray(audience.filters) || (audience as any).results) {
+      const savedResults = (audience as any).results;
+      if (Array.isArray(savedResults)) {
+        setCurrentAudienceIds(savedResults);
+        setAudienceGenerated(audience.status === "completed");
+      }
+    }
     setView("builder");
   };
 
   const handleExport = () => {
-    const toExport = selectedIds.size > 0 ? prospects.filter(p => selectedIds.has(p.prospect_id || "")) : prospects;
-    const headers = ["First Name", "Last Name", "Business Email", "Business Phone", "Company", "Job Title"];
-    const rows = toExport.map(p => [p.first_name || "", p.last_name || "", p.email || "", p.phone || "", p.company_name || "", p.title || ""]);
-    const csv = [headers.join(","), ...rows.map(r => r.map(v => `"${(v || "").replace(/"/g, '""')}"`).join(","))].join("\n");
+    if (!audienceGenerated) {
+      toast({ title: "Generate first", description: "Please generate the audience before exporting.", variant: "destructive" });
+      return;
+    }
+    const toExport = companies.length > 0 ? companies : currentAudienceIds.map(id => ({ id }));
+    const headers = ["ID", "Company Name", "Website", "LinkedIn", "Industry", "Employees"];
+    const rows = toExport.map((c: any) => [
+      c.id || "",
+      c.company_name || c.name || "",
+      c.website || c.website_domain || "",
+      c.linkedin_url || "",
+      c.industry || "",
+      c.employees_count || "",
+    ]);
+    const csv = [headers.join(","), ...rows.map(r => r.map(v => `"${String(v || "").replace(/"/g, '""')}"`).join(","))].join("\n");
     const blob = new Blob([csv], { type: "text/csv" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `audience-export-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.download = `${audienceName || "audience"}-export-${new Date().toISOString().slice(0, 10)}.csv`;
     a.click();
     URL.revokeObjectURL(url);
-    toast({ title: "Exported", description: `${toExport.length} prospects exported.` });
+    toast({ title: "Exported", description: `${toExport.length} companies exported.` });
   };
 
-  const toggleSelect = (id: string) => {
+  const toggleSelect = (id: number) => {
     setSelectedIds(prev => { const n = new Set(prev); if (n.has(id)) n.delete(id); else n.add(id); return n; });
   };
   const toggleSelectAll = () => {
-    if (selectedIds.size === prospects.length) setSelectedIds(new Set());
-    else setSelectedIds(new Set(prospects.map(p => p.prospect_id || "")));
+    if (selectedIds.size === currentAudienceIds.length) setSelectedIds(new Set());
+    else setSelectedIds(new Set(currentAudienceIds));
   };
 
   const formatDate = (d: string) => {
@@ -361,21 +438,21 @@ const LeadSearch = () => {
     <DashboardLayout title={audienceName || "Audience Filters"} subtitle="Build high-intent audiences from big data">
       {/* Top bar */}
       <div className="flex items-center justify-between mb-4">
-        <Button variant="ghost" size="sm" onClick={() => { setView("list"); setProspects([]); loadAudiences(); }} className="gap-1.5">
+        <Button variant="ghost" size="sm" onClick={() => { setView("list"); setCompanies([]); setCurrentAudienceIds([]); setEnrichedCompany(null); setAudienceGenerated(false); loadAudiences(); }} className="gap-1.5">
           <ArrowLeft className="h-4 w-4" /> Back to Audiences
         </Button>
         <div className="flex items-center gap-2">
-          <Button variant="outline" onClick={() => handleSearch(1)} disabled={loading} className="gap-1.5">
+          <Button variant="outline" onClick={handleSearch} disabled={loading} className="gap-1.5">
             <Search className="h-4 w-4" /> Preview
           </Button>
-          <Button onClick={() => handleSearch(1)} disabled={loading} className="gap-1.5">
-            {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
-            {currentAudienceId && prospects.length > 0 ? "Update Audience" : "Generate Audience"}
+          <Button onClick={handleGenerateAudience} disabled={loading || saving} className="gap-1.5">
+            {(loading || saving) ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
+            {audienceGenerated ? "Update Audience" : "Generate Audience"}
           </Button>
         </div>
       </div>
 
-      {/* Filter tabs - clicking opens dialogs */}
+      {/* Filter tabs */}
       <div className="flex items-center gap-1 border-b border-border mb-6 overflow-x-auto">
         {filterTabs.map(tab => {
           const count = getAppliedCount(tab.id);
@@ -414,26 +491,76 @@ const LeadSearch = () => {
       <GenericFilterDialog open={openDialog === "contact"} onOpenChange={o => !o && setOpenDialog(null)} icon={<AtSign className="h-5 w-5" />} title="Contact" description="Filter by contact availability." fieldOptions={contactFields} filters={contactFilters} onChange={setContactFilters} />
 
       {/* Loading state */}
-      {loading && prospects.length === 0 && (
+      {loading && (
         <div className="flex flex-col items-center justify-center py-24">
           <Loader2 className="h-10 w-10 animate-spin text-muted-foreground mb-4" />
           <p className="text-lg font-medium text-foreground">Generating Audience Preview</p>
-          <p className="text-sm text-muted-foreground mt-1">We're analyzing your filters and determining matching profiles. This may take a few moments...</p>
+          <p className="text-sm text-muted-foreground mt-1">Querying company databases and analyzing intent signals. This may take a few moments...</p>
         </div>
       )}
 
-      {/* Results table */}
-      {!loading && prospects.length > 0 && (
+      {/* Enriched Company Preview Card */}
+      {!loading && enrichedCompany && (
+        <div className="mb-6">
+          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3">Preview — Top Match</h3>
+          <Card className="max-w-lg">
+            <CardContent className="p-5 flex items-start gap-4">
+              {(enrichedCompany.company_logo_url || enrichedCompany.logo_url) ? (
+                <img
+                  src={enrichedCompany.company_logo_url || enrichedCompany.logo_url}
+                  alt={enrichedCompany.company_name || enrichedCompany.name || "Company"}
+                  className="h-14 w-14 rounded-lg object-contain border border-border bg-background p-1"
+                  onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                />
+              ) : (
+                <div className="h-14 w-14 rounded-lg border border-border bg-muted flex items-center justify-center">
+                  <Building2 className="h-6 w-6 text-muted-foreground" />
+                </div>
+              )}
+              <div className="flex-1 min-w-0 space-y-1">
+                <p className="text-base font-semibold text-foreground truncate">
+                  {enrichedCompany.company_name || enrichedCompany.name || "Unknown Company"}
+                </p>
+                {enrichedCompany.industry && (
+                  <p className="text-sm text-muted-foreground">{enrichedCompany.industry}</p>
+                )}
+                <div className="flex items-center gap-3 pt-1">
+                  {(enrichedCompany.website || enrichedCompany.website_domain) && (
+                    <a href={enrichedCompany.website || `https://${enrichedCompany.website_domain}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-xs text-primary hover:underline">
+                      <Globe className="h-3 w-3" /> Website
+                    </a>
+                  )}
+                  {enrichedCompany.linkedin_url && (
+                    <a href={enrichedCompany.linkedin_url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-xs text-primary hover:underline">
+                      <Linkedin className="h-3 w-3" /> LinkedIn
+                    </a>
+                  )}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {enriching && !loading && (
+        <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
+          <Loader2 className="h-4 w-4 animate-spin" /> Enriching company details...
+        </div>
+      )}
+
+      {/* Results summary */}
+      {!loading && currentAudienceIds.length > 0 && (
         <>
           <div className="flex items-center justify-between mb-4">
             <p className="text-sm text-muted-foreground">
-              {totalResults.toLocaleString()} results found
+              {totalResults.toLocaleString()} companies found
             </p>
             <div className="flex items-center gap-2">
-              <Button variant="outline" size="sm" onClick={handleExport} className="gap-1.5">
-                <Download className="h-4 w-4" />
-                Export {selectedIds.size > 0 ? `(${selectedIds.size})` : "all"}
-              </Button>
+              {audienceGenerated && (
+                <Button variant="outline" size="sm" onClick={handleExport} className="gap-1.5">
+                  <Download className="h-4 w-4" /> Export CSV
+                </Button>
+              )}
             </div>
           </div>
 
@@ -441,49 +568,42 @@ const LeadSearch = () => {
             <Table>
               <TableHeader>
                 <TableRow className="bg-muted/50">
-                  <TableHead className="w-10"><Checkbox checked={selectedIds.size === prospects.length && prospects.length > 0} onCheckedChange={toggleSelectAll} /></TableHead>
+                  <TableHead className="w-10"><Checkbox checked={selectedIds.size === currentAudienceIds.length && currentAudienceIds.length > 0} onCheckedChange={toggleSelectAll} /></TableHead>
                   <TableHead className="text-xs font-semibold uppercase tracking-wide">#</TableHead>
-                  <TableHead className="text-xs font-semibold uppercase tracking-wide">First Name</TableHead>
-                  <TableHead className="text-xs font-semibold uppercase tracking-wide">Last Name</TableHead>
-                  <TableHead className="text-xs font-semibold uppercase tracking-wide">Business Email</TableHead>
-                  <TableHead className="text-xs font-semibold uppercase tracking-wide">Business Phone</TableHead>
-                  <TableHead className="text-xs font-semibold uppercase tracking-wide">Company</TableHead>
-                  <TableHead className="text-xs font-semibold uppercase tracking-wide">Job Title</TableHead>
+                  <TableHead className="text-xs font-semibold uppercase tracking-wide">Company ID</TableHead>
+                  <TableHead className="text-xs font-semibold uppercase tracking-wide">Company Name</TableHead>
+                  <TableHead className="text-xs font-semibold uppercase tracking-wide">Industry</TableHead>
+                  <TableHead className="text-xs font-semibold uppercase tracking-wide">Website</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {prospects.map((p, idx) => {
-                  const id = p.prospect_id || String(idx);
-                  return (
-                    <TableRow key={id} className="hover:bg-muted/30">
-                      <TableCell><Checkbox checked={selectedIds.has(id)} onCheckedChange={() => toggleSelect(id)} /></TableCell>
-                      <TableCell className="text-sm text-muted-foreground">{(currentPage - 1) * 20 + idx + 1}</TableCell>
-                      <TableCell className="text-sm">{p.first_name || "—"}</TableCell>
-                      <TableCell className="text-sm">{p.last_name || "—"}</TableCell>
-                      <TableCell className="text-sm truncate max-w-[200px]">{p.email || "—"}</TableCell>
-                      <TableCell className="text-sm">{p.phone || "—"}</TableCell>
-                      <TableCell className="text-sm">{p.company_name || "—"}</TableCell>
-                      <TableCell className="text-sm">{p.title || "—"}</TableCell>
-                    </TableRow>
-                  );
-                })}
+                {companies.length > 0 ? companies.map((c, idx) => (
+                  <TableRow key={c.id} className="hover:bg-muted/30">
+                    <TableCell><Checkbox checked={selectedIds.has(c.id)} onCheckedChange={() => toggleSelect(c.id)} /></TableCell>
+                    <TableCell className="text-sm text-muted-foreground">{idx + 1}</TableCell>
+                    <TableCell className="text-sm font-mono">{c.id}</TableCell>
+                    <TableCell className="text-sm">{c.company_name || c.name || "—"}</TableCell>
+                    <TableCell className="text-sm">{c.industry || "—"}</TableCell>
+                    <TableCell className="text-sm truncate max-w-[200px]">{c.website || c.website_domain || "—"}</TableCell>
+                  </TableRow>
+                )) : currentAudienceIds.slice(0, 50).map((id, idx) => (
+                  <TableRow key={id} className="hover:bg-muted/30">
+                    <TableCell><Checkbox checked={selectedIds.has(id)} onCheckedChange={() => toggleSelect(id)} /></TableCell>
+                    <TableCell className="text-sm text-muted-foreground">{idx + 1}</TableCell>
+                    <TableCell className="text-sm font-mono">{id}</TableCell>
+                    <TableCell className="text-sm text-muted-foreground" colSpan={3}>
+                      <button onClick={() => enrichCompany(id)} className="text-primary hover:underline text-xs">Enrich →</button>
+                    </TableCell>
+                  </TableRow>
+                ))}
               </TableBody>
             </Table>
-          </div>
-
-          {/* Pagination */}
-          <div className="flex items-center justify-between mt-4">
-            <span className="text-sm text-muted-foreground">Page {currentPage}</span>
-            <div className="flex gap-2">
-              <Button variant="outline" size="sm" disabled={currentPage <= 1 || loading} onClick={() => handleSearch(currentPage - 1)}>Previous</Button>
-              <Button variant="outline" size="sm" disabled={prospects.length < 20 || loading} onClick={() => handleSearch(currentPage + 1)}>Next</Button>
-            </div>
           </div>
         </>
       )}
 
       {/* Empty state */}
-      {!loading && prospects.length === 0 && (
+      {!loading && currentAudienceIds.length === 0 && !enrichedCompany && (
         <div className="rounded-xl border border-dashed border-border bg-muted/30 p-16 text-center">
           <Search className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
           <p className="text-base font-medium text-foreground mb-1">Preview Your Audience</p>
