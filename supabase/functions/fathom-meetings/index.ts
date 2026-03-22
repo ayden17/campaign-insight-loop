@@ -7,7 +7,7 @@ const corsHeaders = {
 };
 
 const FATHOM_API = "https://api.fathom.ai/external/v1";
-const FATHOM_TOKEN_URL = `${FATHOM_API}/oauth2/token`;
+const FATHOM_TOKEN_URL = "https://fathom.video/external/v1/oauth2/token";
 
 async function getLatestConnection(supabase: ReturnType<typeof createClient>) {
   const { data, error } = await supabase
