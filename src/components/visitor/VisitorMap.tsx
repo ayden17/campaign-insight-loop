@@ -1,6 +1,7 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
+import { supabase } from "@/integrations/supabase/client";
 
 interface VisitorMapProps {
   latitude: number | null;
@@ -13,11 +14,18 @@ export default function VisitorMap({ latitude, longitude, city, visitorName }: V
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
   const marker = useRef<mapboxgl.Marker | null>(null);
+  const [token, setToken] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!mapContainer.current) return;
+    supabase.functions.invoke("mapbox-token").then(({ data }) => {
+      if (data?.token) setToken(data.token);
+    });
+  }, []);
 
-    mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_PUBLIC_TOKEN || "";
+  useEffect(() => {
+    if (!mapContainer.current || !token) return;
+
+    mapboxgl.accessToken = token;
 
     map.current = new mapboxgl.Map({
       container: mapContainer.current,
@@ -39,7 +47,7 @@ export default function VisitorMap({ latitude, longitude, city, visitorName }: V
       marker.current?.remove();
       map.current?.remove();
     };
-  }, []);
+  }, [token]);
 
   useEffect(() => {
     if (!map.current || latitude == null || longitude == null) return;
@@ -70,6 +78,14 @@ export default function VisitorMap({ latitude, longitude, city, visitorName }: V
       )
       .addTo(map.current);
   }, [latitude, longitude, city, visitorName]);
+
+  if (!token) {
+    return (
+      <div className="w-full h-56 bg-muted flex items-center justify-center rounded-lg text-sm text-muted-foreground animate-pulse">
+        Loading map...
+      </div>
+    );
+  }
 
   return (
     <>
