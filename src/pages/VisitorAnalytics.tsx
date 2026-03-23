@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
+import VisitorMap from "@/components/visitor/VisitorMap";
 
 interface Visitor {
   id: string;

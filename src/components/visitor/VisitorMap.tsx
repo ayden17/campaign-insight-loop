@@ -1,6 +1,7 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
+import { supabase } from "@/integrations/supabase/client";
 
 interface VisitorMapProps {
   latitude: number | null;
@@ -9,17 +10,23 @@ interface VisitorMapProps {
   visitorName: string | null;
 }
 
-const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN || "";
-
 export default function VisitorMap({ latitude, longitude, city, visitorName }: VisitorMapProps) {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
   const marker = useRef<mapboxgl.Marker | null>(null);
+  const [token, setToken] = useState<string | null>(null);
+
+  // Fetch Mapbox token from edge function
+  useEffect(() => {
+    supabase.functions.invoke("mapbox-token").then(({ data }) => {
+      if (data?.token) setToken(data.token);
+    });
+  }, []);
 
   useEffect(() => {
-    if (!mapContainer.current || !MAPBOX_TOKEN) return;
+    if (!mapContainer.current || !token) return;
 
-    mapboxgl.accessToken = MAPBOX_TOKEN;
+    mapboxgl.accessToken = token;
 
     map.current = new mapboxgl.Map({
       container: mapContainer.current,
@@ -36,22 +43,19 @@ export default function VisitorMap({ latitude, longitude, city, visitorName }: V
       marker.current?.remove();
       map.current?.remove();
     };
-  }, []);
+  }, [token]);
 
   useEffect(() => {
     if (!map.current || latitude == null || longitude == null) return;
 
-    // Remove old marker
     marker.current?.remove();
 
-    // Fly to location
     map.current.flyTo({
       center: [longitude, latitude],
       zoom: 11,
       duration: 2000,
     });
 
-    // Create pulsing marker element
     const el = document.createElement("div");
     el.innerHTML = `
       <div style="position:relative;width:20px;height:20px;">
@@ -70,10 +74,10 @@ export default function VisitorMap({ latitude, longitude, city, visitorName }: V
       .addTo(map.current);
   }, [latitude, longitude, city, visitorName]);
 
-  if (!MAPBOX_TOKEN) {
+  if (!token) {
     return (
-      <div className="w-full h-56 bg-muted flex items-center justify-center rounded-lg text-sm text-muted-foreground">
-        Mapbox token not configured
+      <div className="w-full h-56 bg-muted flex items-center justify-center rounded-lg text-sm text-muted-foreground animate-pulse">
+        Loading map...
       </div>
     );
   }
