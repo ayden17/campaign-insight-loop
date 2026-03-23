@@ -57,6 +57,11 @@ interface Lead {
   suggested_followups: string | null;
   notes: string | null;
   status: string | null;
+  source: string | null;
+  source_label: string | null;
+  source_metadata: any;
+  intent_level: string | null;
+  enrichment_data: any;
   created_at: string;
   updated_at: string;
 }
