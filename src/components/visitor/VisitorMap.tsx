@@ -16,7 +16,6 @@ export default function VisitorMap({ latitude, longitude, city, visitorName }: V
   const marker = useRef<mapboxgl.Marker | null>(null);
   const [token, setToken] = useState<string | null>(null);
 
-  // Fetch Mapbox token from edge function
   useEffect(() => {
     supabase.functions.invoke("mapbox-token").then(({ data }) => {
       if (data?.token) setToken(data.token);
@@ -31,10 +30,15 @@ export default function VisitorMap({ latitude, longitude, city, visitorName }: V
     map.current = new mapboxgl.Map({
       container: mapContainer.current,
       style: "mapbox://styles/mapbox/light-v11",
-      center: [0, 20],
-      zoom: 1.5,
+      center: [-98.5795, 39.8283],
+      zoom: 3,
       projection: "globe" as any,
       attributionControl: false,
+      config: {
+        "basemap": {
+          lightPreset: "day",
+        },
+      } as any,
     });
 
     map.current.addControl(new mapboxgl.NavigationControl(), "top-right");
@@ -52,15 +56,16 @@ export default function VisitorMap({ latitude, longitude, city, visitorName }: V
 
     map.current.flyTo({
       center: [longitude, latitude],
-      zoom: 11,
+      zoom: 12,
+      essential: true,
       duration: 2000,
     });
 
     const el = document.createElement("div");
     el.innerHTML = `
       <div style="position:relative;width:20px;height:20px;">
-        <div style="position:absolute;inset:0;border-radius:50%;background:hsl(142,76%,36%);opacity:0.3;animation:pulse-ring 1.5s ease-out infinite;"></div>
-        <div style="position:absolute;top:5px;left:5px;width:10px;height:10px;border-radius:50%;background:hsl(142,76%,36%);border:2px solid white;box-shadow:0 0 6px rgba(0,0,0,0.3);"></div>
+        <div style="position:absolute;inset:0;border-radius:50%;background:#22c55e;opacity:0.3;animation:pulse-ring 1.5s ease-out infinite;"></div>
+        <div style="position:absolute;top:5px;left:5px;width:10px;height:10px;border-radius:50%;background:#22c55e;border:2px solid white;box-shadow:0 0 6px rgba(0,0,0,0.3);"></div>
       </div>
     `;
 

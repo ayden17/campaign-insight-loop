@@ -25,7 +25,6 @@ serve(async (req) => {
       });
     }
 
-    // Also try to get IP from headers if not provided
     const resolvedIp = ip_address || req.headers.get("x-real-ip") || req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || null;
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
@@ -44,27 +43,26 @@ serve(async (req) => {
     let visitorId: string;
 
     if (existing) {
-      // Update visit count and last_seen
       await supabase
         .from("pixel_visitors")
         .update({ total_visits: existing.total_visits + 1, last_seen: new Date().toISOString() })
         .eq("id", existing.id);
       visitorId = existing.id;
     } else {
-      // New visitor — run PDL waterfall if we have an IP and API key
+      // New visitor — run PDL waterfall
       let enrichedData: Record<string, any> = {};
 
       if (resolvedIp && pdlKey) {
         try {
-          // Step A: IP Enrichment with return_person=true
-          console.log(`[PDL] Step A: IP Enrichment for ${resolvedIp}`);
+          // ── STAGE 1: IP Enrichment ──
+          console.log(`[PDL] Stage 1: IP Enrichment for ${resolvedIp}`);
           const ipRes = await fetch(
             `${PDL_BASE}/ip/enrich?ip=${encodeURIComponent(resolvedIp)}&return_person=true&api_key=${pdlKey}`
           );
           const ipJson = ipRes.ok ? await ipRes.json() : null;
-          console.log(`[PDL] IP Enrichment status: ${ipRes.status}`, ipJson?.status);
+          console.log(`[PDL] IP Enrichment status: ${ipRes.status}`, JSON.stringify(ipJson?.status));
 
-          // PDL wraps result in { status, data: { ip: { ... }, company: { ... } } }
+          // PDL returns { status: 200, data: { ip: { ... }, company: { ... } } }
           const record = ipJson?.status === 200 ? ipJson.data : null;
 
           if (record) {
@@ -75,72 +73,80 @@ serve(async (req) => {
             enrichedData.country = loc.country || null;
             enrichedData.latitude = loc.lat ?? null;
             enrichedData.longitude = loc.lng ?? null;
-
             enrichedData.company = record.company?.name || null;
 
-            // Step B: Person Identify — use IP + location + company
-            console.log(`[PDL] Step B: Person Identify`);
-            const identifyParams: Record<string, string> = {
-              api_key: pdlKey,
-              ip: resolvedIp,
-            };
-            if (enrichedData.company) identifyParams.company = enrichedData.company;
-            if (enrichedData.city) {
-              identifyParams.location = [enrichedData.city, enrichedData.state].filter(Boolean).join(", ");
-            }
+            console.log(`[PDL] Stage 1 result: city=${enrichedData.city}, company=${enrichedData.company}, lat=${enrichedData.latitude}, lng=${enrichedData.longitude}`);
 
-            const identifyUrl = `${PDL_BASE}/person/identify?${new URLSearchParams(identifyParams).toString()}`;
-            const identifyRes = await fetch(identifyUrl);
-            const identifyData = identifyRes.ok ? await identifyRes.json() : null;
-            console.log(`[PDL] Person Identify status: ${identifyRes.status}, matches: ${identifyData?.matches?.length || 0}`);
+            // ── STAGE 2: Person Identify ──
+            if (enrichedData.company || enrichedData.city) {
+              console.log(`[PDL] Stage 2: Person Identify`);
+              const identifyParams: Record<string, string> = {
+                api_key: pdlKey,
+                ip: resolvedIp,
+              };
+              if (enrichedData.company) identifyParams.company = enrichedData.company;
+              if (enrichedData.city) {
+                identifyParams.location = [enrichedData.city, enrichedData.state].filter(Boolean).join(", ");
+              }
 
-            if (identifyData?.matches?.length > 0) {
-              const topMatch = identifyData.matches[0].data;
+              const identifyUrl = `${PDL_BASE}/person/identify?${new URLSearchParams(identifyParams).toString()}`;
+              const identifyRes = await fetch(identifyUrl);
+              const identifyJson = identifyRes.ok ? await identifyRes.json() : null;
+              console.log(`[PDL] Person Identify status: ${identifyRes.status}, matches: ${identifyJson?.matches?.length || 0}`);
 
-              // Step C: Person Enrichment — use linkedin_url or pdl_id
-              let personData = topMatch;
-              const enrichProfile = topMatch.linkedin_url || topMatch.id;
+              if (identifyJson?.matches?.length > 0) {
+                const bestMatch = identifyJson.matches[0].data;
+                console.log(`[PDL] Best match: ${bestMatch.full_name || bestMatch.id}, linkedin: ${bestMatch.linkedin_url || 'none'}`);
 
-              if (enrichProfile) {
-                console.log(`[PDL] Step C: Person Enrichment via ${topMatch.linkedin_url ? 'linkedin' : 'pdl_id'}`);
-                const enrichParams: Record<string, string> = { api_key: pdlKey };
-                if (topMatch.linkedin_url) {
-                  enrichParams.profile = topMatch.linkedin_url;
-                } else {
-                  enrichParams.pdl_id = topMatch.id;
-                }
+                // ── STAGE 3: Person Enrichment ──
+                let personData = bestMatch;
+                const hasLinkedIn = bestMatch.linkedin_url;
+                const hasPdlId = bestMatch.id;
 
-                const enrichRes = await fetch(
-                  `${PDL_BASE}/person/enrich?${new URLSearchParams(enrichParams).toString()}`
-                );
-                if (enrichRes.ok) {
-                  const enrichJson = await enrichRes.json();
-                  if (enrichJson.data) {
-                    personData = enrichJson.data;
-                    console.log(`[PDL] Person Enrichment success: ${personData.full_name}`);
+                if (hasLinkedIn || hasPdlId) {
+                  console.log(`[PDL] Stage 3: Person Enrichment via ${hasLinkedIn ? 'linkedin' : 'pdl_id'}`);
+                  const enrichParams: Record<string, string> = { api_key: pdlKey };
+                  if (hasLinkedIn) {
+                    enrichParams.profile = bestMatch.linkedin_url;
+                  } else {
+                    enrichParams.pdl_id = bestMatch.id;
                   }
-                } else {
-                  console.log(`[PDL] Person Enrichment failed: ${enrichRes.status}`);
-                }
-              }
 
-              // Map person data
-              enrichedData.full_name = personData.full_name || null;
-              enrichedData.first_name = personData.first_name || null;
-              enrichedData.last_name = personData.last_name || null;
-              enrichedData.email = personData.personal_emails?.[0] || personData.work_email || null;
-              enrichedData.phone = personData.mobile_phone || personData.phone_numbers?.[0] || null;
-              enrichedData.linkedin_url = personData.linkedin_url || null;
-              enrichedData.job_title = personData.job_title || null;
-              enrichedData.company = personData.job_company_name || enrichedData.company || null;
-              enrichedData.education = personData.education?.length
-                ? personData.education.map((e: any) => e.school?.name).filter(Boolean).join(", ")
-                : null;
-              if (personData.location_geo) {
-                enrichedData.latitude = personData.location_geo.lat || enrichedData.latitude;
-                enrichedData.longitude = personData.location_geo.lng || enrichedData.longitude;
+                  const enrichRes = await fetch(
+                    `${PDL_BASE}/person/enrich?${new URLSearchParams(enrichParams).toString()}`
+                  );
+                  if (enrichRes.ok) {
+                    const enrichJson = await enrichRes.json();
+                    if (enrichJson.status === 200 && enrichJson.data) {
+                      personData = enrichJson.data;
+                      console.log(`[PDL] Stage 3 success: ${personData.full_name}`);
+                    } else {
+                      console.log(`[PDL] Stage 3 no data, using Stage 2 match`);
+                    }
+                  } else {
+                    console.log(`[PDL] Stage 3 failed: ${enrichRes.status}`);
+                  }
+                }
+
+                // Map resolved person data
+                enrichedData.full_name = personData.full_name || null;
+                enrichedData.first_name = personData.first_name || null;
+                enrichedData.last_name = personData.last_name || null;
+                enrichedData.email = personData.personal_emails?.[0] || personData.work_email || null;
+                enrichedData.phone = personData.mobile_phone || personData.phone_numbers?.[0] || null;
+                enrichedData.linkedin_url = personData.linkedin_url || null;
+                enrichedData.job_title = personData.job_title || null;
+                enrichedData.company = personData.job_company_name || enrichedData.company || null;
+                enrichedData.education = personData.education?.length
+                  ? personData.education.map((e: any) => e.school?.name).filter(Boolean).join(", ")
+                  : null;
+                // Override coords with person-level location if available
+                if (personData.location_geo) {
+                  enrichedData.latitude = personData.location_geo.lat || enrichedData.latitude;
+                  enrichedData.longitude = personData.location_geo.lng || enrichedData.longitude;
+                }
+                enrichedData.pdl_data = personData;
               }
-              enrichedData.pdl_data = personData;
             }
           }
         } catch (pdlError) {
