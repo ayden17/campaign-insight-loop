@@ -722,19 +722,25 @@ const LeadsPage = () => {
                         />
                       </TableCell>
                       <TableCell>
-                        <div className="flex items-center gap-1.5 flex-wrap">
-                          <span className="text-sm font-medium text-card-foreground">{getLeadDisplayName(lead)}</span>
-                          {(lead as any).source === "facebook" && (
-                            <span className="inline-flex items-center rounded-full px-1.5 py-0.5 text-[9px] font-medium bg-info/15 text-info border border-info/20">
-                              FB Lead
+                        <span className="text-sm font-medium text-card-foreground">{getLeadDisplayName(lead)}</span>
+                      </TableCell>
+                      <TableCell>
+                        {(() => {
+                          const src = sourceBadge[lead.source || ""] || null;
+                          if (!src) return <span className="text-[10px] text-muted-foreground">—</span>;
+                          const Icon = src.icon;
+                          return (
+                            <span className={cn("inline-flex items-center gap-1 rounded-full px-1.5 py-0.5 text-[9px] font-medium border", src.className)}>
+                              <Icon className="h-2.5 w-2.5" />
+                              {src.label}
                             </span>
-                          )}
-                          {(lead as any).source === "facebook" && (lead as any).source_metadata?.ad_account_name && (
-                            <span className="inline-flex items-center rounded-full px-1.5 py-0.5 text-[9px] font-medium bg-muted text-muted-foreground">
-                              {(lead as any).source_metadata.ad_account_name}
-                            </span>
-                          )}
-                        </div>
+                          );
+                        })()}
+                      </TableCell>
+                      <TableCell>
+                        <span className={cn("inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold border capitalize", intentBadge[lead.intent_level || "low"])}>
+                          {lead.intent_level || "low"}
+                        </span>
                       </TableCell>
                       <TableCell>
                         <span className={cn("inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold border capitalize", qualityBadge[lead.lead_quality || "medium"])}>
@@ -757,25 +763,29 @@ const LeadsPage = () => {
                           </SelectContent>
                         </Select>
                       </TableCell>
-                      <TableCell>
-                        <div className="flex flex-wrap gap-1 max-w-[200px]">
-                          {leadObjs.length > 0 ? leadObjs.slice(0, 2).map((o, i) => (
-                            <span key={i} className="inline-flex items-center rounded-full px-1.5 py-0.5 text-[9px] font-medium bg-destructive/10 text-destructive border border-destructive/20 truncate max-w-[90px]">
-                              {o}
-                            </span>
-                          )) : <span className="text-[10px] text-muted-foreground">—</span>}
-                          {leadObjs.length > 2 && (
-                            <span className="text-[9px] text-muted-foreground">+{leadObjs.length - 2}</span>
-                          )}
-                        </div>
-                      </TableCell>
                       <TableCell className="text-xs text-muted-foreground font-mono">
                         {lead.meeting_date ? new Date(lead.meeting_date).toLocaleDateString() : "—"}
                       </TableCell>
-                      <TableCell className="text-right">
-                        <Button variant="ghost" size="icon" className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <Eye className="h-3.5 w-3.5 text-muted-foreground" />
-                        </Button>
+                      <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
+                        <div className="flex items-center justify-end gap-1">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-7 w-7"
+                            onClick={() => enrichLeads([lead.id])}
+                            disabled={enrichingIds.has(lead.id)}
+                            title="Enrich with PDL"
+                          >
+                            {enrichingIds.has(lead.id) ? (
+                              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                            ) : (
+                              <Sparkles className="h-3.5 w-3.5 text-muted-foreground" />
+                            )}
+                          </Button>
+                          <Button variant="ghost" size="icon" className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <Eye className="h-3.5 w-3.5 text-muted-foreground" />
+                          </Button>
+                        </div>
                       </TableCell>
                     </TableRow>
                   );
