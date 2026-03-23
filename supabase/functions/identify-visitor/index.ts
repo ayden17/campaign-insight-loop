@@ -61,23 +61,24 @@ serve(async (req) => {
           const ipRes = await fetch(
             `${PDL_BASE}/ip/enrich?ip=${encodeURIComponent(resolvedIp)}&return_person=true&api_key=${pdlKey}`
           );
-          const ipData = ipRes.ok ? await ipRes.json() : null;
-          console.log(`[PDL] IP Enrichment status: ${ipRes.status}`, ipData ? "Got data" : "No data");
+          const ipJson = ipRes.ok ? await ipRes.json() : null;
+          console.log(`[PDL] IP Enrichment status: ${ipRes.status}`, ipJson?.status);
 
-          if (ipData) {
-            // Extract location from ip object
-            const loc = ipData.ip?.location || {};
+          // PDL wraps result in { status, data: { ip: { ... }, company: { ... } } }
+          const record = ipJson?.status === 200 ? ipJson.data : null;
+
+          if (record) {
+            const loc = record.ip?.location || {};
             enrichedData.city = loc.city || null;
             enrichedData.state = loc.region || null;
             enrichedData.postal_code = loc.postal_code || null;
             enrichedData.country = loc.country || null;
-            enrichedData.latitude = loc.lat || null;
-            enrichedData.longitude = loc.lng || null;
+            enrichedData.latitude = loc.lat ?? null;
+            enrichedData.longitude = loc.lng ?? null;
 
-            // Extract company
-            enrichedData.company = ipData.ip?.company?.name || null;
+            enrichedData.company = record.company?.name || null;
 
-            // Step B: Person Identify - use IP + location + company
+            // Step B: Person Identify — use IP + location + company
             console.log(`[PDL] Step B: Person Identify`);
             const identifyParams: Record<string, string> = {
               api_key: pdlKey,
@@ -96,7 +97,7 @@ serve(async (req) => {
             if (identifyData?.matches?.length > 0) {
               const topMatch = identifyData.matches[0].data;
 
-              // Step C: Person Enrichment - use linkedin_url or pdl_id
+              // Step C: Person Enrichment — use linkedin_url or pdl_id
               let personData = topMatch;
               const enrichProfile = topMatch.linkedin_url || topMatch.id;
 
@@ -119,7 +120,7 @@ serve(async (req) => {
                     console.log(`[PDL] Person Enrichment success: ${personData.full_name}`);
                   }
                 } else {
-                  console.log(`[PDL] Person Enrichment status: ${enrichRes.status}`);
+                  console.log(`[PDL] Person Enrichment failed: ${enrichRes.status}`);
                 }
               }
 
@@ -135,7 +136,6 @@ serve(async (req) => {
               enrichedData.education = personData.education?.length
                 ? personData.education.map((e: any) => e.school?.name).filter(Boolean).join(", ")
                 : null;
-              // Use person location if available
               if (personData.location_geo) {
                 enrichedData.latitude = personData.location_geo.lat || enrichedData.latitude;
                 enrichedData.longitude = personData.location_geo.lng || enrichedData.longitude;
