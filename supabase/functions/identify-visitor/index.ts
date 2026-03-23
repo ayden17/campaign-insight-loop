@@ -222,6 +222,62 @@ serve(async (req) => {
       });
     }
 
+    // ── Auto-insert resolved visitors as leads ──
+    if (enrichedData.company || enrichedData.full_name) {
+      // Determine intent level based on page URL
+      let intentLevel = "low";
+      const urlLower = (page_url || "").toLowerCase();
+      if (urlLower.includes("/pricing") || urlLower.includes("/demo") || urlLower.includes("/checkout")) {
+        intentLevel = "high";
+      } else if (existing && existing.total_visits >= 3) {
+        intentLevel = "medium";
+      }
+
+      const leadName = enrichedData.full_name || `Anonymous Visitor from ${enrichedData.company}`;
+      const leadId = `web_${visitor_uid}`;
+
+      // Upsert — don't duplicate
+      const { data: existingLead } = await supabase
+        .from("leads")
+        .select("id")
+        .eq("meeting_id", leadId)
+        .maybeSingle();
+
+      if (!existingLead) {
+        await supabase.from("leads").insert({
+          meeting_id: leadId,
+          lead_name: leadName,
+          meeting_title: `Website Visitor — ${enrichedData.company || enrichedData.city || "Unknown"}`,
+          meeting_date: new Date().toISOString(),
+          summary: `Resolved website visitor from ${enrichedData.city || "unknown location"}${enrichedData.company ? `, company: ${enrichedData.company}` : ""}`,
+          lead_quality: intentLevel === "high" ? "high" : "medium",
+          status: "pending",
+          source: "website",
+          source_label: "Website Visitor",
+          intent_level: intentLevel,
+          source_metadata: {
+            company: enrichedData.company,
+            city: enrichedData.city,
+            state: enrichedData.state,
+            email: enrichedData.email,
+            phone: enrichedData.phone,
+            linkedin_url: enrichedData.linkedin_url,
+            job_title: enrichedData.job_title,
+            company_confidence: enrichedData.company_confidence,
+            latitude: enrichedData.latitude,
+            longitude: enrichedData.longitude,
+          },
+          attendees: enrichedData.email ? [{ name: leadName, email: enrichedData.email }] : [],
+        });
+        console.log(`[Leads] Auto-inserted lead: ${leadName} (intent: ${intentLevel})`);
+      } else {
+        // Update intent if page is high-intent
+        if (intentLevel === "high") {
+          await supabase.from("leads").update({ intent_level: "high", lead_quality: "high" }).eq("id", existingLead.id);
+        }
+      }
+    }
+
     return new Response(JSON.stringify({ ok: true }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });

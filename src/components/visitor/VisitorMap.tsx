@@ -34,11 +34,16 @@ export default function VisitorMap({ latitude, longitude, city, visitorName, com
 
     mapboxgl.accessToken = token;
 
+    const initialCenter: [number, number] = (lng != null && lat != null && !isNaN(lng) && !isNaN(lat))
+      ? [lng, lat]
+      : [-98.5795, 39.8283];
+    const initialZoom = (lng != null && lat != null && !isNaN(lng) && !isNaN(lat)) ? 11 : 3;
+
     map.current = new mapboxgl.Map({
       container: mapContainer.current,
       style: "mapbox://styles/mapbox/light-v11",
-      center: [-98.5795, 39.8283],
-      zoom: 3,
+      center: initialCenter,
+      zoom: initialZoom,
       projection: "globe" as any,
       attributionControl: false,
       config: {

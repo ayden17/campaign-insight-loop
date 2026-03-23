@@ -165,7 +165,9 @@ export type Database = {
         Row: {
           attendees: Json | null
           created_at: string
+          enrichment_data: Json | null
           id: string
+          intent_level: string | null
           lead_name: string | null
           lead_quality: string | null
           meeting_date: string | null
@@ -187,7 +189,9 @@ export type Database = {
         Insert: {
           attendees?: Json | null
           created_at?: string
+          enrichment_data?: Json | null
           id?: string
+          intent_level?: string | null
           lead_name?: string | null
           lead_quality?: string | null
           meeting_date?: string | null
@@ -209,7 +213,9 @@ export type Database = {
         Update: {
           attendees?: Json | null
           created_at?: string
+          enrichment_data?: Json | null
           id?: string
+          intent_level?: string | null
           lead_name?: string | null
           lead_quality?: string | null
           meeting_date?: string | null
