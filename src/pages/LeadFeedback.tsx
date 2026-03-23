@@ -616,7 +616,8 @@ const LeadsPage = () => {
             <SelectTrigger className="h-8 w-[130px] text-xs"><SelectValue placeholder="Source" /></SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Sources</SelectItem>
-              <SelectItem value="facebook">Facebook</SelectItem>
+              <SelectItem value="facebook">Meta</SelectItem>
+              <SelectItem value="website">Website</SelectItem>
               <SelectItem value="fathom">Sales Calls</SelectItem>
             </SelectContent>
           </Select>
