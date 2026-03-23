@@ -661,6 +661,23 @@ const LeadsPage = () => {
               </Button>
             </>
           )}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              const ids = Array.from(selectedIds);
+              if (ids.length === 0) {
+                toast({ title: "Select leads", description: "Check leads to bulk enrich.", variant: "destructive" });
+                return;
+              }
+              enrichLeads(ids);
+            }}
+            disabled={enrichingIds.size > 0 || selectedIds.size === 0}
+            className="gap-1.5 text-xs"
+          >
+            {enrichingIds.size > 0 ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />}
+            Bulk Enrich {selectedIds.size > 0 && `(${selectedIds.size})`}
+          </Button>
           <Button variant="outline" size="sm" onClick={handleExport} className="gap-1.5 text-xs">
             <Download className="h-3.5 w-3.5" />
             Export CSV {selectedIds.size > 0 && `(${selectedIds.size})`}
