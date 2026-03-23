@@ -63,7 +63,7 @@ export default function VisitorMap({ latitude, longitude, city, visitorName, com
 
     map.current.flyTo({
       center: [lng, lat],
-      zoom: isStreetView ? 18 : 14,
+      zoom: isStreetView ? 18 : 11,
       pitch: isStreetView ? 60 : 0,
       essential: true,
       duration: 2500,
@@ -72,22 +72,25 @@ export default function VisitorMap({ latitude, longitude, city, visitorName, com
     const el = document.createElement("div");
     el.innerHTML = `
       <div style="position:relative;width:20px;height:20px;">
-        <div style="position:absolute;inset:0;border-radius:50%;background:#22c55e;opacity:0.3;animation:pulse-ring 1.5s ease-out infinite;"></div>
+        <div style="position:absolute;inset:0;border-radius:50%;background:#22c55e;opacity:0.2;animation:pulse-ring 1.5s ease-out infinite;"></div>
         <div style="position:absolute;top:5px;left:5px;width:10px;height:10px;border-radius:50%;background:#22c55e;border:2px solid white;box-shadow:0 0 6px rgba(0,0,0,0.3);"></div>
       </div>
     `;
 
+    const popup = new mapboxgl.Popup({
+      closeButton: false,
+      closeOnClick: false,
+      offset: [0, 20],
+      className: 'permanent-location-label',
+    }).setHTML(
+      `<span style="color:#94a3b8;font-size:10px;font-weight:400;">Expected visitor's location</span>`
+    );
+
     marker.current = new mapboxgl.Marker({ element: el })
       .setLngLat([lng, lat])
-      .setPopup(
-        new mapboxgl.Popup({ offset: 25 }).setHTML(
-          `<div style="padding:4px 0;">
-            <strong style="font-size:14px;">${visitorName || "Anonymous Visitor"}</strong><br/>
-            <span style="font-size:12px;color:#666;">${city || "Location Verified"}</span>
-          </div>`
-        )
-      )
-      .addTo(map.current);
+      .setPopup(popup)
+      .addTo(map.current)
+      .togglePopup();
   }, [lat, lng, city, visitorName, isStreetView]);
 
   if (!token) {
@@ -108,8 +111,16 @@ export default function VisitorMap({ latitude, longitude, city, visitorName, com
     <>
       <style>{`
         @keyframes pulse-ring {
-          0% { transform: scale(1); opacity: 0.4; }
+          0% { transform: scale(1); opacity: 0.2; }
           100% { transform: scale(3); opacity: 0; }
+        }
+        .permanent-location-label .mapboxgl-popup-content {
+          background: transparent;
+          box-shadow: none;
+          padding: 0;
+        }
+        .permanent-location-label .mapboxgl-popup-tip {
+          display: none;
         }
       `}</style>
       <div className="relative">
