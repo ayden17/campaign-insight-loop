@@ -61,6 +61,8 @@ const App = () => {
               <Route path="/campaigns/:id" element={<CampaignDetail />} />
               <Route path="/ad-creatives" element={<AdCreatives />} />
               <Route path="/lead-search" element={<LeadSearch />} />
+              <Route path="/pixels" element={<ManagePixels />} />
+              <Route path="/visitor-analytics" element={<VisitorAnalytics />} />
               <Route path="/funnel" element={<FunnelView />} />
               <Route path="/sales" element={<SalesConversations />} />
               <Route path="/leads" element={<LeadsPage />} />
