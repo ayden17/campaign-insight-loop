@@ -1,0 +1,1 @@
+ALTER TABLE public.pixel_visitors ADD COLUMN IF NOT EXISTS company_confidence text DEFAULT null;
