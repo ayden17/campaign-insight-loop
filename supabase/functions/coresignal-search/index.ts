@@ -24,10 +24,12 @@ serve(async (req) => {
 
     if (action === 'search') {
       const userIntent = params.userIntent || '';
-      const targetRevenue = params.targetRevenue || 1000000;
-      const growthThreshold = params.growthThreshold || 5;
+      const targetRevenue = Number(params.targetRevenue) || 1000000;
+      const growthThreshold = Number(params.growthThreshold) || 5;
+      const jobTitles: string[] = Array.isArray(params.jobTitles) && params.jobTitles.length > 0
+        ? params.jobTitles
+        : ["marketing", "advertising"];
 
-      // Build the must clauses
       const mustClauses: any[] = [];
 
       if (userIntent) {
@@ -36,15 +38,15 @@ serve(async (req) => {
         });
       }
 
+      // Dynamic job posting titles
       mustClauses.push({
         nested: {
           path: "active_job_postings",
           query: {
             bool: {
-              should: [
-                { match: { "active_job_postings.job_posting_title": "marketing" } },
-                { match: { "active_job_postings.job_posting_title": "advertising" } },
-              ],
+              should: jobTitles.map(title => ({
+                match: { "active_job_postings.job_posting_title": title }
+              })),
               minimum_should_match: 1
             }
           }
@@ -110,9 +112,7 @@ serve(async (req) => {
 
       const response = await fetch(`https://api.coresignal.com/cdapi/v2/company_multi_source/collect/${companyId}`, {
         method: 'GET',
-        headers: {
-          'apikey': CORESIGNAL_API_KEY,
-        },
+        headers: { 'apikey': CORESIGNAL_API_KEY },
       });
 
       const data = await response.json();
@@ -126,8 +126,46 @@ serve(async (req) => {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
 
+    } else if (action === 'collect_batch') {
+      const companyIds: number[] = params.companyIds;
+      if (!Array.isArray(companyIds) || companyIds.length === 0) {
+        return new Response(JSON.stringify({ error: 'companyIds array is required' }), {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      // Limit to 10 to conserve credits and prevent timeouts
+      const limitedIds = companyIds.slice(0, 10);
+      const results: any[] = [];
+
+      for (const id of limitedIds) {
+        try {
+          const response = await fetch(`https://api.coresignal.com/cdapi/v2/company_multi_source/collect/${id}`, {
+            method: 'GET',
+            headers: { 'apikey': CORESIGNAL_API_KEY },
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            results.push({ id, ...data });
+          } else {
+            console.warn(`Failed to collect company ${id}: ${response.status}`);
+            results.push({ id, error: true });
+          }
+        } catch (err) {
+          console.warn(`Error collecting company ${id}:`, err);
+          results.push({ id, error: true });
+        }
+      }
+
+      return new Response(JSON.stringify(results), {
+        status: 200,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+
     } else {
-      return new Response(JSON.stringify({ error: 'Invalid action. Use "search" or "collect".' }), {
+      return new Response(JSON.stringify({ error: 'Invalid action. Use "search", "collect", or "collect_batch".' }), {
         status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
