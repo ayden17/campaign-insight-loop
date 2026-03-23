@@ -111,8 +111,16 @@ export default function VisitorMap({ latitude, longitude, city, visitorName, com
     <>
       <style>{`
         @keyframes pulse-ring {
-          0% { transform: scale(1); opacity: 0.4; }
+          0% { transform: scale(1); opacity: 0.2; }
           100% { transform: scale(3); opacity: 0; }
+        }
+        .permanent-location-label .mapboxgl-popup-content {
+          background: transparent;
+          box-shadow: none;
+          padding: 0;
+        }
+        .permanent-location-label .mapboxgl-popup-tip {
+          display: none;
         }
       `}</style>
       <div className="relative">
