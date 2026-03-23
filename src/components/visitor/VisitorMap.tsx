@@ -8,6 +8,7 @@ interface VisitorMapProps {
   longitude: number | null;
   city: string | null;
   visitorName: string | null;
+  companyConfidence?: string | null;
 }
 
 export default function VisitorMap({ latitude, longitude, city, visitorName }: VisitorMapProps) {
