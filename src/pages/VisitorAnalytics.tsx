@@ -223,14 +223,13 @@ export default function VisitorAnalytics() {
           {selectedVisitor ? (
             <>
               {/* Map */}
-              {mapSrc && (
+              {hasLocation && (
                 <Card className="overflow-hidden">
-                  <iframe
-                    src={mapSrc}
-                    className="w-full h-56 border-0"
-                    loading="lazy"
-                    referrerPolicy="no-referrer-when-downgrade"
-                    title="Visitor location"
+                  <VisitorMap
+                    latitude={selectedVisitor.latitude}
+                    longitude={selectedVisitor.longitude}
+                    city={selectedVisitor.city}
+                    visitorName={displayName(selectedVisitor)}
                   />
                 </Card>
               )}
