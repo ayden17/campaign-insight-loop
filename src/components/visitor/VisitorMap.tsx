@@ -8,7 +8,6 @@ interface VisitorMapProps {
   longitude: number | null;
   city: string | null;
   visitorName: string | null;
-  companyConfidence?: string | null;
 }
 
 export default function VisitorMap({ latitude, longitude, city, visitorName }: VisitorMapProps) {
@@ -32,7 +31,7 @@ export default function VisitorMap({ latitude, longitude, city, visitorName }: V
       container: mapContainer.current,
       style: "mapbox://styles/mapbox/light-v11",
       center: [-98.5795, 39.8283],
-      zoom: 10,
+      zoom: 3,
       projection: "globe" as any,
       attributionControl: false,
       config: {
