@@ -6,7 +6,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { Search, Loader2, Download, ExternalLink, Save, SlidersHorizontal, Calendar, Briefcase, DollarSign, UserCheck, Home, MapPin, AtSign, Plus, RefreshCw, Link2, ArrowLeft, Building2, Globe, Linkedin } from "lucide-react";
+import { Search, Loader2, Download, ExternalLink, Save, SlidersHorizontal, Calendar, Briefcase, DollarSign, UserCheck, Home, MapPin, AtSign, Plus, RefreshCw, Link2, ArrowLeft, Building2, Globe, Linkedin, Lock, Users } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
@@ -32,6 +32,10 @@ interface CompanyResult {
   logo_url?: string;
   industry?: string;
   employees_count?: number;
+  size_range?: string;
+  description_enriched?: string;
+  description_short?: string;
+  error?: boolean;
   [key: string]: any;
 }
 
@@ -71,6 +75,20 @@ const contactFields = ["Has Email", "Has Phone", "Has LinkedIn"];
 
 const scoreToGrowth: Record<string, number> = { low: 2, medium: 5, high: 12 };
 
+/* ---------- helpers ---------- */
+
+/** Extract a numeric revenue value from financial custom filters */
+function extractRevenue(filters: FinancialFilters): number {
+  for (const f of filters.customFilters) {
+    const fieldLower = f.field.toLowerCase();
+    if (fieldLower.includes("income") || fieldLower.includes("net worth") || fieldLower.includes("revenue")) {
+      const num = parseFloat(f.value.replace(/[^0-9.]/g, ""));
+      if (!isNaN(num) && num > 0) return num;
+    }
+  }
+  return 1000000; // default
+}
+
 /* ---------- component ---------- */
 
 const LeadSearch = () => {
@@ -86,11 +104,11 @@ const LeadSearch = () => {
   // Builder state
   const [currentAudienceId, setCurrentAudienceId] = useState<string | null>(null);
   const [audienceName, setAudienceName] = useState("");
-  const [companies, setCompanies] = useState<CompanyResult[]>([]);
+  const [hydratedCompanies, setHydratedCompanies] = useState<CompanyResult[]>([]);
+  const [lockedIds, setLockedIds] = useState<number[]>([]);
   const [currentAudienceIds, setCurrentAudienceIds] = useState<number[]>([]);
-  const [enrichedCompany, setEnrichedCompany] = useState<CompanyResult | null>(null);
   const [loading, setLoading] = useState(false);
-  const [enriching, setEnriching] = useState(false);
+  const [hydrating, setHydrating] = useState(false);
   const [audienceGenerated, setAudienceGenerated] = useState(false);
   const [saving, setSaving] = useState(false);
   const [totalResults, setTotalResults] = useState(0);
@@ -155,16 +173,18 @@ const LeadSearch = () => {
     contact: contactFilters,
   });
 
-  /* ---------- CoreSignal Search ---------- */
+  /* ---------- CoreSignal Search + Hydration ---------- */
   const handleSearch = async () => {
     setLoading(true);
-    setEnrichedCompany(null);
+    setHydratedCompanies([]);
+    setLockedIds([]);
     setAudienceGenerated(false);
 
-    // Build userIntent from keywords + AI prompt
+    // Build dynamic params
     const userIntent = [...intentFilters.keywords, businessFilters.industry].filter(Boolean).join(" ");
     const growthThreshold = scoreToGrowth[intentFilters.intentScore] || 5;
-    const targetRevenue = 1000000; // default
+    const targetRevenue = extractRevenue(financialFilters);
+    const jobTitles = businessFilters.jobTitles.length > 0 ? businessFilters.jobTitles : undefined;
 
     try {
       const { data, error } = await supabase.functions.invoke("coresignal-search", {
@@ -173,73 +193,69 @@ const LeadSearch = () => {
           userIntent,
           targetRevenue,
           growthThreshold,
-          size: 50,
+          ...(jobTitles && { jobTitles }),
         },
       });
 
       if (error) throw error;
 
-      // CoreSignal returns an array of IDs or objects
-      let results: any[] = [];
+      // Parse IDs from response
+      let ids: number[] = [];
       if (Array.isArray(data)) {
-        results = data;
+        ids = data.map((r: any) => typeof r === 'number' ? r : Number(r));
       } else if (data?.hits?.hits) {
-        results = data.hits.hits.map((h: any) => ({ id: h._id, ...h._source }));
+        ids = data.hits.hits.map((h: any) => Number(h._id));
       } else if (data?.results) {
-        results = data.results;
+        ids = data.results.map((r: any) => typeof r === 'number' ? r : Number(r.id || r._id));
       }
 
-      if (results.length === 0) {
+      if (ids.length === 0) {
         toast({
           title: "No companies found",
           description: "No companies found with these specific filters. Try lowering the Minimum Score.",
           variant: "destructive",
         });
-        setCompanies([]);
         setCurrentAudienceIds([]);
         setTotalResults(0);
         setLoading(false);
         return;
       }
 
-      // Store all IDs for bulk processing
-      const ids = results.map((r: any) => typeof r === 'number' ? r : (r.id || r._id));
       setCurrentAudienceIds(ids);
       setTotalResults(ids.length);
 
-      // Enrich the first company for preview
-      const firstId = ids[0];
-      await enrichCompany(firstId);
+      // Hydrate first 10
+      const hydrateIds = ids.slice(0, 10);
+      const remainingIds = ids.slice(10);
+      setLockedIds(remainingIds);
+      setLoading(false);
 
-      // Store basic results
-      setCompanies(results.map((r: any) => typeof r === 'number' ? { id: r } : r));
+      // Now hydrate
+      setHydrating(true);
+      try {
+        const { data: batchData, error: batchError } = await supabase.functions.invoke("coresignal-search", {
+          body: { action: "collect_batch", companyIds: hydrateIds },
+        });
+        if (batchError) throw batchError;
+        if (Array.isArray(batchData)) {
+          setHydratedCompanies(batchData.filter((c: any) => !c.error));
+        }
+      } catch (err: any) {
+        console.error("Hydration error:", err);
+        toast({ title: "Hydration Warning", description: "Could not enrich company details. IDs are still available.", variant: "destructive" });
+      }
+      setHydrating(false);
 
     } catch (err: any) {
       console.error("CoreSignal search error:", err);
       toast({ title: "Search Error", description: err.message || "Failed to search companies", variant: "destructive" });
+      setLoading(false);
     }
-    setLoading(false);
-  };
-
-  /* ---------- CoreSignal Enrich ---------- */
-  const enrichCompany = async (companyId: number) => {
-    setEnriching(true);
-    try {
-      const { data, error } = await supabase.functions.invoke("coresignal-search", {
-        body: { action: "collect", companyId },
-      });
-      if (error) throw error;
-      setEnrichedCompany(data);
-    } catch (err: any) {
-      console.error("Enrich error:", err);
-    }
-    setEnriching(false);
   };
 
   /* ---------- Generate Audience (saves to DB) ---------- */
   const handleGenerateAudience = async () => {
     if (currentAudienceIds.length === 0) {
-      // Run search first
       await handleSearch();
       return;
     }
@@ -305,7 +321,6 @@ const LeadSearch = () => {
     if (f?.housing) setHousingFilters(f.housing);
     if (f?.date) setDateFilters(f.date);
     if (f?.contact) setContactFilters(f.contact);
-    // Restore saved IDs
     if (Array.isArray(audience.filters) || (audience as any).results) {
       const savedResults = (audience as any).results;
       if (Array.isArray(savedResults)) {
@@ -321,16 +336,23 @@ const LeadSearch = () => {
       toast({ title: "Generate first", description: "Please generate the audience before exporting.", variant: "destructive" });
       return;
     }
-    const toExport = companies.length > 0 ? companies : currentAudienceIds.map(id => ({ id }));
-    const headers = ["ID", "Company Name", "Website", "LinkedIn", "Industry", "Employees"];
-    const rows = toExport.map((c: any) => [
-      c.id || "",
-      c.company_name || c.name || "",
-      c.website || c.website_domain || "",
-      c.linkedin_url || "",
-      c.industry || "",
-      c.employees_count || "",
-    ]);
+    const headers = ["ID", "Company Name", "Website", "LinkedIn", "Industry", "Employees", "Description"];
+    const hydratedMap = new Map(hydratedCompanies.map(c => [c.id, c]));
+    const rows = currentAudienceIds.map(id => {
+      const c = hydratedMap.get(id);
+      if (c) {
+        return [
+          id,
+          c.company_name || c.name || "",
+          c.website || c.website_domain || "",
+          c.linkedin_url || "",
+          c.industry || "",
+          c.employees_count || "",
+          (c.description_enriched || c.description_short || "").slice(0, 200),
+        ];
+      }
+      return [id, "", "", "", "", "", ""];
+    });
     const csv = [headers.join(","), ...rows.map(r => r.map(v => `"${String(v || "").replace(/"/g, '""')}"`).join(","))].join("\n");
     const blob = new Blob([csv], { type: "text/csv" });
     const url = URL.createObjectURL(blob);
@@ -339,7 +361,7 @@ const LeadSearch = () => {
     a.download = `${audienceName || "audience"}-export-${new Date().toISOString().slice(0, 10)}.csv`;
     a.click();
     URL.revokeObjectURL(url);
-    toast({ title: "Exported", description: `${toExport.length} companies exported.` });
+    toast({ title: "Exported", description: `${currentAudienceIds.length} companies exported.` });
   };
 
   const toggleSelect = (id: number) => {
@@ -434,18 +456,20 @@ const LeadSearch = () => {
   }
 
   /* ---------- BUILDER VIEW ---------- */
+  const topMatch = hydratedCompanies.length > 0 ? hydratedCompanies[0] : null;
+
   return (
     <DashboardLayout title={audienceName || "Audience Filters"} subtitle="Build high-intent audiences from big data">
       {/* Top bar */}
       <div className="flex items-center justify-between mb-4">
-        <Button variant="ghost" size="sm" onClick={() => { setView("list"); setCompanies([]); setCurrentAudienceIds([]); setEnrichedCompany(null); setAudienceGenerated(false); loadAudiences(); }} className="gap-1.5">
+        <Button variant="ghost" size="sm" onClick={() => { setView("list"); setHydratedCompanies([]); setLockedIds([]); setCurrentAudienceIds([]); setAudienceGenerated(false); loadAudiences(); }} className="gap-1.5">
           <ArrowLeft className="h-4 w-4" /> Back to Audiences
         </Button>
         <div className="flex items-center gap-2">
-          <Button variant="outline" onClick={handleSearch} disabled={loading} className="gap-1.5">
+          <Button variant="outline" onClick={handleSearch} disabled={loading || hydrating} className="gap-1.5">
             <Search className="h-4 w-4" /> Preview
           </Button>
-          <Button onClick={handleGenerateAudience} disabled={loading || saving} className="gap-1.5">
+          <Button onClick={handleGenerateAudience} disabled={loading || saving || hydrating} className="gap-1.5">
             {(loading || saving) ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
             {audienceGenerated ? "Update Audience" : "Generate Audience"}
           </Button>
@@ -499,39 +523,59 @@ const LeadSearch = () => {
         </div>
       )}
 
-      {/* Enriched Company Preview Card */}
-      {!loading && enrichedCompany && (
+      {/* Hydrating state */}
+      {!loading && hydrating && (
+        <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
+          <Loader2 className="h-4 w-4 animate-spin" /> Enriching top company results...
+        </div>
+      )}
+
+      {/* Top Match Card */}
+      {!loading && topMatch && (
         <div className="mb-6">
           <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3">Preview — Top Match</h3>
-          <Card className="max-w-lg">
+          <Card className="max-w-2xl">
             <CardContent className="p-5 flex items-start gap-4">
-              {(enrichedCompany.company_logo_url || enrichedCompany.logo_url) ? (
+              {(topMatch.company_logo_url || topMatch.logo_url) ? (
                 <img
-                  src={enrichedCompany.company_logo_url || enrichedCompany.logo_url}
-                  alt={enrichedCompany.company_name || enrichedCompany.name || "Company"}
-                  className="h-14 w-14 rounded-lg object-contain border border-border bg-background p-1"
+                  src={topMatch.company_logo_url || topMatch.logo_url}
+                  alt={topMatch.company_name || topMatch.name || "Company"}
+                  className="h-14 w-14 rounded-lg object-contain border border-border bg-background p-1 shrink-0"
                   onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
                 />
               ) : (
-                <div className="h-14 w-14 rounded-lg border border-border bg-muted flex items-center justify-center">
+                <div className="h-14 w-14 rounded-lg border border-border bg-muted flex items-center justify-center shrink-0">
                   <Building2 className="h-6 w-6 text-muted-foreground" />
                 </div>
               )}
-              <div className="flex-1 min-w-0 space-y-1">
+              <div className="flex-1 min-w-0 space-y-1.5">
                 <p className="text-base font-semibold text-foreground truncate">
-                  {enrichedCompany.company_name || enrichedCompany.name || "Unknown Company"}
+                  {topMatch.company_name || topMatch.name || "Unknown Company"}
                 </p>
-                {enrichedCompany.industry && (
-                  <p className="text-sm text-muted-foreground">{enrichedCompany.industry}</p>
+                {topMatch.industry && (
+                  <Badge variant="secondary" className="text-xs">{topMatch.industry}</Badge>
                 )}
-                <div className="flex items-center gap-3 pt-1">
-                  {(enrichedCompany.website || enrichedCompany.website_domain) && (
-                    <a href={enrichedCompany.website || `https://${enrichedCompany.website_domain}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-xs text-primary hover:underline">
+                {(topMatch.description_enriched || topMatch.description_short) && (
+                  <p className="text-sm text-muted-foreground line-clamp-2">
+                    {topMatch.description_enriched || topMatch.description_short}
+                  </p>
+                )}
+                <div className="flex items-center gap-3 pt-1 flex-wrap">
+                  {topMatch.employees_count && (
+                    <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                      <Users className="h-3 w-3" /> {topMatch.employees_count.toLocaleString()} employees
+                    </span>
+                  )}
+                  {topMatch.size_range && (
+                    <span className="text-xs text-muted-foreground">({topMatch.size_range})</span>
+                  )}
+                  {(topMatch.website || topMatch.website_domain) && (
+                    <a href={topMatch.website || `https://${topMatch.website_domain}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-xs text-primary hover:underline">
                       <Globe className="h-3 w-3" /> Website
                     </a>
                   )}
-                  {enrichedCompany.linkedin_url && (
-                    <a href={enrichedCompany.linkedin_url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-xs text-primary hover:underline">
+                  {topMatch.linkedin_url && (
+                    <a href={topMatch.linkedin_url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-xs text-primary hover:underline">
                       <Linkedin className="h-3 w-3" /> LinkedIn
                     </a>
                   )}
@@ -542,18 +586,12 @@ const LeadSearch = () => {
         </div>
       )}
 
-      {enriching && !loading && (
-        <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
-          <Loader2 className="h-4 w-4 animate-spin" /> Enriching company details...
-        </div>
-      )}
-
-      {/* Results summary */}
+      {/* Results */}
       {!loading && currentAudienceIds.length > 0 && (
         <>
           <div className="flex items-center justify-between mb-4">
             <p className="text-sm text-muted-foreground">
-              {totalResults.toLocaleString()} companies found
+              {totalResults.toLocaleString()} companies found · {hydratedCompanies.length} enriched
             </p>
             <div className="flex items-center gap-2">
               {audienceGenerated && (
@@ -564,46 +602,97 @@ const LeadSearch = () => {
             </div>
           </div>
 
-          <div className="rounded-lg border border-border overflow-hidden">
-            <Table>
-              <TableHeader>
-                <TableRow className="bg-muted/50">
-                  <TableHead className="w-10"><Checkbox checked={selectedIds.size === currentAudienceIds.length && currentAudienceIds.length > 0} onCheckedChange={toggleSelectAll} /></TableHead>
-                  <TableHead className="text-xs font-semibold uppercase tracking-wide">#</TableHead>
-                  <TableHead className="text-xs font-semibold uppercase tracking-wide">Company ID</TableHead>
-                  <TableHead className="text-xs font-semibold uppercase tracking-wide">Company Name</TableHead>
-                  <TableHead className="text-xs font-semibold uppercase tracking-wide">Industry</TableHead>
-                  <TableHead className="text-xs font-semibold uppercase tracking-wide">Website</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {companies.length > 0 ? companies.map((c, idx) => (
-                  <TableRow key={c.id} className="hover:bg-muted/30">
-                    <TableCell><Checkbox checked={selectedIds.has(c.id)} onCheckedChange={() => toggleSelect(c.id)} /></TableCell>
-                    <TableCell className="text-sm text-muted-foreground">{idx + 1}</TableCell>
-                    <TableCell className="text-sm font-mono">{c.id}</TableCell>
-                    <TableCell className="text-sm">{c.company_name || c.name || "—"}</TableCell>
-                    <TableCell className="text-sm">{c.industry || "—"}</TableCell>
-                    <TableCell className="text-sm truncate max-w-[200px]">{c.website || c.website_domain || "—"}</TableCell>
-                  </TableRow>
-                )) : currentAudienceIds.slice(0, 50).map((id, idx) => (
-                  <TableRow key={id} className="hover:bg-muted/30">
-                    <TableCell><Checkbox checked={selectedIds.has(id)} onCheckedChange={() => toggleSelect(id)} /></TableCell>
-                    <TableCell className="text-sm text-muted-foreground">{idx + 1}</TableCell>
-                    <TableCell className="text-sm font-mono">{id}</TableCell>
-                    <TableCell className="text-sm text-muted-foreground" colSpan={3}>
-                      <button onClick={() => enrichCompany(id)} className="text-primary hover:underline text-xs">Enrich →</button>
-                    </TableCell>
-                  </TableRow>
+          {/* Hydrated Company Cards */}
+          {hydratedCompanies.length > 0 && (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+              {hydratedCompanies.map((company) => (
+                <Card key={company.id} className="hover:shadow-md transition-shadow">
+                  <CardContent className="p-4 space-y-3">
+                    <div className="flex items-start gap-3">
+                      {(company.company_logo_url || company.logo_url) ? (
+                        <img
+                          src={company.company_logo_url || company.logo_url}
+                          alt={company.company_name || company.name || ""}
+                          className="h-10 w-10 rounded-lg object-contain border border-border bg-background p-0.5 shrink-0"
+                          onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                        />
+                      ) : (
+                        <div className="h-10 w-10 rounded-lg border border-border bg-muted flex items-center justify-center shrink-0">
+                          <Building2 className="h-5 w-5 text-muted-foreground" />
+                        </div>
+                      )}
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm font-semibold text-foreground truncate">
+                          {company.company_name || company.name || `Company #${company.id}`}
+                        </p>
+                        {company.industry && (
+                          <Badge variant="secondary" className="text-[10px] mt-1">{company.industry}</Badge>
+                        )}
+                      </div>
+                    </div>
+
+                    {(company.description_enriched || company.description_short) && (
+                      <p className="text-xs text-muted-foreground line-clamp-2">
+                        {company.description_enriched || company.description_short}
+                      </p>
+                    )}
+
+                    <div className="flex items-center gap-2 flex-wrap">
+                      {company.employees_count && (
+                        <span className="flex items-center gap-1 text-[11px] text-muted-foreground">
+                          <Users className="h-3 w-3" /> {company.employees_count.toLocaleString()}
+                        </span>
+                      )}
+                      {(company.website || company.website_domain) && (
+                        <a href={company.website || `https://${company.website_domain}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-[11px] text-primary hover:underline">
+                          <Globe className="h-3 w-3" /> Website
+                        </a>
+                      )}
+                      {company.linkedin_url && (
+                        <a href={company.linkedin_url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-[11px] text-primary hover:underline">
+                          <Linkedin className="h-3 w-3" /> LinkedIn
+                        </a>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
+
+          {/* Locked Results */}
+          {lockedIds.length > 0 && (
+            <div>
+              <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3">
+                {lockedIds.length} additional companies
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                {lockedIds.slice(0, 30).map((id) => (
+                  <Card key={id} className="bg-muted/30 border-dashed">
+                    <CardContent className="p-4 flex items-center gap-3">
+                      <div className="h-10 w-10 rounded-lg border border-border bg-muted flex items-center justify-center shrink-0">
+                        <Lock className="h-4 w-4 text-muted-foreground" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm font-mono text-muted-foreground">ID: {id}</p>
+                        <p className="text-xs text-muted-foreground/60">Generate to unlock details</p>
+                      </div>
+                    </CardContent>
+                  </Card>
                 ))}
-              </TableBody>
-            </Table>
-          </div>
+              </div>
+              {lockedIds.length > 30 && (
+                <p className="text-xs text-muted-foreground text-center mt-3">
+                  + {lockedIds.length - 30} more companies
+                </p>
+              )}
+            </div>
+          )}
         </>
       )}
 
       {/* Empty state */}
-      {!loading && currentAudienceIds.length === 0 && !enrichedCompany && (
+      {!loading && !hydrating && currentAudienceIds.length === 0 && hydratedCompanies.length === 0 && (
         <div className="rounded-xl border border-dashed border-border bg-muted/30 p-16 text-center">
           <Search className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
           <p className="text-base font-medium text-foreground mb-1">Preview Your Audience</p>
