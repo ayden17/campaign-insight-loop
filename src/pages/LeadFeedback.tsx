@@ -792,7 +792,7 @@ const LeadsPage = () => {
                 })
               ) : (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center py-8 text-sm text-muted-foreground">
+                  <TableCell colSpan={8} className="text-center py-8 text-sm text-muted-foreground">
                     {leads.length === 0
                       ? "No leads yet. Analyze a meeting from Review Sales Calls to create your first lead."
                       : "No leads match your filter."}
