@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
+import VisitorMap from "@/components/visitor/VisitorMap";
 
 interface Visitor {
   id: string;
@@ -117,11 +118,7 @@ export default function VisitorAnalytics() {
     toast({ title: "Copied", description: text });
   };
 
-  const mapSrc = selectedVisitor?.latitude && selectedVisitor?.longitude
-    ? `https://maps.google.com/maps?q=${selectedVisitor.latitude},${selectedVisitor.longitude}&z=13&output=embed`
-    : selectedVisitor?.city
-    ? `https://maps.google.com/maps?q=${encodeURIComponent(`${selectedVisitor.city}, ${selectedVisitor.state || ""}`)}&z=11&output=embed`
-    : null;
+  const hasLocation = selectedVisitor?.latitude != null && selectedVisitor?.longitude != null || selectedVisitor?.city;
 
   const exportCsv = () => {
     if (!visitors?.length) return;
@@ -226,14 +223,13 @@ export default function VisitorAnalytics() {
           {selectedVisitor ? (
             <>
               {/* Map */}
-              {mapSrc && (
+              {hasLocation && (
                 <Card className="overflow-hidden">
-                  <iframe
-                    src={mapSrc}
-                    className="w-full h-56 border-0"
-                    loading="lazy"
-                    referrerPolicy="no-referrer-when-downgrade"
-                    title="Visitor location"
+                  <VisitorMap
+                    latitude={selectedVisitor.latitude}
+                    longitude={selectedVisitor.longitude}
+                    city={selectedVisitor.city}
+                    visitorName={displayName(selectedVisitor)}
                   />
                 </Card>
               )}
