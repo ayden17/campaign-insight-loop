@@ -113,6 +113,18 @@ function exportToCSV(leads: Lead[]) {
   URL.revokeObjectURL(url);
 }
 
+const intentBadge: Record<string, string> = {
+  high: "bg-destructive/15 text-destructive border-destructive/30",
+  medium: "bg-warning/15 text-warning border-warning/30",
+  low: "bg-info/15 text-info border-info/30",
+};
+
+const sourceBadge: Record<string, { label: string; className: string; icon: typeof Facebook }> = {
+  facebook: { label: "Meta", className: "bg-info/15 text-info border-info/20", icon: Facebook },
+  website: { label: "Website", className: "bg-success/15 text-success border-success/20", icon: Globe },
+  fathom: { label: "Sales Call", className: "bg-primary/15 text-primary border-primary/20", icon: Users },
+};
+
 const LeadsPage = () => {
   const [leads, setLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(true);
@@ -128,8 +140,28 @@ const LeadsPage = () => {
   const [importingFbLeads, setImportingFbLeads] = useState(false);
   const [fbImportSince, setFbImportSince] = useState("");
   const [fbImportAccount, setFbImportAccount] = useState("all");
+  const [enrichingIds, setEnrichingIds] = useState<Set<string>>(new Set());
   const { toast } = useToast();
   const { accessToken, adAccounts } = useMetaAdsStore();
+
+  const enrichLeads = useCallback(async (ids: string[]) => {
+    setEnrichingIds(new Set(ids));
+    try {
+      const { data, error } = await supabase.functions.invoke("pdl-enrich", {
+        body: { lead_ids: ids, mode: ids.length === 1 ? "single" : "bulk" },
+      });
+      if (error) throw error;
+      const successCount = data?.results?.filter((r: any) => r.success).length || 0;
+      toast({
+        title: successCount > 0 ? "Enrichment Complete" : "No Matches Found",
+        description: `${successCount} of ${ids.length} leads enriched successfully.`,
+      });
+      if (successCount > 0) loadLeads();
+    } catch (err: any) {
+      toast({ title: "Enrichment Failed", description: err.message, variant: "destructive" });
+    }
+    setEnrichingIds(new Set());
+  }, [toast]);
 
   useEffect(() => { loadLeads(); }, []);
 
