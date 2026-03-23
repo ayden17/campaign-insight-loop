@@ -62,7 +62,6 @@ serve(async (req) => {
           const ipJson = ipRes.ok ? await ipRes.json() : null;
           console.log(`[PDL] IP Enrichment status: ${ipRes.status}`, JSON.stringify(ipJson?.status));
 
-          // PDL returns { status: 200, data: { ip: { ... }, company: { ... } } }
           const record = ipJson?.status === 200 ? ipJson.data : null;
 
           if (record) {
@@ -71,83 +70,122 @@ serve(async (req) => {
             enrichedData.state = loc.region || null;
             enrichedData.postal_code = loc.postal_code || null;
             enrichedData.country = loc.country || null;
-            enrichedData.latitude = loc.lat ?? null;
-            enrichedData.longitude = loc.lng ?? null;
-            enrichedData.company = record.company?.name || null;
 
-            console.log(`[PDL] Stage 1 result: city=${enrichedData.city}, company=${enrichedData.company}, lat=${enrichedData.latitude}, lng=${enrichedData.longitude}`);
+            // Parse coordinates — loc.lat/lng may be numbers or the company geo may be a string "lat,lng"
+            let parsedLat = loc.lat ?? null;
+            let parsedLng = loc.lng ?? null;
 
-            // ── STAGE 2: Person Identify ──
-            if (enrichedData.company || enrichedData.city) {
-              console.log(`[PDL] Stage 2: Person Identify`);
-              const identifyParams: Record<string, string> = {
-                api_key: pdlKey,
-                ip: resolvedIp,
-              };
-              if (enrichedData.company) identifyParams.company = enrichedData.company;
-              if (enrichedData.city) {
-                identifyParams.location = [enrichedData.city, enrichedData.state].filter(Boolean).join(", ");
-              }
-
-              const identifyUrl = `${PDL_BASE}/person/identify?${new URLSearchParams(identifyParams).toString()}`;
-              const identifyRes = await fetch(identifyUrl);
-              const identifyJson = identifyRes.ok ? await identifyRes.json() : null;
-              console.log(`[PDL] Person Identify status: ${identifyRes.status}, matches: ${identifyJson?.matches?.length || 0}`);
-
-              if (identifyJson?.matches?.length > 0) {
-                const bestMatch = identifyJson.matches[0].data;
-                console.log(`[PDL] Best match: ${bestMatch.full_name || bestMatch.id}, linkedin: ${bestMatch.linkedin_url || 'none'}`);
-
-                // ── STAGE 3: Person Enrichment ──
-                let personData = bestMatch;
-                const hasLinkedIn = bestMatch.linkedin_url;
-                const hasPdlId = bestMatch.id;
-
-                if (hasLinkedIn || hasPdlId) {
-                  console.log(`[PDL] Stage 3: Person Enrichment via ${hasLinkedIn ? 'linkedin' : 'pdl_id'}`);
-                  const enrichParams: Record<string, string> = { api_key: pdlKey };
-                  if (hasLinkedIn) {
-                    enrichParams.profile = bestMatch.linkedin_url;
-                  } else {
-                    enrichParams.pdl_id = bestMatch.id;
-                  }
-
-                  const enrichRes = await fetch(
-                    `${PDL_BASE}/person/enrich?${new URLSearchParams(enrichParams).toString()}`
-                  );
-                  if (enrichRes.ok) {
-                    const enrichJson = await enrichRes.json();
-                    if (enrichJson.status === 200 && enrichJson.data) {
-                      personData = enrichJson.data;
-                      console.log(`[PDL] Stage 3 success: ${personData.full_name}`);
-                    } else {
-                      console.log(`[PDL] Stage 3 no data, using Stage 2 match`);
-                    }
-                  } else {
-                    console.log(`[PDL] Stage 3 failed: ${enrichRes.status}`);
-                  }
+            // Also try company.location.geo which comes as "lat,lng" string
+            if (parsedLat == null && record.company?.location?.geo) {
+              const geoStr = record.company.location.geo;
+              if (typeof geoStr === "string" && geoStr.includes(",")) {
+                const parts = geoStr.split(",").map((s: string) => parseFloat(s.trim()));
+                if (parts.length === 2 && !isNaN(parts[0]) && !isNaN(parts[1])) {
+                  parsedLat = parts[0];
+                  parsedLng = parts[1];
+                  console.log(`[PDL] Parsed company geo string: lat=${parsedLat}, lng=${parsedLng}`);
                 }
-
-                // Map resolved person data
-                enrichedData.full_name = personData.full_name || null;
-                enrichedData.first_name = personData.first_name || null;
-                enrichedData.last_name = personData.last_name || null;
-                enrichedData.email = personData.personal_emails?.[0] || personData.work_email || null;
-                enrichedData.phone = personData.mobile_phone || personData.phone_numbers?.[0] || null;
-                enrichedData.linkedin_url = personData.linkedin_url || null;
-                enrichedData.job_title = personData.job_title || null;
-                enrichedData.company = personData.job_company_name || enrichedData.company || null;
-                enrichedData.education = personData.education?.length
-                  ? personData.education.map((e: any) => e.school?.name).filter(Boolean).join(", ")
-                  : null;
-                // Override coords with person-level location if available
-                if (personData.location_geo) {
-                  enrichedData.latitude = personData.location_geo.lat || enrichedData.latitude;
-                  enrichedData.longitude = personData.location_geo.lng || enrichedData.longitude;
-                }
-                enrichedData.pdl_data = personData;
               }
             }
+
+            enrichedData.latitude = parsedLat;
+            enrichedData.longitude = parsedLng;
+            enrichedData.company = record.company?.name || null;
+
+            // ── QUALITY GATE: Check company confidence ──
+            const companyConfidence = record.company?.confidence?.toLowerCase() || null;
+            enrichedData.company_confidence = companyConfidence;
+            console.log(`[PDL] Company confidence: ${companyConfidence}`);
+
+            if (companyConfidence === "very low" || companyConfidence === "low") {
+              // Low confidence — stop waterfall, keep company/location data only
+              console.log(`[PDL] Low confidence (${companyConfidence}). Skipping Person Identify. Setting anonymous name.`);
+              enrichedData.full_name = null; // Keep anonymous
+              // Don't proceed to Stage 2/3
+            } else {
+              // ── STAGE 2: Person Identify (high/very high/moderate confidence) ──
+              if (enrichedData.company || enrichedData.city) {
+                console.log(`[PDL] Stage 2: Person Identify (confidence: ${companyConfidence})`);
+                const identifyParams: Record<string, string> = {
+                  api_key: pdlKey,
+                  ip: resolvedIp,
+                };
+                if (enrichedData.company) identifyParams.company = enrichedData.company;
+                if (enrichedData.city) {
+                  identifyParams.location = [enrichedData.city, enrichedData.state].filter(Boolean).join(", ");
+                }
+
+                const identifyUrl = `${PDL_BASE}/person/identify?${new URLSearchParams(identifyParams).toString()}`;
+                const identifyRes = await fetch(identifyUrl);
+                const identifyJson = identifyRes.ok ? await identifyRes.json() : null;
+                console.log(`[PDL] Person Identify status: ${identifyRes.status}, matches: ${identifyJson?.matches?.length || 0}`);
+
+                if (identifyJson?.matches?.length > 0) {
+                  const bestMatch = identifyJson.matches[0].data;
+                  console.log(`[PDL] Best match: ${bestMatch.full_name || bestMatch.id}, linkedin: ${bestMatch.linkedin_url || "none"}`);
+
+                  // ── STAGE 3: Person Enrichment ──
+                  let personData = bestMatch;
+                  const hasLinkedIn = bestMatch.linkedin_url;
+                  const hasPdlId = bestMatch.id;
+
+                  if (hasLinkedIn || hasPdlId) {
+                    console.log(`[PDL] Stage 3: Person Enrichment via ${hasLinkedIn ? "linkedin" : "pdl_id"}`);
+                    const enrichParams: Record<string, string> = { api_key: pdlKey };
+                    if (hasLinkedIn) {
+                      enrichParams.profile = bestMatch.linkedin_url;
+                    } else {
+                      enrichParams.pdl_id = bestMatch.id;
+                    }
+
+                    const enrichRes = await fetch(
+                      `${PDL_BASE}/person/enrich?${new URLSearchParams(enrichParams).toString()}`
+                    );
+                    if (enrichRes.ok) {
+                      const enrichJson = await enrichRes.json();
+                      if (enrichJson.status === 200 && enrichJson.data) {
+                        personData = enrichJson.data;
+                        console.log(`[PDL] Stage 3 success: ${personData.full_name}`);
+                      } else {
+                        console.log(`[PDL] Stage 3 no data, using Stage 2 match`);
+                      }
+                    } else {
+                      console.log(`[PDL] Stage 3 failed: ${enrichRes.status}`);
+                    }
+                  }
+
+                  // Map resolved person data
+                  enrichedData.full_name = personData.full_name || null;
+                  enrichedData.first_name = personData.first_name || null;
+                  enrichedData.last_name = personData.last_name || null;
+                  enrichedData.email = personData.personal_emails?.[0] || personData.work_email || null;
+                  enrichedData.phone = personData.mobile_phone || personData.phone_numbers?.[0] || null;
+                  enrichedData.linkedin_url = personData.linkedin_url || null;
+                  enrichedData.job_title = personData.job_title || null;
+                  enrichedData.company = personData.job_company_name || enrichedData.company || null;
+                  enrichedData.education = personData.education?.length
+                    ? personData.education.map((e: any) => e.school?.name).filter(Boolean).join(", ")
+                    : null;
+                  // Override coords with person-level location if available
+                  if (personData.location_geo) {
+                    const pGeo = personData.location_geo;
+                    if (typeof pGeo === "string" && pGeo.includes(",")) {
+                      const parts = pGeo.split(",").map((s: string) => parseFloat(s.trim()));
+                      if (parts.length === 2 && !isNaN(parts[0]) && !isNaN(parts[1])) {
+                        enrichedData.latitude = parts[0];
+                        enrichedData.longitude = parts[1];
+                      }
+                    } else if (typeof pGeo === "object") {
+                      enrichedData.latitude = pGeo.lat || enrichedData.latitude;
+                      enrichedData.longitude = pGeo.lng || enrichedData.longitude;
+                    }
+                  }
+                  enrichedData.pdl_data = personData;
+                }
+              }
+            }
+
+            console.log(`[PDL] Final enriched data: name=${enrichedData.full_name}, company=${enrichedData.company}, confidence=${enrichedData.company_confidence}, lat=${enrichedData.latitude}, lng=${enrichedData.longitude}`);
           }
         } catch (pdlError) {
           console.error("[PDL] Enrichment error:", pdlError);

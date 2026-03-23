@@ -110,8 +110,13 @@ export default function VisitorAnalytics() {
     );
   }, [visitors, searchQuery]);
 
-  const displayName = (v: Visitor) =>
-    v.full_name || (v.city ? `Anonymous (${v.city})` : v.visitor_uid.slice(0, 12));
+  const displayName = (v: Visitor) => {
+    if (v.full_name) return v.full_name;
+    if ((v as any).company_confidence === "low" || (v as any).company_confidence === "very low") {
+      return `Anonymous Visitor${(v as any).company ? ` from ${(v as any).company}` : ""}`;
+    }
+    return v.city ? `Anonymous (${v.city})` : v.visitor_uid.slice(0, 12);
+  };
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
@@ -230,6 +235,7 @@ export default function VisitorAnalytics() {
                     longitude={selectedVisitor.longitude}
                     city={selectedVisitor.city}
                     visitorName={displayName(selectedVisitor)}
+                    companyConfidence={(selectedVisitor as any).company_confidence || null}
                   />
                 </Card>
               )}

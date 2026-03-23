@@ -331,6 +331,7 @@ export type Database = {
         Row: {
           city: string | null
           company: string | null
+          company_confidence: string | null
           country: string | null
           created_at: string
           education: string | null
@@ -358,6 +359,7 @@ export type Database = {
         Insert: {
           city?: string | null
           company?: string | null
+          company_confidence?: string | null
           country?: string | null
           created_at?: string
           education?: string | null
@@ -385,6 +387,7 @@ export type Database = {
         Update: {
           city?: string | null
           company?: string | null
+          company_confidence?: string | null
           country?: string | null
           created_at?: string
           education?: string | null
