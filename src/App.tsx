@@ -17,6 +17,8 @@ import AdCreatives from "./pages/AdCreatives";
 import AgentPage from "./pages/Agent";
 import SettingsPage from "./pages/Settings";
 import LeadSearch from "./pages/LeadSearch";
+import ManagePixels from "./pages/ManagePixels";
+import VisitorAnalytics from "./pages/VisitorAnalytics";
 import AuthPage from "./pages/Auth";
 import ResetPasswordPage from "./pages/ResetPassword";
 import NotFound from "./pages/NotFound";
@@ -59,6 +61,8 @@ const App = () => {
               <Route path="/campaigns/:id" element={<CampaignDetail />} />
               <Route path="/ad-creatives" element={<AdCreatives />} />
               <Route path="/lead-search" element={<LeadSearch />} />
+              <Route path="/pixels" element={<ManagePixels />} />
+              <Route path="/visitor-analytics" element={<VisitorAnalytics />} />
               <Route path="/funnel" element={<FunnelView />} />
               <Route path="/sales" element={<SalesConversations />} />
               <Route path="/leads" element={<LeadsPage />} />

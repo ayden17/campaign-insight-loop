@@ -15,6 +15,8 @@ import {
   Headphones,
   Bot,
   Search,
+  Scan,
+  Eye,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Separator } from "@/components/ui/separator";
@@ -31,6 +33,8 @@ const navSections: NavSection[] = [
     items: [
       { title: "Dashboard", path: "/", icon: LayoutDashboard },
       { title: "Build Audience", path: "/lead-search", icon: Search },
+      { title: "Manage Pixels", path: "/pixels", icon: Scan },
+      { title: "Visitor Analytics", path: "/visitor-analytics", icon: Eye },
       { title: "Funnel View", path: "/funnel", icon: Filter },
       { title: "Leads", path: "/leads", icon: Users },
     ],

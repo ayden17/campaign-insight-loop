@@ -295,6 +295,163 @@ export type Database = {
           },
         ]
       }
+      pixel_page_views: {
+        Row: {
+          created_at: string
+          id: string
+          page_url: string
+          referrer: string | null
+          visitor_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          page_url: string
+          referrer?: string | null
+          visitor_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          page_url?: string
+          referrer?: string | null
+          visitor_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pixel_page_views_visitor_id_fkey"
+            columns: ["visitor_id"]
+            isOneToOne: false
+            referencedRelation: "pixel_visitors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pixel_visitors: {
+        Row: {
+          city: string | null
+          company: string | null
+          country: string | null
+          created_at: string
+          education: string | null
+          email: string | null
+          first_name: string | null
+          first_seen: string
+          full_name: string | null
+          id: string
+          ip_address: string | null
+          job_title: string | null
+          last_name: string | null
+          last_seen: string
+          latitude: number | null
+          linkedin_url: string | null
+          longitude: number | null
+          pdl_data: Json | null
+          phone: string | null
+          pixel_id: string
+          postal_code: string | null
+          state: string | null
+          total_visits: number
+          updated_at: string
+          visitor_uid: string
+        }
+        Insert: {
+          city?: string | null
+          company?: string | null
+          country?: string | null
+          created_at?: string
+          education?: string | null
+          email?: string | null
+          first_name?: string | null
+          first_seen?: string
+          full_name?: string | null
+          id?: string
+          ip_address?: string | null
+          job_title?: string | null
+          last_name?: string | null
+          last_seen?: string
+          latitude?: number | null
+          linkedin_url?: string | null
+          longitude?: number | null
+          pdl_data?: Json | null
+          phone?: string | null
+          pixel_id: string
+          postal_code?: string | null
+          state?: string | null
+          total_visits?: number
+          updated_at?: string
+          visitor_uid: string
+        }
+        Update: {
+          city?: string | null
+          company?: string | null
+          country?: string | null
+          created_at?: string
+          education?: string | null
+          email?: string | null
+          first_name?: string | null
+          first_seen?: string
+          full_name?: string | null
+          id?: string
+          ip_address?: string | null
+          job_title?: string | null
+          last_name?: string | null
+          last_seen?: string
+          latitude?: number | null
+          linkedin_url?: string | null
+          longitude?: number | null
+          pdl_data?: Json | null
+          phone?: string | null
+          pixel_id?: string
+          postal_code?: string | null
+          state?: string | null
+          total_visits?: number
+          updated_at?: string
+          visitor_uid?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pixel_visitors_pixel_id_fkey"
+            columns: ["pixel_id"]
+            isOneToOne: false
+            referencedRelation: "pixels"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pixels: {
+        Row: {
+          created_at: string
+          id: string
+          is_active: boolean
+          updated_at: string
+          user_id: string
+          webhook_url: string | null
+          website_name: string
+          website_url: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          updated_at?: string
+          user_id: string
+          webhook_url?: string | null
+          website_name: string
+          website_url: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          updated_at?: string
+          user_id?: string
+          webhook_url?: string | null
+          website_name?: string
+          website_url?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
