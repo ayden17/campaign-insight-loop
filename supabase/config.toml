@@ -17,3 +17,12 @@ verify_jwt = false
 
 [functions.analyze-meeting]
 verify_jwt = false
+
+[functions.mapbox-token]
+verify_jwt = false
+
+[functions.identify-visitor]
+verify_jwt = false
+
+[functions.pixel-script]
+verify_jwt = false
