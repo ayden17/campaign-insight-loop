@@ -235,6 +235,7 @@ export default function VisitorAnalytics() {
                     longitude={selectedVisitor.longitude}
                     city={selectedVisitor.city}
                     visitorName={displayName(selectedVisitor)}
+                    companyConfidence={(selectedVisitor as any).company_confidence || null}
                   />
                 </Card>
               )}
