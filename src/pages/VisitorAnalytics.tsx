@@ -118,11 +118,7 @@ export default function VisitorAnalytics() {
     toast({ title: "Copied", description: text });
   };
 
-  const mapSrc = selectedVisitor?.latitude && selectedVisitor?.longitude
-    ? `https://maps.google.com/maps?q=${selectedVisitor.latitude},${selectedVisitor.longitude}&z=13&output=embed`
-    : selectedVisitor?.city
-    ? `https://maps.google.com/maps?q=${encodeURIComponent(`${selectedVisitor.city}, ${selectedVisitor.state || ""}`)}&z=11&output=embed`
-    : null;
+  const hasLocation = selectedVisitor?.latitude != null && selectedVisitor?.longitude != null || selectedVisitor?.city;
 
   const exportCsv = () => {
     if (!visitors?.length) return;
