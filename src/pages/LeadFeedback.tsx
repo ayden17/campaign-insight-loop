@@ -14,7 +14,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DonutChart, type DonutChartSegment } from "@/components/ui/donut-chart";
 import { cn } from "@/lib/utils";
-import { Search, Eye, X, Save, Loader2, Download, Users, Circle, Facebook } from "lucide-react";
+import { Search, Eye, X, Save, Loader2, Download, Users, Circle, Facebook, Globe, Sparkles } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { motion, AnimatePresence } from "framer-motion";
 import { useMetaAdsStore, API_VERSION } from "@/lib/meta-ads-store";
