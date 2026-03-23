@@ -701,11 +701,12 @@ const LeadsPage = () => {
                   />
                 </TableHead>
                 <TableHead className="text-[11px] font-semibold uppercase tracking-wide">Lead</TableHead>
+                <TableHead className="text-[11px] font-semibold uppercase tracking-wide">Source</TableHead>
+                <TableHead className="text-[11px] font-semibold uppercase tracking-wide">Intent</TableHead>
                 <TableHead className="text-[11px] font-semibold uppercase tracking-wide">Quality</TableHead>
                 <TableHead className="text-[11px] font-semibold uppercase tracking-wide">Status</TableHead>
-                <TableHead className="text-[11px] font-semibold uppercase tracking-wide">Objections</TableHead>
-                <TableHead className="text-[11px] font-semibold uppercase tracking-wide">Call Date</TableHead>
-                <TableHead className="text-[11px] font-semibold uppercase tracking-wide text-right w-10"></TableHead>
+                <TableHead className="text-[11px] font-semibold uppercase tracking-wide">Date</TableHead>
+                <TableHead className="text-[11px] font-semibold uppercase tracking-wide text-right w-20">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
