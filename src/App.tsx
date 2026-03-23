@@ -17,6 +17,8 @@ import AdCreatives from "./pages/AdCreatives";
 import AgentPage from "./pages/Agent";
 import SettingsPage from "./pages/Settings";
 import LeadSearch from "./pages/LeadSearch";
+import ManagePixels from "./pages/ManagePixels";
+import VisitorAnalytics from "./pages/VisitorAnalytics";
 import AuthPage from "./pages/Auth";
 import ResetPasswordPage from "./pages/ResetPassword";
 import NotFound from "./pages/NotFound";
