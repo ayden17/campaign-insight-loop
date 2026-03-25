@@ -126,6 +126,7 @@ const sourceBadge: Record<string, { label: string; className: string; icon: type
   facebook: { label: "Meta", className: "bg-info/15 text-info border-info/20", icon: Facebook },
   website: { label: "Website", className: "bg-success/15 text-success border-success/20", icon: Globe },
   fathom: { label: "Sales Call", className: "bg-primary/15 text-primary border-primary/20", icon: Users },
+  manual: { label: "Manual", className: "bg-muted text-muted-foreground border-border", icon: Plus },
 };
 
 const LeadsPage = () => {
