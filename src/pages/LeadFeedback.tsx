@@ -580,7 +580,72 @@ const LeadsPage = () => {
   }
 
   return (
-    <DashboardLayout title="Leads" subtitle="AI-enriched lead intelligence from sales conversations">
+    <DashboardLayout title="Customers" subtitle="AI-enriched customer intelligence and management" actions={
+      <Dialog open={addDialogOpen} onOpenChange={setAddDialogOpen}>
+        <DialogTrigger asChild>
+          <Button size="sm" className="gap-1.5"><Plus className="h-3.5 w-3.5" /> Add Customer</Button>
+        </DialogTrigger>
+        <DialogContent>
+          <DialogHeader><DialogTitle>Add Customer</DialogTitle></DialogHeader>
+          <div className="space-y-3">
+            <div>
+              <label className="text-xs font-medium text-foreground mb-1 block">Name *</label>
+              <Input value={addForm.name} onChange={(e) => setAddForm({ ...addForm, name: e.target.value })} placeholder="Full name" />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="text-xs font-medium text-foreground mb-1 block">Email</label>
+                <Input value={addForm.email} onChange={(e) => setAddForm({ ...addForm, email: e.target.value })} placeholder="email@example.com" />
+              </div>
+              <div>
+                <label className="text-xs font-medium text-foreground mb-1 block">Phone</label>
+                <Input value={addForm.phone} onChange={(e) => setAddForm({ ...addForm, phone: e.target.value })} placeholder="+1 234 567 8900" />
+              </div>
+            </div>
+            <div>
+              <label className="text-xs font-medium text-foreground mb-1 block">Company</label>
+              <Input value={addForm.company} onChange={(e) => setAddForm({ ...addForm, company: e.target.value })} placeholder="Company name" />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="text-xs font-medium text-foreground mb-1 block">Quality</label>
+                <Select value={addForm.quality} onValueChange={(v) => setAddForm({ ...addForm, quality: v })}>
+                  <SelectTrigger className="text-xs"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="high">High</SelectItem>
+                    <SelectItem value="medium">Medium</SelectItem>
+                    <SelectItem value="low">Low</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <label className="text-xs font-medium text-foreground mb-1 block">Source</label>
+                <Select value={addForm.source} onValueChange={(v) => setAddForm({ ...addForm, source: v })}>
+                  <SelectTrigger className="text-xs"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="manual">Manual</SelectItem>
+                    <SelectItem value="website">Website</SelectItem>
+                    <SelectItem value="facebook">Meta</SelectItem>
+                    <SelectItem value="fathom">Sales Call</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <div>
+              <label className="text-xs font-medium text-foreground mb-1 block">Notes</label>
+              <Textarea value={addForm.notes} onChange={(e) => setAddForm({ ...addForm, notes: e.target.value })} placeholder="Optional notes..." rows={2} />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setAddDialogOpen(false)}>Cancel</Button>
+            <Button onClick={handleAddCustomer} disabled={addingSaving} className="gap-1.5">
+              {addingSaving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Plus className="h-3.5 w-3.5" />}
+              Add
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    }>
       {/* Objection Donut Chart */}
       {totalObjections > 0 && (
         <Card className="mb-6">
