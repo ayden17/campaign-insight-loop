@@ -22,7 +22,7 @@ export function useMetaSdkInit() {
         // Fetch ad accounts
         window.FB.api(
           "/me/adaccounts",
-          { fields: "id,name,account_status", access_token: token } as any,
+          { fields: "id,name,account_status,currency", access_token: token } as any,
           (res: any) => {
             if (res?.data) {
               metaAdsStore.setAdAccounts(res.data);

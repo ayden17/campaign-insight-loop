@@ -13,8 +13,11 @@ import {
 } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DonutChart, type DonutChartSegment } from "@/components/ui/donut-chart";
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter,
+} from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
-import { Search, Eye, X, Save, Loader2, Download, Users, Circle, Facebook, Globe, Sparkles } from "lucide-react";
+import { Search, Eye, X, Save, Loader2, Download, Users, Circle, Facebook, Globe, Sparkles, Plus } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { motion, AnimatePresence } from "framer-motion";
 import { useMetaAdsStore, API_VERSION } from "@/lib/meta-ads-store";
@@ -123,6 +126,7 @@ const sourceBadge: Record<string, { label: string; className: string; icon: type
   facebook: { label: "Meta", className: "bg-info/15 text-info border-info/20", icon: Facebook },
   website: { label: "Website", className: "bg-success/15 text-success border-success/20", icon: Globe },
   fathom: { label: "Sales Call", className: "bg-primary/15 text-primary border-primary/20", icon: Users },
+  manual: { label: "Manual", className: "bg-muted text-muted-foreground border-border", icon: Plus },
 };
 
 const LeadsPage = () => {
@@ -141,6 +145,9 @@ const LeadsPage = () => {
   const [fbImportSince, setFbImportSince] = useState("");
   const [fbImportAccount, setFbImportAccount] = useState("all");
   const [enrichingIds, setEnrichingIds] = useState<Set<string>>(new Set());
+  const [addDialogOpen, setAddDialogOpen] = useState(false);
+  const [addForm, setAddForm] = useState({ name: "", email: "", phone: "", company: "", notes: "", quality: "medium", status: "pending", source: "manual" });
+  const [addingSaving, setAddingSaving] = useState(false);
   const { toast } = useToast();
   const { accessToken, adAccounts } = useMetaAdsStore();
 
@@ -162,6 +169,37 @@ const LeadsPage = () => {
     }
     setEnrichingIds(new Set());
   }, [toast]);
+
+  const handleAddCustomer = async () => {
+    if (!addForm.name.trim()) {
+      toast({ title: "Required", description: "Customer name is required.", variant: "destructive" });
+      return;
+    }
+    setAddingSaving(true);
+    const { error } = await supabase.from("leads").insert({
+      lead_name: addForm.name,
+      lead_quality: addForm.quality,
+      status: addForm.status,
+      source: addForm.source,
+      source_label: addForm.source === "manual" ? "Manual" : addForm.source,
+      notes: addForm.notes || null,
+      attendees: addForm.email ? [{ name: addForm.name, email: addForm.email }] : [],
+      source_metadata: {
+        email: addForm.email || null,
+        phone: addForm.phone || null,
+        company: addForm.company || null,
+      },
+    } as any);
+    if (error) {
+      toast({ title: "Error", description: "Failed to add customer.", variant: "destructive" });
+    } else {
+      toast({ title: "Added", description: `${addForm.name} added to customers.` });
+      setAddForm({ name: "", email: "", phone: "", company: "", notes: "", quality: "medium", status: "pending", source: "manual" });
+      setAddDialogOpen(false);
+      loadLeads();
+    }
+    setAddingSaving(false);
+  };
 
   useEffect(() => { loadLeads(); }, []);
 
@@ -543,7 +581,72 @@ const LeadsPage = () => {
   }
 
   return (
-    <DashboardLayout title="Leads" subtitle="AI-enriched lead intelligence from sales conversations">
+    <DashboardLayout title="Customers" subtitle="AI-enriched customer intelligence and management" actions={
+      <Dialog open={addDialogOpen} onOpenChange={setAddDialogOpen}>
+        <DialogTrigger asChild>
+          <Button size="sm" className="gap-1.5"><Plus className="h-3.5 w-3.5" /> Add Customer</Button>
+        </DialogTrigger>
+        <DialogContent>
+          <DialogHeader><DialogTitle>Add Customer</DialogTitle></DialogHeader>
+          <div className="space-y-3">
+            <div>
+              <label className="text-xs font-medium text-foreground mb-1 block">Name *</label>
+              <Input value={addForm.name} onChange={(e) => setAddForm({ ...addForm, name: e.target.value })} placeholder="Full name" />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="text-xs font-medium text-foreground mb-1 block">Email</label>
+                <Input value={addForm.email} onChange={(e) => setAddForm({ ...addForm, email: e.target.value })} placeholder="email@example.com" />
+              </div>
+              <div>
+                <label className="text-xs font-medium text-foreground mb-1 block">Phone</label>
+                <Input value={addForm.phone} onChange={(e) => setAddForm({ ...addForm, phone: e.target.value })} placeholder="+1 234 567 8900" />
+              </div>
+            </div>
+            <div>
+              <label className="text-xs font-medium text-foreground mb-1 block">Company</label>
+              <Input value={addForm.company} onChange={(e) => setAddForm({ ...addForm, company: e.target.value })} placeholder="Company name" />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="text-xs font-medium text-foreground mb-1 block">Quality</label>
+                <Select value={addForm.quality} onValueChange={(v) => setAddForm({ ...addForm, quality: v })}>
+                  <SelectTrigger className="text-xs"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="high">High</SelectItem>
+                    <SelectItem value="medium">Medium</SelectItem>
+                    <SelectItem value="low">Low</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <label className="text-xs font-medium text-foreground mb-1 block">Source</label>
+                <Select value={addForm.source} onValueChange={(v) => setAddForm({ ...addForm, source: v })}>
+                  <SelectTrigger className="text-xs"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="manual">Manual</SelectItem>
+                    <SelectItem value="website">Website</SelectItem>
+                    <SelectItem value="facebook">Meta</SelectItem>
+                    <SelectItem value="fathom">Sales Call</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <div>
+              <label className="text-xs font-medium text-foreground mb-1 block">Notes</label>
+              <Textarea value={addForm.notes} onChange={(e) => setAddForm({ ...addForm, notes: e.target.value })} placeholder="Optional notes..." rows={2} />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setAddDialogOpen(false)}>Cancel</Button>
+            <Button onClick={handleAddCustomer} disabled={addingSaving} className="gap-1.5">
+              {addingSaving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Plus className="h-3.5 w-3.5" />}
+              Add
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    }>
       {/* Objection Donut Chart */}
       {totalObjections > 0 && (
         <Card className="mb-6">
