@@ -147,6 +147,9 @@ const LeadsPage = () => {
   const [fbImportSince, setFbImportSince] = useState("");
   const [fbImportAccount, setFbImportAccount] = useState("all");
   const [enrichingIds, setEnrichingIds] = useState<Set<string>>(new Set());
+  const [addDialogOpen, setAddDialogOpen] = useState(false);
+  const [addForm, setAddForm] = useState({ name: "", email: "", phone: "", company: "", notes: "", quality: "medium", status: "pending", source: "manual" });
+  const [addingSaving, setAddingSaving] = useState(false);
   const { toast } = useToast();
   const { accessToken, adAccounts } = useMetaAdsStore();
 
