@@ -105,6 +105,7 @@ const Campaigns = () => {
             metaCampaigns={campaigns}
             metaInsights={insights}
             loading={loading}
+            currency={adAccounts.find(a => a.id === selectedAccount)?.currency}
           />
         </div>
       )}

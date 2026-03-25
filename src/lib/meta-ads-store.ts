@@ -5,6 +5,7 @@ export interface AdAccount {
   id: string;
   name: string;
   account_status: number;
+  currency?: string;
 }
 
 export interface MetaCampaign {

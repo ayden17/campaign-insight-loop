@@ -107,7 +107,7 @@ export function CampaignTable({ metaCampaigns, metaInsights, loading, currency =
                     {ins ? Number(ins.clicks).toLocaleString() : "—"}
                   </TableCell>
                   <TableCell className="text-right text-sm font-mono text-card-foreground">
-                    {ins ? `$${Number(ins.spend).toFixed(2)}` : "—"}
+                    {ins ? formatCurrency(ins.spend) : "—"}
                   </TableCell>
                 </TableRow>
               );
