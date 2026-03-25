@@ -169,6 +169,37 @@ const LeadsPage = () => {
     setEnrichingIds(new Set());
   }, [toast]);
 
+  const handleAddCustomer = async () => {
+    if (!addForm.name.trim()) {
+      toast({ title: "Required", description: "Customer name is required.", variant: "destructive" });
+      return;
+    }
+    setAddingSaving(true);
+    const { error } = await supabase.from("leads").insert({
+      lead_name: addForm.name,
+      lead_quality: addForm.quality,
+      status: addForm.status,
+      source: addForm.source,
+      source_label: addForm.source === "manual" ? "Manual" : addForm.source,
+      notes: addForm.notes || null,
+      attendees: addForm.email ? [{ name: addForm.name, email: addForm.email }] : [],
+      source_metadata: {
+        email: addForm.email || null,
+        phone: addForm.phone || null,
+        company: addForm.company || null,
+      },
+    } as any);
+    if (error) {
+      toast({ title: "Error", description: "Failed to add customer.", variant: "destructive" });
+    } else {
+      toast({ title: "Added", description: `${addForm.name} added to customers.` });
+      setAddForm({ name: "", email: "", phone: "", company: "", notes: "", quality: "medium", status: "pending", source: "manual" });
+      setAddDialogOpen(false);
+      loadLeads();
+    }
+    setAddingSaving(false);
+  };
+
   useEffect(() => { loadLeads(); }, []);
 
   const loadLeads = async () => {
