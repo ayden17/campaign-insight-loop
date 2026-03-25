@@ -36,6 +36,7 @@ interface CampaignTableProps {
   metaCampaigns: MetaCampaign[];
   metaInsights: Record<string, CampaignInsights>;
   loading: boolean;
+  currency?: string;
 }
 
 export function CampaignTable({ metaCampaigns, metaInsights, loading }: CampaignTableProps) {
