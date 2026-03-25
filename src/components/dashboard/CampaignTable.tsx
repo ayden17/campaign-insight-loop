@@ -39,7 +39,14 @@ interface CampaignTableProps {
   currency?: string;
 }
 
-export function CampaignTable({ metaCampaigns, metaInsights, loading }: CampaignTableProps) {
+export function CampaignTable({ metaCampaigns, metaInsights, loading, currency = "USD" }: CampaignTableProps) {
+  const formatCurrency = (value: string) => {
+    try {
+      return new Intl.NumberFormat(undefined, { style: "currency", currency }).format(Number(value));
+    } catch {
+      return `$${Number(value).toFixed(2)}`;
+    }
+  };
   if (loading) {
     return (
       <div className="rounded-xl border border-border bg-card p-12 flex items-center justify-center gap-3">
