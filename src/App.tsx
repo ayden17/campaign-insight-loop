@@ -63,9 +63,11 @@ const App = () => {
               <Route path="/lead-search" element={<LeadSearch />} />
               <Route path="/pixels" element={<ManagePixels />} />
               <Route path="/visitor-analytics" element={<VisitorAnalytics />} />
+              <Route path="/sync-audience" element={<FunnelView />} />
               <Route path="/funnel" element={<FunnelView />} />
               <Route path="/sales" element={<SalesConversations />} />
               <Route path="/leads" element={<LeadsPage />} />
+              <Route path="/customers" element={<LeadsPage />} />
               <Route path="/intelligence" element={<IntelligencePage />} />
               <Route path="/ad-accounts" element={<AdAccountsPage />} />
               <Route path="/agent" element={<AgentPage />} />
