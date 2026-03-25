@@ -21,9 +21,6 @@ import { Search, Eye, X, Save, Loader2, Download, Users, Circle, Facebook, Globe
 import { useToast } from "@/hooks/use-toast";
 import { motion, AnimatePresence } from "framer-motion";
 import { useMetaAdsStore, API_VERSION } from "@/lib/meta-ads-store";
-import { useToast } from "@/hooks/use-toast";
-import { motion, AnimatePresence } from "framer-motion";
-import { useMetaAdsStore, API_VERSION } from "@/lib/meta-ads-store";
 
 const qualityBadge: Record<string, string> = {
   high: "bg-success/15 text-success border-success/30",
