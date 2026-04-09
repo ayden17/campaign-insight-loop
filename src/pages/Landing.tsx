@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { LandingHeader } from "@/components/landing/LandingHeader";
+import { LandingNavbar } from "@/components/landing/LandingNavbar";
 import { useNavigate } from "react-router-dom";
 import {
   ArrowRight,
@@ -16,29 +16,38 @@ import {
   Fuel,
   ShieldCheck,
   Workflow,
+  PhoneCall,
+  Sparkles,
 } from "lucide-react";
+import dashboardAnalytics from "@/assets/dashboard-analytics.png";
+import dashboardOffice from "@/assets/dashboard-office.png";
+import dashboardSourcing from "@/assets/dashboard-sourcing.png";
 
 export default function Landing() {
   const navigate = useNavigate();
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <LandingHeader />
+      <LandingNavbar />
 
       {/* ───── Hero ───── */}
-      <section className="relative overflow-hidden pt-32 pb-20 md:pt-44 md:pb-32">
-        {/* background gradient orb */}
-        <div className="pointer-events-none absolute -top-40 left-1/2 -translate-x-1/2 w-[800px] h-[800px] rounded-full bg-primary/5 blur-[120px]" />
-
+      <section className="relative overflow-hidden pt-28 pb-10 md:pt-36 md:pb-16">
         <div className="container mx-auto px-6 relative z-10 text-center max-w-4xl">
-          <div className="inline-flex items-center gap-2 rounded-full border border-border bg-muted/60 px-4 py-1.5 text-xs font-medium text-muted-foreground mb-8">
-            <span className="h-1.5 w-1.5 rounded-full bg-success animate-pulse" />
-            Autonomous Trade Agents — Now in Private Beta
+          {/* Status pill */}
+          <div className="inline-flex items-center gap-3 rounded-full border border-border bg-muted/60 px-5 py-2 text-xs mb-8">
+            <span className="flex items-center gap-1.5">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+              </span>
+              <span className="font-semibold text-foreground">NOW</span>
+            </span>
+            <span className="text-muted-foreground">accepting new enterprise pilots</span>
           </div>
 
           <h1 className="text-4xl md:text-6xl lg:text-7xl font-extrabold tracking-tight leading-[1.08] mb-6">
             The Operating System for{" "}
-            <span className="bg-gradient-to-r from-primary via-primary/80 to-primary/60 bg-clip-text text-transparent">
+            <span className="text-muted-foreground">
               Physical Trade Execution
             </span>
           </h1>
@@ -48,12 +57,70 @@ export default function Landing() {
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Button size="lg" className="text-base px-8 gap-2" onClick={() => navigate("/auth")}>
+            <Button size="lg" className="text-base px-8 gap-2 rounded-full" onClick={() => navigate("/auth")}>
+              <PhoneCall className="h-4 w-4" /> Book an Ops Audit
+            </Button>
+            <Button size="lg" variant="outline" className="text-base px-8 gap-2 rounded-full" onClick={() => navigate("/auth")}>
               Deploy Your First Agent <ArrowRight className="h-4 w-4" />
             </Button>
-            <Button size="lg" variant="outline" className="text-base px-8 gap-2">
-              <Play className="h-4 w-4" /> Watch the Trade Flow
-            </Button>
+          </div>
+        </div>
+      </section>
+
+      {/* ───── Product Showcase Cards ───── */}
+      <section className="pb-20 md:pb-28">
+        <div className="container mx-auto px-6 max-w-6xl">
+          <div className="grid md:grid-cols-3 gap-6">
+            {/* Card 1 - Agent Analytics */}
+            <div className="rounded-2xl border border-border bg-muted/30 overflow-hidden">
+              <div className="p-6">
+                <img
+                  src={dashboardAnalytics}
+                  alt="Agent analytics dashboard showing sessions, costs, and leaderboard"
+                  className="rounded-lg w-full shadow-sm"
+                />
+              </div>
+              <div className="px-6 pb-6">
+                <h3 className="text-xl font-bold mb-1">Automate Reconciliation</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  Agents parse PDFs, validate data, and reconcile trades across your entire book—autonomously.
+                </p>
+              </div>
+            </div>
+
+            {/* Card 2 - Virtual Office */}
+            <div className="rounded-2xl border border-border bg-muted/30 overflow-hidden">
+              <div className="p-6">
+                <img
+                  src={dashboardOffice}
+                  alt="Virtual office with autonomous trade agents working"
+                  className="rounded-lg w-full shadow-sm"
+                />
+              </div>
+              <div className="px-6 pb-6">
+                <h3 className="text-xl font-bold mb-1">Automate Monitoring</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  Agents monitor LME, CBOT, and ICE spreads—triggering hedge checks and alerts in real time.
+                </p>
+              </div>
+            </div>
+
+            {/* Card 3 - Sourcing */}
+            <div className="rounded-2xl border border-border bg-muted/30 overflow-hidden">
+              <div className="p-6">
+                <img
+                  src={dashboardSourcing}
+                  alt="Source and match counterparties with AI scoring"
+                  className="rounded-lg w-full shadow-sm"
+                />
+              </div>
+              <div className="px-6 pb-6">
+                <h3 className="text-xl font-bold mb-1">Learn from Execution</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  AI learns your trade preferences so that you can put operations on autopilot.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -87,8 +154,8 @@ export default function Landing() {
             ].map((item) => (
               <Card key={item.title} className="border-border/60 bg-card/80 backdrop-blur-sm hover:shadow-md transition-shadow">
                 <CardContent className="p-6 flex flex-col gap-4">
-                  <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                    <item.icon className="h-5 w-5 text-primary" />
+                  <div className="h-10 w-10 rounded-lg bg-muted flex items-center justify-center">
+                    <item.icon className="h-5 w-5 text-foreground" />
                   </div>
                   <h3 className="text-lg font-semibold">{item.title}</h3>
                   <p className="text-sm text-muted-foreground leading-relaxed">{item.desc}</p>
@@ -129,9 +196,9 @@ export default function Landing() {
               },
             ].map((item) => (
               <div key={item.step} className="relative flex flex-col gap-4">
-                <span className="text-6xl font-black text-muted/40 absolute -top-2 -left-1 select-none">{item.step}</span>
-                <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center relative z-10 mt-6">
-                  <item.icon className="h-5 w-5 text-primary" />
+                <span className="text-6xl font-black text-muted/80 absolute -top-2 -left-1 select-none">{item.step}</span>
+                <div className="h-10 w-10 rounded-lg bg-muted flex items-center justify-center relative z-10 mt-6">
+                  <item.icon className="h-5 w-5 text-foreground" />
                 </div>
                 <h3 className="text-lg font-semibold">{item.title}</h3>
                 <p className="text-sm text-muted-foreground leading-relaxed">{item.desc}</p>
@@ -169,8 +236,8 @@ export default function Landing() {
             ].map((item) => (
               <Card key={item.title} className="border-border/60 bg-card/80 backdrop-blur-sm hover:shadow-md transition-shadow">
                 <CardContent className="p-6 flex flex-col gap-4">
-                  <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                    <item.icon className="h-5 w-5 text-primary" />
+                  <div className="h-10 w-10 rounded-lg bg-muted flex items-center justify-center">
+                    <item.icon className="h-5 w-5 text-foreground" />
                   </div>
                   <h3 className="text-lg font-semibold">{item.title}</h3>
                   <p className="text-sm text-muted-foreground leading-relaxed">{item.desc}</p>
@@ -184,8 +251,8 @@ export default function Landing() {
       {/* ───── Trust & Governance ───── */}
       <section id="trust" className="py-20 md:py-28">
         <div className="container mx-auto px-6 max-w-3xl text-center">
-          <div className="h-14 w-14 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-6">
-            <ShieldCheck className="h-7 w-7 text-primary" />
+          <div className="h-14 w-14 rounded-2xl bg-muted flex items-center justify-center mx-auto mb-6">
+            <ShieldCheck className="h-7 w-7 text-foreground" />
           </div>
           <h2 className="text-3xl md:text-4xl font-bold mb-6">
             AI with an <span className="text-muted-foreground">"Off" Switch.</span>
@@ -197,7 +264,7 @@ export default function Landing() {
       </section>
 
       {/* ───── Footer CTA ───── */}
-      <section className="py-20 md:py-28 bg-primary text-primary-foreground">
+      <section className="py-20 md:py-28 bg-foreground text-background">
         <div className="container mx-auto px-6 max-w-3xl text-center">
           <h2 className="text-3xl md:text-4xl font-bold mb-6">
             Ready to automate the messy middle of your trade desk?
@@ -205,7 +272,7 @@ export default function Landing() {
           <Button
             size="lg"
             variant="secondary"
-            className="text-base px-8 gap-2"
+            className="text-base px-8 gap-2 rounded-full"
             onClick={() => navigate("/auth")}
           >
             Book an Ops Audit <ArrowRight className="h-4 w-4" />
