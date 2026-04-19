@@ -364,12 +364,12 @@ export default function Landing() {
         style={{ borderColor: "hsl(220 13% 93%)" }}
       >
         <div className="container mx-auto px-6 max-w-3xl text-center relative z-10">
-          <h2
+          <Reveal as="h2"
             className="text-4xl md:text-6xl mb-6"
             style={{ fontFamily: DISPLAY_FONT, letterSpacing: "-0.03em", fontWeight: 500, color: SLATE, lineHeight: 1.1 }}
           >
             Ready to Expand?
-          </h2>
+          </Reveal>
           <p
             className="text-base md:text-lg mb-10 max-w-xl mx-auto"
             style={{ fontFamily: DISPLAY_FONT, color: SLATE_SOFT, fontWeight: 400 }}
