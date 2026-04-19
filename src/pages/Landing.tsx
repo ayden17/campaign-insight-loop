@@ -196,9 +196,10 @@ export default function Landing() {
 
           {/* Feature checkmarks */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-4 mt-12 md:mt-16">
-            {FEATURES.map((feature) => (
-              <div
+            {FEATURES.map((feature, idx) => (
+              <Reveal
                 key={feature}
+                delay={idx * 100}
                 className="flex flex-col items-center text-center gap-3"
               >
                 <div
@@ -209,11 +210,11 @@ export default function Landing() {
                 </div>
                 <span
                   className="text-sm md:text-[15px]"
-                  style={{ fontWeight: 400, letterSpacing: "-0.005em", color: SLATE }}
+                  style={{ fontFamily: DISPLAY_FONT, fontWeight: 400, letterSpacing: "-0.005em", color: SLATE }}
                 >
                   {feature}
                 </span>
-              </div>
+              </Reveal>
             ))}
           </div>
         </div>
