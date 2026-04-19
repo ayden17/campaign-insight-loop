@@ -14,15 +14,15 @@ export function LandingNavbar() {
   return (
     <header className="fixed top-4 left-0 right-0 z-50 px-4">
       <div className="container mx-auto max-w-6xl">
-        <GlassEffect className="h-16 px-3 sm:px-4">
+        <GlassEffect className="h-20 px-3 sm:px-5">
           <div className="flex w-full items-center justify-between gap-3">
-            <a href="/" className="flex items-center pl-2" aria-label="AngelFlows home">
+            <a href="/" className="flex items-center pl-1" aria-label="AngelFlows home">
               <img
                 src={angelflowsLogo}
                 alt="AngelFlows"
                 loading="eager"
                 decoding="async"
-                className="h-9 sm:h-10 w-auto object-contain"
+                className="h-12 sm:h-14 w-auto object-contain"
               />
             </a>
 
