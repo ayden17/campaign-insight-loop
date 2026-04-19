@@ -203,7 +203,7 @@ export default function Landing() {
         className="relative py-20 md:py-28 border-t border-border/60"
       >
         <div className="container mx-auto px-6 max-w-6xl relative z-10">
-          <h2 className="text-3xl md:text-5xl font-extrabold text-center mb-16 tracking-tight">
+          <h2 className="text-3xl md:text-5xl font-medium text-center mb-16" style={{ letterSpacing: "-0.03em" }}>
             How it Works
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-8">
@@ -213,18 +213,18 @@ export default function Landing() {
                 className="flex flex-col items-start text-left"
               >
                 <div
-                  className="h-14 w-14 rounded-full flex items-center justify-center text-white text-xl font-bold mb-8"
+                  className="h-14 w-14 rounded-full flex items-center justify-center text-white text-xl font-medium mb-8"
                   style={{ backgroundColor: BLUE }}
                 >
                   {item.step}
                 </div>
                 <h3
-                  className="text-xl md:text-2xl font-bold mb-3"
-                  style={{ color: BLUE }}
+                  className="text-xl md:text-2xl font-medium mb-3"
+                  style={{ color: BLUE, letterSpacing: "-0.02em" }}
                 >
                   {item.title}
                 </h3>
-                <p className="text-muted-foreground text-base leading-relaxed">
+                <p className="text-muted-foreground text-base font-light leading-relaxed">
                   {item.description}
                 </p>
               </div>
@@ -239,7 +239,7 @@ export default function Landing() {
         className="relative py-20 md:py-28 border-t border-border/60"
       >
         <div className="container mx-auto px-6 max-w-6xl relative z-10">
-          <h2 className="text-3xl md:text-5xl font-extrabold text-center mb-16 tracking-tight">
+          <h2 className="text-3xl md:text-5xl font-medium text-center mb-16" style={{ letterSpacing: "-0.03em" }}>
             How AngelFlows Helps Contractors
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-8">
@@ -255,12 +255,12 @@ export default function Landing() {
                   <item.icon className="h-9 w-9 text-white" strokeWidth={2} />
                 </div>
                 <h3
-                  className="text-xl md:text-2xl font-bold mb-4"
-                  style={{ color: BLUE }}
+                  className="text-xl md:text-2xl font-medium mb-4"
+                  style={{ color: BLUE, letterSpacing: "-0.02em" }}
                 >
                   {item.title}
                 </h3>
-                <p className="text-muted-foreground text-base leading-relaxed">
+                <p className="text-muted-foreground text-base font-light leading-relaxed">
                   {item.description}
                 </p>
               </div>
@@ -272,7 +272,7 @@ export default function Landing() {
       {/* ───── Leads or Appointments ───── */}
       <section className="relative py-20 md:py-28 border-t border-border/60">
         <div className="container mx-auto px-6 max-w-6xl relative z-10">
-          <h2 className="text-3xl md:text-5xl font-extrabold text-center mb-14 tracking-tight">
+          <h2 className="text-3xl md:text-5xl font-medium text-center mb-14" style={{ letterSpacing: "-0.03em" }}>
             Leads or Appointments
           </h2>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-5">
@@ -288,8 +288,8 @@ export default function Landing() {
               >
                 <div className="text-6xl md:text-7xl mb-6">{service.emoji}</div>
                 <p
-                  className="text-lg md:text-xl font-bold"
-                  style={{ color: BLUE }}
+                  className="text-lg md:text-xl font-medium"
+                  style={{ color: BLUE, letterSpacing: "-0.02em" }}
                 >
                   {service.name}
                 </p>
@@ -306,10 +306,10 @@ export default function Landing() {
       >
         <div className="container mx-auto px-6 max-w-6xl relative z-10">
           <div className="text-center mb-14">
-            <h2 className="text-3xl md:text-5xl font-extrabold mb-4 tracking-tight">
+            <h2 className="text-3xl md:text-5xl font-medium mb-4" style={{ letterSpacing: "-0.03em" }}>
               Why Choose Us?
             </h2>
-            <p className="text-muted-foreground text-lg">
+            <p className="text-muted-foreground text-lg font-light">
               Connect with motivated homeowners actively searching for your services.
             </p>
           </div>
@@ -329,12 +329,12 @@ export default function Landing() {
                   strokeWidth={2}
                 />
                 <p
-                  className="text-4xl md:text-5xl font-extrabold mb-3"
-                  style={{ color: BLUE }}
+                  className="text-4xl md:text-5xl font-medium mb-3"
+                  style={{ color: BLUE, letterSpacing: "-0.03em" }}
                 >
                   {stat.value}
                 </p>
-                <p className="text-muted-foreground text-base font-medium">
+                <p className="text-muted-foreground text-base font-light">
                   {stat.label}
                 </p>
               </div>
@@ -349,16 +349,16 @@ export default function Landing() {
         className="relative py-24 md:py-32 border-t border-border/60"
       >
         <div className="container mx-auto px-6 max-w-3xl text-center relative z-10">
-          <p className="text-sm font-semibold uppercase tracking-widest text-muted-foreground mb-4">
+          <p className="text-sm font-medium uppercase tracking-[0.2em] text-muted-foreground mb-4">
             Get Started
           </p>
-          <h2 className="text-3xl md:text-5xl font-extrabold mb-10 leading-tight tracking-tight">
+          <h2 className="text-3xl md:text-5xl font-medium mb-10 leading-tight" style={{ letterSpacing: "-0.03em" }}>
             Ready to grow your contracting business?
           </h2>
           <button
             onClick={() => navigate("/auth")}
-            className="h-12 px-8 rounded-full text-white text-base font-semibold shadow-lg transition-colors"
-            style={{ backgroundColor: BLUE }}
+            className="h-12 px-8 rounded-full text-white text-base font-medium shadow-lg transition-colors"
+            style={{ backgroundColor: BLUE, letterSpacing: "-0.01em" }}
             onMouseEnter={(e) =>
               (e.currentTarget.style.backgroundColor = BLUE_HOVER)
             }
