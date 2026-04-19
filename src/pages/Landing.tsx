@@ -186,9 +186,9 @@ export default function Landing() {
                   className="h-10 w-10 rounded-full flex items-center justify-center"
                   style={{ backgroundColor: BLUE }}
                 >
-                  <Check className="h-5 w-5 text-white" strokeWidth={3} />
+                  <Check className="h-5 w-5 text-white" strokeWidth={2.5} />
                 </div>
-                <span className="text-base md:text-lg font-semibold text-foreground">
+                <span className="text-base md:text-lg font-medium" style={{ letterSpacing: "-0.01em" }}>
                   {feature}
                 </span>
               </div>
