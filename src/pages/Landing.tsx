@@ -312,23 +312,25 @@ export default function Landing() {
       >
         <div className="container mx-auto px-6 max-w-6xl relative z-10">
           <div className="text-center mb-14">
-            <h2
+            <Reveal as="h2"
               className="text-3xl md:text-5xl mb-4"
               style={{ fontFamily: DISPLAY_FONT, letterSpacing: "-0.03em", fontWeight: 500, color: SLATE, lineHeight: 1.1 }}
             >
               Why Choose Us?
-            </h2>
-            <p
+            </Reveal>
+            <Reveal as="p"
+              delay={100}
               className="text-base md:text-lg"
               style={{ fontFamily: DISPLAY_FONT, color: SLATE_SOFT, fontWeight: 400 }}
             >
               Connect with motivated homeowners actively searching for your services.
-            </p>
+            </Reveal>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {STATS.map((stat) => (
-              <div
+            {STATS.map((stat, idx) => (
+              <Reveal
                 key={stat.label}
+                delay={idx * 100}
                 className="rounded-2xl border bg-white p-8 flex flex-col items-start"
                 style={{ borderColor: "hsl(220 13% 93%)" }}
               >
@@ -349,7 +351,7 @@ export default function Landing() {
                 >
                   {stat.label}
                 </p>
-              </div>
+              </Reveal>
             ))}
           </div>
         </div>
