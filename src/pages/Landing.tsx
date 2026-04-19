@@ -84,8 +84,12 @@ export default function Landing() {
 
   return (
     <div
-      className="min-h-screen bg-background text-foreground relative overflow-hidden"
-      style={{ fontFamily: "'Inter', system-ui, -apple-system, sans-serif" }}
+      className="min-h-screen bg-background relative overflow-hidden"
+      style={{
+        fontFamily: "'Inter', system-ui, -apple-system, sans-serif",
+        color: "hsl(222 25% 12%)",
+        letterSpacing: "-0.01em",
+      }}
     >
       {/* Subtle grid background */}
       <div
