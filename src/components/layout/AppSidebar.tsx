@@ -31,7 +31,7 @@ const navSections: NavSection[] = [
   {
     label: "Plug Intent Data",
     items: [
-      { title: "Dashboard", path: "/", icon: LayoutDashboard },
+      { title: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
       { title: "Build Audience", path: "/lead-search", icon: Search },
       { title: "Manage Pixels", path: "/pixels", icon: Scan },
       { title: "Visitor Analytics", path: "/visitor-analytics", icon: Eye },
@@ -102,7 +102,7 @@ export function AppSidebar() {
                 <NavLink
                   key={item.path}
                   to={item.path}
-                  end={item.path === "/"}
+                  end={item.path === "/dashboard"}
                   className={({ isActive }) =>
                     cn(
                       "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
