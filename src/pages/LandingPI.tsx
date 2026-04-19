@@ -22,60 +22,60 @@ import serviceHvac from "@/assets/service-hvac.png";
 const DISPLAY_FONT = "'Degular Display', 'General Sans', 'Inter', system-ui, -apple-system, sans-serif";
 
 const FEATURES = [
-  "Budget-Based Billing",
-  "Leads or appointments",
-  "Pre Screened Prospects",
-  "Exclusive - Never Shared",
+  "Performance-Based Billing",
+  "Exclusive MVA & PI Cases",
+  "Vetted Legal Intake",
+  "100% Case Exclusivity",
 ];
 
 const HOW_IT_WORKS = [
   {
     step: "1",
-    title: "Homeowners Request A Project Estimate",
+    title: "Victims Request Case Evaluation",
     description:
-      "They are pre-screened with a targeted questionnaire to ensure high quality.",
+      "Prospects are pre-screened via a high-intent legal questionnaire to ensure valid injury and insurance status.",
   },
   {
     step: "2",
-    title: "You Are Matched With Homeowner Lead",
-    description: "Leads or appointments are sent to your sales team.",
+    title: "You Are Matched With a Qualified Case",
+    description:
+      "Only high-intent Motor Vehicle Accident (MVA) or Slip & Fall cases are sent directly to your intake team.",
   },
   {
     step: "3",
-    title: "You Get New, High-Quality Customers",
+    title: "Sign New Retainers",
     description:
-      "Your estimator visits the home, quotes & closes new customers.",
+      "Your firm reviews the vetted intake and signs the retainer. We deliver the volume; you handle the litigation.",
   },
 ];
 
 const HOW_WE_HELP = [
   {
     icon: ClipboardList,
-    title: "Lead Generation: 100% Exclusively Yours",
+    title: "Case Generation: 100% Exclusively Yours",
     description:
-      "Get 100% exclusive homeowner leads, guaranteed. We never share your opportunities with other contractors. This will give you more influence, higher trust and a better chance of winning each job.",
+      "We never share a victim's info with multiple firms. You get the first and only shot at the retainer.",
   },
   {
     icon: Phone,
-    title: "After-Hours Call Center: Never Miss a Lead Again",
+    title: "24/7 AI Intake: Never Miss a Case",
     description:
-      "If your office is closed when leads call, you could lose business. Our call center works 7 days a week, up to 15 hours daily, answering your calls, capturing leads and making appointments for you.",
+      "Legal emergencies don't wait for office hours. Our AI intake strike team qualifies cases instantly, 24/7, while the lead is still hot.",
   },
   {
     icon: Home,
-    title: "Appointments Setting: We Handle the Outreach for You",
+    title: "Appointment Setting: Automated Retainer Delivery",
     description:
-      "We can take care of all your prospect outreach, follow-ups and calendar scheduling with a guaranteed set rate, so your team can stay focused on closing deals.",
+      "We handle the follow-ups and calendar scheduling so your attorneys stay focused on high-value litigation.",
   },
 ];
 
 const SERVICES = [
-  { name: "Roofing", image: serviceRoofing },
-  { name: "Siding", image: serviceSiding },
-  { name: "Window Replacement", image: serviceWindow },
-  { name: "Bathroom Remodeling", image: serviceBathroom },
-  { name: "Kitchen Remodeling", image: serviceBathroom },
-  { name: "HVAC", image: serviceHvac },
+  { name: "Motor Vehicle Accidents (MVA)", image: serviceRoofing },
+  { name: "Slip & Fall", image: serviceSiding },
+  { name: "Workplace Injury", image: serviceWindow },
+  { name: "Medical Malpractice", image: serviceBathroom },
+  { name: "Wrongful Death", image: serviceHvac },
 ];
 
 const STATS = [
@@ -86,11 +86,11 @@ const STATS = [
 
 const BLUE = "hsl(217 91% 60%)";
 const BLUE_HOVER = "hsl(217 91% 55%)";
-const SLATE = "hsl(215 25% 17%)"; // #1e293b deep slate charcoal
+const SLATE = "hsl(215 25% 17%)";
 const SLATE_SOFT = "hsl(215 20% 35%)";
-const SLATE_MUTED = "hsl(215 15% 55%)"; // lighter gray for subtitles
+const SLATE_MUTED = "hsl(215 15% 55%)";
 
-export default function Landing() {
+export default function LandingPI() {
   const navigate = useNavigate();
 
   return (
@@ -102,7 +102,6 @@ export default function Landing() {
         letterSpacing: "-0.01em",
       }}
     >
-      {/* Very subtle grid background — only behind hero */}
       <div
         aria-hidden
         className="pointer-events-none absolute inset-x-0 top-0 h-[900px] opacity-[0.18]"
@@ -119,13 +118,13 @@ export default function Landing() {
 
       <LandingNavbar />
 
-      {/* ───── Hero ───── */}
+      {/* Hero */}
       <section id="hero" className="relative pt-28 md:pt-32 pb-8 md:pb-10">
         <div className="container mx-auto px-6 max-w-4xl text-center relative z-10">
           <div className="flex flex-col items-center gap-3 mb-4">
             <img
               src={houseIcon}
-              alt="AngelFlows house icon"
+              alt="AngelFlows icon"
               className="h-16 md:h-20 w-auto object-contain"
               loading="eager"
             />
@@ -133,7 +132,7 @@ export default function Landing() {
               className="text-sm md:text-[15px] font-medium"
               style={{ letterSpacing: "-0.01em", color: SLATE }}
             >
-              For Contracting Businesses
+              For Personal Injury Law Firms
             </p>
           </div>
 
@@ -146,14 +145,14 @@ export default function Landing() {
               color: SLATE,
             }}
           >
-            Scale your Contracting Business By Getting Qualified &amp; Exclusive Appointments Without Lifting a Finger
+            Scale Your Law Firm With Qualified &amp; Exclusive Case Signings Without Lifting a Finger
           </Reveal>
 
           <p
             className="text-sm md:text-base max-w-xl mx-auto mb-6"
             style={{ fontFamily: DISPLAY_FONT, fontWeight: 400, letterSpacing: "-0.01em", color: SLATE_MUTED }}
           >
-            Don't Pay Ad Spend or Monthly Retainers, Just Pay-Per-Appointment.
+            Stop paying for shared junk leads. We handle the ad spend and intake vetting—you only pay for qualified appointments.
           </p>
 
           <button
@@ -171,11 +170,10 @@ export default function Landing() {
               (e.currentTarget.style.backgroundColor = BLUE)
             }
           >
-            Book a call
+            Test a Batch
           </button>
         </div>
 
-        {/* Video */}
         <div className="container mx-auto px-6 max-w-5xl mt-8 md:mt-10 relative z-10">
           <div
             className="rounded-3xl p-2"
@@ -194,7 +192,6 @@ export default function Landing() {
             />
           </div>
 
-          {/* Feature checkmarks */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-4 mt-12 md:mt-16">
             {FEATURES.map((feature, idx) => (
               <Reveal
@@ -220,10 +217,8 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* ───── How it Works ───── */}
       <HowItWorksSection />
 
-      {/* ───── How AngelFlows helps ───── */}
       <section
         id="operations"
         className="relative bg-white py-16 md:py-20 border-t"
@@ -234,7 +229,7 @@ export default function Landing() {
             className="text-3xl md:text-4xl text-center mb-10 md:mb-14"
             style={{ fontFamily: DISPLAY_FONT, letterSpacing: "-0.03em", fontWeight: 500, color: SLATE, lineHeight: 1.1 }}
           >
-            How AngelFlows Helps Contractors
+            How AngelFlows Helps Law Firms
           </Reveal>
           <div
             className="grid grid-cols-1 md:grid-cols-3 gap-px rounded-2xl overflow-hidden border"
@@ -266,7 +261,6 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* ───── Leads or Appointments ───── */}
       <section
         className="relative bg-white py-20 md:py-28 border-t"
         style={{ borderColor: "hsl(220 13% 93%)" }}
@@ -276,7 +270,7 @@ export default function Landing() {
             className="text-3xl md:text-5xl text-center mb-14"
             style={{ fontFamily: DISPLAY_FONT, letterSpacing: "-0.03em", fontWeight: 500, color: SLATE, lineHeight: 1.1 }}
           >
-            Leads or Appointments
+            Cases We Deliver
           </Reveal>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-5">
             {SERVICES.map((service, idx) => (
@@ -304,7 +298,6 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* ───── Why Us ───── */}
       <section
         id="why-us"
         className="relative bg-white py-20 md:py-28 border-t"
@@ -323,7 +316,7 @@ export default function Landing() {
               className="text-base md:text-lg"
               style={{ fontFamily: DISPLAY_FONT, color: SLATE_SOFT, fontWeight: 400 }}
             >
-              Connect with motivated homeowners actively searching for your services.
+              Connect with motivated victims actively seeking legal representation.
             </Reveal>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -357,7 +350,6 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* ───── Testimonials / CTA ───── */}
       <section
         id="testimonials"
         className="relative bg-white py-24 md:py-32 border-t"
@@ -368,13 +360,13 @@ export default function Landing() {
             className="text-4xl md:text-6xl mb-6"
             style={{ fontFamily: DISPLAY_FONT, letterSpacing: "-0.03em", fontWeight: 500, color: SLATE, lineHeight: 1.1 }}
           >
-            Ready to Expand?
+            Ready to Grow Your Docket?
           </Reveal>
           <p
             className="text-base md:text-lg mb-10 max-w-xl mx-auto"
             style={{ fontFamily: DISPLAY_FONT, color: SLATE_SOFT, fontWeight: 400 }}
           >
-            At AngelFlows Media, each lead only goes to ONE contractor. Claim it before your competitor does.
+            At AngelFlows Media, every case is exclusive. Secure your territory before your competition does.
           </p>
           <button
             onClick={() => navigate("/auth")}
@@ -387,25 +379,18 @@ export default function Landing() {
               (e.currentTarget.style.backgroundColor = BLUE)
             }
           >
-            Book a Call
+            Test a Batch
           </button>
         </div>
       </section>
 
-      {/* Footer */}
       <footer className="border-t bg-white py-8 relative z-10" style={{ borderColor: "hsl(220 13% 93%)" }}>
         <div className="container mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
           <span style={{ fontFamily: DISPLAY_FONT }}>AngelFlows © {new Date().getFullYear()}</span>
           <div className="flex gap-6" style={{ fontFamily: DISPLAY_FONT }}>
-            <a href="#" className="hover:text-foreground transition-colors">
-              Terms
-            </a>
-            <a href="#" className="hover:text-foreground transition-colors">
-              Privacy
-            </a>
-            <a href="#" className="hover:text-foreground transition-colors">
-              Contact
-            </a>
+            <a href="#" className="hover:text-foreground transition-colors">Terms</a>
+            <a href="#" className="hover:text-foreground transition-colors">Privacy</a>
+            <a href="#" className="hover:text-foreground transition-colors">Contact</a>
           </div>
         </div>
       </footer>
