@@ -80,8 +80,8 @@ export function AppSidebar() {
       className="flex h-screen flex-col border-r border-sidebar-border bg-sidebar shrink-0 overflow-hidden"
     >
       {/* Logo */}
-      <div className="flex h-20 items-center justify-center px-4">
-        <img src={angelflowsLogo} alt="AngelFlows" loading="eager" decoding="async" className={cn("shrink-0 object-contain transition-all", collapsed ? "h-10 w-10" : "h-20 w-full max-w-[12rem]")} />
+      <div className={cn("flex items-center justify-center", collapsed ? "h-20 px-2" : "h-28 px-4")}>
+        <img src={angelflowsLogo} alt="AngelFlows" loading="eager" decoding="async" className={cn("shrink-0 object-contain transition-all", collapsed ? "h-12 w-12" : "h-24 w-full max-w-[15rem]")} />
       </div>
 
       <Separator />
