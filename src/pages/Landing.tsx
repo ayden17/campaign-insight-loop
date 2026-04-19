@@ -137,8 +137,9 @@ export default function Landing() {
           </div>
 
           <h1
-            className="text-[28px] sm:text-3xl md:text-4xl lg:text-5xl font-semibold mb-4 max-w-4xl mx-auto"
+            className="text-[28px] sm:text-3xl md:text-4xl lg:text-5xl font-medium mb-4 max-w-4xl mx-auto"
             style={{
+              fontFamily: DISPLAY_FONT,
               letterSpacing: "-0.03em",
               lineHeight: 1.1,
               color: SLATE,
