@@ -197,12 +197,15 @@ export default function Landing() {
                 className="flex flex-col items-center text-center gap-3"
               >
                 <div
-                  className="h-10 w-10 rounded-full flex items-center justify-center"
+                  className="h-9 w-9 rounded-full flex items-center justify-center"
                   style={{ backgroundColor: BLUE }}
                 >
-                  <Check className="h-5 w-5 text-white" strokeWidth={2.5} />
+                  <Check className="h-4 w-4 text-white" strokeWidth={2.5} />
                 </div>
-                <span className="text-base md:text-lg font-semibold" style={{ letterSpacing: "-0.01em" }}>
+                <span
+                  className="text-sm md:text-[15px]"
+                  style={{ fontWeight: 400, letterSpacing: "-0.005em", color: SLATE }}
+                >
                   {feature}
                 </span>
               </div>
