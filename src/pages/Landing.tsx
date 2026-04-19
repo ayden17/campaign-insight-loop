@@ -217,36 +217,40 @@ export default function Landing() {
       {/* ───── How it Works ───── */}
       <section
         id="how-it-works"
-        className="relative py-16 md:py-20 border-t border-border/60"
+        className="relative bg-white py-16 md:py-20 border-t"
+        style={{ borderColor: "hsl(220 13% 93%)" }}
       >
         <div className="container mx-auto px-4 sm:px-6 max-w-7xl relative z-10">
           <h2
-            className="text-3xl md:text-4xl font-bold text-center mb-10 md:mb-14"
-            style={{ letterSpacing: "-0.035em" }}
+            className="text-3xl md:text-4xl text-center mb-10 md:mb-14"
+            style={{ letterSpacing: "-0.03em", fontWeight: 600, color: SLATE, lineHeight: 1.1 }}
           >
             How it Works
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-px bg-border/60 rounded-2xl overflow-hidden border border-border/60">
+          <div
+            className="grid grid-cols-1 md:grid-cols-3 gap-px rounded-2xl overflow-hidden border"
+            style={{ backgroundColor: "hsl(220 13% 93%)", borderColor: "hsl(220 13% 93%)" }}
+          >
             {HOW_IT_WORKS.map((item) => (
               <div
                 key={item.step}
-                className="flex flex-col items-start text-left bg-card p-8 md:p-10 min-h-[280px]"
+                className="flex flex-col items-start text-left bg-white p-8 md:p-10 min-h-[280px]"
               >
                 <div
-                  className="h-11 w-11 rounded-full flex items-center justify-center text-white text-base font-semibold mb-10"
-                  style={{ backgroundColor: BLUE }}
+                  className="h-11 w-11 rounded-full flex items-center justify-center text-white text-base mb-10"
+                  style={{ backgroundColor: BLUE, fontWeight: 500 }}
                 >
                   {item.step}
                 </div>
                 <h3
-                  className="text-lg md:text-xl font-semibold mb-3 leading-snug"
-                  style={{ color: BLUE, letterSpacing: "-0.025em" }}
+                  className="text-lg md:text-xl mb-3 leading-snug"
+                  style={{ color: BLUE, letterSpacing: "-0.02em", fontWeight: 600 }}
                 >
                   {item.title}
                 </h3>
                 <p
-                  className="text-muted-foreground text-sm md:text-[15px] font-normal leading-relaxed"
-                  style={{ letterSpacing: "-0.005em" }}
+                  className="text-sm md:text-[15px] leading-relaxed"
+                  style={{ letterSpacing: "-0.005em", color: SLATE_SOFT, fontWeight: 400 }}
                 >
                   {item.description}
                 </p>
@@ -259,20 +263,24 @@ export default function Landing() {
       {/* ───── How AngelFlows helps ───── */}
       <section
         id="operations"
-        className="relative py-16 md:py-20 border-t border-border/60"
+        className="relative bg-white py-16 md:py-20 border-t"
+        style={{ borderColor: "hsl(220 13% 93%)" }}
       >
         <div className="container mx-auto px-4 sm:px-6 max-w-7xl relative z-10">
           <h2
-            className="text-3xl md:text-4xl font-bold text-center mb-10 md:mb-14"
-            style={{ letterSpacing: "-0.035em" }}
+            className="text-3xl md:text-4xl text-center mb-10 md:mb-14"
+            style={{ letterSpacing: "-0.03em", fontWeight: 600, color: SLATE, lineHeight: 1.1 }}
           >
             How AngelFlows Helps Contractors
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-px bg-border/60 rounded-2xl overflow-hidden border border-border/60">
+          <div
+            className="grid grid-cols-1 md:grid-cols-3 gap-px rounded-2xl overflow-hidden border"
+            style={{ backgroundColor: "hsl(220 13% 93%)", borderColor: "hsl(220 13% 93%)" }}
+          >
             {HOW_WE_HELP.map((item) => (
               <div
                 key={item.title}
-                className="flex flex-col items-start text-left bg-card p-8 md:p-10 min-h-[280px]"
+                className="flex flex-col items-start text-left bg-white p-8 md:p-10 min-h-[280px]"
               >
                 <div
                   className="h-11 w-11 rounded-full flex items-center justify-center mb-10"
@@ -281,14 +289,14 @@ export default function Landing() {
                   <item.icon className="h-5 w-5 text-white" strokeWidth={1.75} />
                 </div>
                 <h3
-                  className="text-lg md:text-xl font-semibold mb-3 leading-snug"
-                  style={{ color: BLUE, letterSpacing: "-0.025em" }}
+                  className="text-lg md:text-xl mb-3 leading-snug"
+                  style={{ color: BLUE, letterSpacing: "-0.02em", fontWeight: 600 }}
                 >
                   {item.title}
                 </h3>
                 <p
-                  className="text-muted-foreground text-sm md:text-[15px] font-normal leading-relaxed"
-                  style={{ letterSpacing: "-0.005em" }}
+                  className="text-sm md:text-[15px] leading-relaxed"
+                  style={{ letterSpacing: "-0.005em", color: SLATE_SOFT, fontWeight: 400 }}
                 >
                   {item.description}
                 </p>
