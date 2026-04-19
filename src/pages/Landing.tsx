@@ -88,6 +88,7 @@ const BLUE = "hsl(217 91% 60%)";
 const BLUE_HOVER = "hsl(217 91% 55%)";
 const SLATE = "hsl(215 25% 17%)"; // #1e293b deep slate charcoal
 const SLATE_SOFT = "hsl(215 20% 35%)";
+const SLATE_MUTED = "hsl(215 15% 55%)"; // lighter gray for subtitles
 
 export default function Landing() {
   const navigate = useNavigate();
