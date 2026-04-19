@@ -143,8 +143,8 @@ export default function Landing() {
 
           <button
             onClick={() => navigate("/auth")}
-            className="h-12 px-8 rounded-full text-white text-base font-semibold shadow-lg transition-colors"
-            style={{ backgroundColor: BLUE }}
+            className="h-12 px-8 rounded-full text-white text-base font-medium shadow-lg transition-colors"
+            style={{ backgroundColor: BLUE, letterSpacing: "-0.01em" }}
             onMouseEnter={(e) =>
               (e.currentTarget.style.backgroundColor = BLUE_HOVER)
             }
