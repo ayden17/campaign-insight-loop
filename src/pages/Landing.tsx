@@ -424,7 +424,7 @@ export default function Landing() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-border/60 py-8 relative z-10">
+      <footer className="border-t bg-white py-8 relative z-10" style={{ borderColor: "hsl(220 13% 93%)" }}>
         <div className="container mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
           <span>AngelFlows © {new Date().getFullYear()}</span>
           <div className="flex gap-6">
