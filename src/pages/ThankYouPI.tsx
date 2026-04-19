@@ -13,6 +13,7 @@ const FAQ_VIDEOS = [
   { title: "Are the leads exclusive?", videoSrc: "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1" },
   { title: "Will it work for me?", videoSrc: "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1" },
   { title: "How are you different?", videoSrc: "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1" },
+  { title: "What happens next?", videoSrc: "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1" },
 ];
 
 export default function ThankYouPI() {
