@@ -279,9 +279,10 @@ export default function Landing() {
             Leads or Appointments
           </Reveal>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-5">
-            {SERVICES.map((service) => (
-              <div
+            {SERVICES.map((service, idx) => (
+              <Reveal
                 key={service.name}
+                delay={idx * 100}
                 className="rounded-2xl border bg-white p-8 flex flex-col items-center justify-center text-center transition-all hover:shadow-md"
                 style={{ borderColor: "hsl(220 13% 93%)" }}
               >
@@ -297,7 +298,7 @@ export default function Landing() {
                 >
                   {service.name}
                 </p>
-              </div>
+              </Reveal>
             ))}
           </div>
         </div>
