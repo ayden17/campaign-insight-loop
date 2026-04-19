@@ -41,7 +41,7 @@ export function LandingNavbar() {
 
             <button
               onClick={() => navigate("/auth")}
-              className="h-10 px-5 sm:px-6 rounded-full bg-[hsl(217_91%_60%)] text-white text-sm font-medium shadow-md hover:bg-[hsl(217_91%_55%)] transition-colors"
+              className="h-10 px-5 sm:px-6 rounded-xl bg-[hsl(217_91%_60%)] text-white text-sm font-semibold shadow-md hover:bg-[hsl(217_91%_55%)] transition-colors"
               style={{ letterSpacing: "-0.01em" }}
             >
               Book a call
