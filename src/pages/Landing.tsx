@@ -421,18 +421,18 @@ function HowItWorksSection() {
       style={{ borderColor: "hsl(220 13% 93%)" }}
     >
       <div className="container mx-auto px-4 sm:px-6 max-w-7xl relative z-10">
-        <h2
+        <Reveal as="h2"
           className="text-3xl md:text-4xl text-center mb-10 md:mb-14"
           style={{ fontFamily: DISPLAY_FONT, letterSpacing: "-0.03em", fontWeight: 500, color: SLATE, lineHeight: 1.1 }}
         >
           How it Works
-        </h2>
+        </Reveal>
         <div
           className="grid grid-cols-1 md:grid-cols-3 gap-px rounded-2xl overflow-hidden border"
           style={{ backgroundColor: "hsl(220 13% 93%)", borderColor: "hsl(220 13% 93%)" }}
         >
           {HOW_IT_WORKS.map((item, idx) => (
-            <RevealCard key={item.step} delay={idx * 140}>
+            <RevealCard key={item.step} delay={idx * 100}>
               <div
                 className="h-11 w-11 rounded-full flex items-center justify-center text-white text-base mb-10"
                 style={{ backgroundColor: BLUE, fontWeight: 500 }}
@@ -473,10 +473,38 @@ function RevealCard({
       className="flex flex-col items-start text-left bg-white p-8 md:p-10 min-h-[280px]"
       style={{
         opacity: inView ? undefined : 0,
-        animation: inView ? `slide-in-up 0.7s cubic-bezier(0.22, 1, 0.36, 1) ${delay}ms forwards` : undefined,
+        willChange: "transform, opacity",
+        animation: inView ? `slide-in-up 0.6s ease-out ${delay}ms forwards` : undefined,
       }}
     >
       {children}
     </div>
+  );
+}
+
+type RevealProps = {
+  children: React.ReactNode;
+  delay?: number;
+  className?: string;
+  style?: React.CSSProperties;
+  as?: keyof JSX.IntrinsicElements;
+};
+
+function Reveal({ children, delay = 0, className, style, as: Tag = "div" }: RevealProps) {
+  const { ref, inView } = useInView<HTMLElement>();
+  const AnyTag = Tag as any;
+  return (
+    <AnyTag
+      ref={ref as any}
+      className={className}
+      style={{
+        ...style,
+        opacity: inView ? undefined : 0,
+        willChange: "transform, opacity",
+        animation: inView ? `slide-in-up 0.6s ease-out ${delay}ms forwards` : undefined,
+      }}
+    >
+      {children}
+    </AnyTag>
   );
 }
