@@ -163,8 +163,9 @@ function Reveal({ children, delay = 0, className, style, as: Tag = "div" }: Reve
       style={{
         ...style,
         opacity: inView ? undefined : 0,
+        transform: inView ? undefined : "scale(0.95)",
         willChange: "transform, opacity",
-        animation: inView ? `slide-in-up 0.6s ease-out ${delay}ms forwards` : undefined,
+        animation: inView ? `smooth-pop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) ${delay}ms forwards` : undefined,
       }}
     >
       {children}
