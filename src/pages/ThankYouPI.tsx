@@ -13,6 +13,7 @@ const FAQ_VIDEOS = [
   { title: "Are the leads exclusive?", videoSrc: "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1" },
   { title: "Will it work for me?", videoSrc: "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1" },
   { title: "How are you different?", videoSrc: "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1" },
+  { title: "What happens next?", videoSrc: "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1" },
 ];
 
 export default function ThankYouPI() {
@@ -101,7 +102,7 @@ export default function ThankYouPI() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
             {FAQ_VIDEOS.map((item, idx) => (
-              <Reveal key={item.title} delay={idx * 100} className="flex flex-col">
+              <Reveal key={item.title} delay={idx * 100} className="flex flex-col items-center text-center">
                 <h3
                   className="text-lg md:text-xl mb-4"
                   style={{ fontFamily: DISPLAY_FONT, fontWeight: 400, color: BLUE, letterSpacing: "-0.02em" }}
@@ -109,7 +110,7 @@ export default function ThankYouPI() {
                   {item.title}
                 </h3>
                 <div
-                  className="rounded-2xl p-1.5"
+                  className="rounded-2xl p-1.5 w-full"
                   style={{
                     background:
                       "linear-gradient(180deg, hsl(217 91% 60% / 0.2), hsl(217 91% 60% / 0.04))",
@@ -162,8 +163,9 @@ function Reveal({ children, delay = 0, className, style, as: Tag = "div" }: Reve
       style={{
         ...style,
         opacity: inView ? undefined : 0,
+        transform: inView ? undefined : "scale(0.95)",
         willChange: "transform, opacity",
-        animation: inView ? `slide-in-up 0.6s ease-out ${delay}ms forwards` : undefined,
+        animation: inView ? `smooth-pop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) ${delay}ms forwards` : undefined,
       }}
     >
       {children}
