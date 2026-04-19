@@ -272,12 +272,12 @@ export default function Landing() {
         style={{ borderColor: "hsl(220 13% 93%)" }}
       >
         <div className="container mx-auto px-6 max-w-6xl relative z-10">
-          <h2
+          <Reveal as="h2"
             className="text-3xl md:text-5xl text-center mb-14"
             style={{ fontFamily: DISPLAY_FONT, letterSpacing: "-0.03em", fontWeight: 500, color: SLATE, lineHeight: 1.1 }}
           >
             Leads or Appointments
-          </h2>
+          </Reveal>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-5">
             {SERVICES.map((service) => (
               <div
