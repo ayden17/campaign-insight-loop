@@ -13,11 +13,12 @@ import { HeroVideoDialog } from "@/components/ui/hero-video-dialog";
 import { useInView } from "@/hooks/use-in-view";
 import dashboardAnalytics from "@/assets/dashboard-analytics.png";
 import houseIcon from "@/assets/house-icon.png";
-import serviceRoofing from "@/assets/service-roofing.png";
-import serviceSiding from "@/assets/service-siding.png";
-import serviceWindow from "@/assets/service-window.png";
-import serviceBathroom from "@/assets/service-bathroom.png";
-import serviceHvac from "@/assets/service-hvac.png";
+import piMva from "@/assets/pi-mva.png";
+import piSlipFall from "@/assets/pi-slip-fall.png";
+import piWorkplace from "@/assets/pi-workplace.png";
+import piMedical from "@/assets/pi-medical.png";
+import piWrongfulDeath from "@/assets/pi-wrongful-death.png";
+import piCatastrophic from "@/assets/pi-catastrophic.png";
 
 const DISPLAY_FONT = "'Degular Display', 'General Sans', 'Inter', system-ui, -apple-system, sans-serif";
 
@@ -71,11 +72,12 @@ const HOW_WE_HELP = [
 ];
 
 const SERVICES = [
-  { name: "Motor Vehicle Accidents (MVA)", image: serviceRoofing },
-  { name: "Slip & Fall", image: serviceSiding },
-  { name: "Workplace Injury", image: serviceWindow },
-  { name: "Medical Malpractice", image: serviceBathroom },
-  { name: "Wrongful Death", image: serviceHvac },
+  { name: "MVA", image: piMva },
+  { name: "Slip & Fall", image: piSlipFall },
+  { name: "Workplace Injury", image: piWorkplace },
+  { name: "Medical Malpractice", image: piMedical },
+  { name: "Wrongful Death", image: piWrongfulDeath },
+  { name: "Catastrophic Injury", image: piCatastrophic },
 ];
 
 const STATS = [
@@ -152,7 +154,7 @@ export default function LandingPI() {
             className="text-sm md:text-base max-w-xl mx-auto mb-6"
             style={{ fontFamily: DISPLAY_FONT, fontWeight: 400, letterSpacing: "-0.01em", color: SLATE_MUTED }}
           >
-            Stop paying for shared junk leads. We handle the ad spend and intake vetting—you only pay for qualified appointments.
+            Don't Pay Ad Spend or Monthly Retainers, Just Pay-Per-Lead.
           </p>
 
           <button
@@ -277,17 +279,19 @@ export default function LandingPI() {
               <Reveal
                 key={service.name}
                 delay={idx * 100}
-                className="rounded-2xl border bg-white p-8 flex flex-col items-center justify-center text-center transition-all hover:shadow-md"
+                className="rounded-2xl border bg-white p-8 flex flex-col items-center justify-between text-center transition-all hover:shadow-md min-h-[260px] md:min-h-[280px]"
                 style={{ borderColor: "hsl(220 13% 93%)" }}
               >
-                <img
-                  src={service.image}
-                  alt={service.name}
-                  className="h-24 md:h-28 w-auto object-contain mb-6"
-                  loading="lazy"
-                />
+                <div className="flex-1 flex items-center justify-center w-full">
+                  <img
+                    src={service.image}
+                    alt={service.name}
+                    className="h-28 md:h-32 w-auto max-w-full object-contain"
+                    loading="lazy"
+                  />
+                </div>
                 <p
-                  className="text-lg md:text-xl"
+                  className="text-lg md:text-xl mt-6"
                   style={{ fontFamily: DISPLAY_FONT, color: BLUE, letterSpacing: "-0.02em", fontWeight: 500 }}
                 >
                   {service.name}
