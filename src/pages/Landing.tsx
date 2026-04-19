@@ -151,7 +151,7 @@ export default function Landing() {
 
           <p
             className="text-sm md:text-base font-normal max-w-xl mx-auto mb-6"
-            style={{ letterSpacing: "-0.01em", color: SLATE_SOFT }}
+            style={{ letterSpacing: "-0.01em", color: SLATE_MUTED }}
           >
             Don't Pay Ad Spend or Monthly Retainers, Just Pay-Per-Appointment.
           </p>
