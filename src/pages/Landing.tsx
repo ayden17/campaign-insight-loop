@@ -119,19 +119,25 @@ export default function Landing() {
               <Workflow
                 className="h-7 w-7"
                 style={{ color: BLUE }}
-                strokeWidth={2.5}
+                strokeWidth={2}
               />
             </div>
-            <p className="text-base font-semibold text-foreground">
+            <p className="text-base font-light text-muted-foreground" style={{ letterSpacing: "-0.01em" }}>
               For Contracting Businesses
             </p>
           </div>
 
-          <h1 className="text-4xl md:text-6xl lg:text-[68px] font-extrabold tracking-tight leading-[1.05] mb-8 max-w-4xl mx-auto">
+          <h1
+            className="text-4xl md:text-6xl lg:text-[64px] font-medium leading-[1.08] mb-8 max-w-4xl mx-auto"
+            style={{ letterSpacing: "-0.03em", color: "hsl(222 30% 14%)" }}
+          >
             Scale your Contracting Business By Getting Qualified &amp; Exclusive Appointments Without Lifting a Finger
           </h1>
 
-          <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-10">
+          <p
+            className="text-lg md:text-xl font-light text-muted-foreground max-w-2xl mx-auto mb-10"
+            style={{ letterSpacing: "-0.01em" }}
+          >
             Don't Pay Ad Spend or Monthly Retainers, Just Pay-Per-Appointment.
           </p>
 
