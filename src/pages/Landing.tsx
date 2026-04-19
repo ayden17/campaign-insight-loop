@@ -109,33 +109,36 @@ export default function Landing() {
       <LandingNavbar />
 
       {/* ───── Hero ───── */}
-      <section id="hero" className="relative pt-36 md:pt-44 pb-16 md:pb-24">
-        <div className="container mx-auto px-6 max-w-5xl text-center relative z-10">
-          <div className="flex flex-col items-center gap-4 mb-8">
+      <section id="hero" className="relative pt-28 md:pt-32 pb-8 md:pb-10">
+        <div className="container mx-auto px-6 max-w-4xl text-center relative z-10">
+          <div className="flex flex-col items-center gap-2 mb-3">
             <div
-              className="h-14 w-14 rounded-2xl flex items-center justify-center"
+              className="h-10 w-10 rounded-xl flex items-center justify-center"
               style={{ backgroundColor: "hsl(217 91% 60% / 0.08)" }}
             >
               <Workflow
-                className="h-7 w-7"
+                className="h-5 w-5"
                 style={{ color: BLUE }}
-                strokeWidth={2}
+                strokeWidth={1.75}
               />
             </div>
-            <p className="text-base font-light text-muted-foreground" style={{ letterSpacing: "-0.01em" }}>
+            <p
+              className="text-[13px] font-light text-muted-foreground"
+              style={{ letterSpacing: "-0.01em" }}
+            >
               For Contracting Businesses
             </p>
           </div>
 
           <h1
-            className="text-4xl md:text-6xl lg:text-[64px] font-medium leading-[1.08] mb-8 max-w-4xl mx-auto"
-            style={{ letterSpacing: "-0.03em", color: "hsl(222 30% 14%)" }}
+            className="text-2xl md:text-3xl lg:text-[38px] font-normal leading-[1.15] mb-3 max-w-3xl mx-auto"
+            style={{ letterSpacing: "-0.035em", color: "hsl(222 30% 14%)" }}
           >
             Scale your Contracting Business By Getting Qualified &amp; Exclusive Appointments Without Lifting a Finger
           </h1>
 
           <p
-            className="text-lg md:text-xl font-light text-muted-foreground max-w-2xl mx-auto mb-10"
+            className="text-sm md:text-base font-light text-muted-foreground max-w-xl mx-auto mb-5"
             style={{ letterSpacing: "-0.01em" }}
           >
             Don't Pay Ad Spend or Monthly Retainers, Just Pay-Per-Appointment.
@@ -143,7 +146,7 @@ export default function Landing() {
 
           <button
             onClick={() => navigate("/auth")}
-            className="h-12 px-8 rounded-full text-white text-base font-medium shadow-lg transition-colors"
+            className="h-10 px-6 rounded-full text-white text-sm font-medium shadow-md transition-colors"
             style={{ backgroundColor: BLUE, letterSpacing: "-0.01em" }}
             onMouseEnter={(e) =>
               (e.currentTarget.style.backgroundColor = BLUE_HOVER)
@@ -157,7 +160,7 @@ export default function Landing() {
         </div>
 
         {/* Video */}
-        <div className="container mx-auto px-6 max-w-5xl mt-14 md:mt-20 relative z-10">
+        <div className="container mx-auto px-6 max-w-5xl mt-8 md:mt-10 relative z-10">
           <div
             className="rounded-3xl p-2"
             style={{
