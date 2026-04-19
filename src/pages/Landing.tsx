@@ -219,50 +219,7 @@ export default function Landing() {
       </section>
 
       {/* ───── How it Works ───── */}
-      <section
-        id="how-it-works"
-        className="relative bg-white py-16 md:py-20 border-t"
-        style={{ borderColor: "hsl(220 13% 93%)" }}
-      >
-        <div className="container mx-auto px-4 sm:px-6 max-w-7xl relative z-10">
-          <h2
-            className="text-3xl md:text-4xl text-center mb-10 md:mb-14"
-            style={{ letterSpacing: "-0.03em", fontWeight: 600, color: SLATE, lineHeight: 1.1 }}
-          >
-            How it Works
-          </h2>
-          <div
-            className="grid grid-cols-1 md:grid-cols-3 gap-px rounded-2xl overflow-hidden border"
-            style={{ backgroundColor: "hsl(220 13% 93%)", borderColor: "hsl(220 13% 93%)" }}
-          >
-            {HOW_IT_WORKS.map((item) => (
-              <div
-                key={item.step}
-                className="flex flex-col items-start text-left bg-white p-8 md:p-10 min-h-[280px]"
-              >
-                <div
-                  className="h-11 w-11 rounded-full flex items-center justify-center text-white text-base mb-10"
-                  style={{ backgroundColor: BLUE, fontWeight: 500 }}
-                >
-                  {item.step}
-                </div>
-                <h3
-                  className="text-lg md:text-xl mb-3 leading-snug"
-                  style={{ color: BLUE, letterSpacing: "-0.02em", fontWeight: 600 }}
-                >
-                  {item.title}
-                </h3>
-                <p
-                  className="text-sm md:text-[15px] leading-relaxed"
-                  style={{ letterSpacing: "-0.005em", color: SLATE_SOFT, fontWeight: 400 }}
-                >
-                  {item.description}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+      <HowItWorksSection />
 
       {/* ───── How AngelFlows helps ───── */}
       <section
@@ -273,7 +230,7 @@ export default function Landing() {
         <div className="container mx-auto px-4 sm:px-6 max-w-7xl relative z-10">
           <h2
             className="text-3xl md:text-4xl text-center mb-10 md:mb-14"
-            style={{ letterSpacing: "-0.03em", fontWeight: 600, color: SLATE, lineHeight: 1.1 }}
+            style={{ fontFamily: DISPLAY_FONT, letterSpacing: "-0.03em", fontWeight: 500, color: SLATE, lineHeight: 1.1 }}
           >
             How AngelFlows Helps Contractors
           </h2>
@@ -281,11 +238,8 @@ export default function Landing() {
             className="grid grid-cols-1 md:grid-cols-3 gap-px rounded-2xl overflow-hidden border"
             style={{ backgroundColor: "hsl(220 13% 93%)", borderColor: "hsl(220 13% 93%)" }}
           >
-            {HOW_WE_HELP.map((item) => (
-              <div
-                key={item.title}
-                className="flex flex-col items-start text-left bg-white p-8 md:p-10 min-h-[280px]"
-              >
+            {HOW_WE_HELP.map((item, idx) => (
+              <RevealCard key={item.title} delay={idx * 120}>
                 <div
                   className="h-11 w-11 rounded-full flex items-center justify-center mb-10"
                   style={{ backgroundColor: BLUE }}
@@ -294,17 +248,17 @@ export default function Landing() {
                 </div>
                 <h3
                   className="text-lg md:text-xl mb-3 leading-snug"
-                  style={{ color: BLUE, letterSpacing: "-0.02em", fontWeight: 600 }}
+                  style={{ fontFamily: DISPLAY_FONT, color: BLUE, letterSpacing: "-0.02em", fontWeight: 500 }}
                 >
                   {item.title}
                 </h3>
                 <p
                   className="text-sm md:text-[15px] leading-relaxed"
-                  style={{ letterSpacing: "-0.005em", color: SLATE_SOFT, fontWeight: 400 }}
+                  style={{ fontFamily: DISPLAY_FONT, letterSpacing: "-0.005em", color: SLATE_SOFT, fontWeight: 400 }}
                 >
                   {item.description}
                 </p>
-              </div>
+              </RevealCard>
             ))}
           </div>
         </div>
@@ -318,7 +272,7 @@ export default function Landing() {
         <div className="container mx-auto px-6 max-w-6xl relative z-10">
           <h2
             className="text-3xl md:text-5xl text-center mb-14"
-            style={{ letterSpacing: "-0.03em", fontWeight: 600, color: SLATE, lineHeight: 1.1 }}
+            style={{ fontFamily: DISPLAY_FONT, letterSpacing: "-0.03em", fontWeight: 500, color: SLATE, lineHeight: 1.1 }}
           >
             Leads or Appointments
           </h2>
@@ -337,7 +291,7 @@ export default function Landing() {
                 />
                 <p
                   className="text-lg md:text-xl"
-                  style={{ color: BLUE, letterSpacing: "-0.02em", fontWeight: 600 }}
+                  style={{ fontFamily: DISPLAY_FONT, color: BLUE, letterSpacing: "-0.02em", fontWeight: 500 }}
                 >
                   {service.name}
                 </p>
@@ -357,11 +311,14 @@ export default function Landing() {
           <div className="text-center mb-14">
             <h2
               className="text-3xl md:text-5xl mb-4"
-              style={{ letterSpacing: "-0.03em", fontWeight: 600, color: SLATE, lineHeight: 1.1 }}
+              style={{ fontFamily: DISPLAY_FONT, letterSpacing: "-0.03em", fontWeight: 500, color: SLATE, lineHeight: 1.1 }}
             >
               Why Choose Us?
             </h2>
-            <p className="text-base md:text-lg" style={{ color: SLATE_SOFT, fontWeight: 400 }}>
+            <p
+              className="text-base md:text-lg"
+              style={{ fontFamily: DISPLAY_FONT, color: SLATE_SOFT, fontWeight: 400 }}
+            >
               Connect with motivated homeowners actively searching for your services.
             </p>
           </div>
@@ -379,11 +336,14 @@ export default function Landing() {
                 />
                 <p
                   className="text-4xl md:text-5xl mb-3"
-                  style={{ color: BLUE, letterSpacing: "-0.03em", fontWeight: 600 }}
+                  style={{ fontFamily: DISPLAY_FONT, color: BLUE, letterSpacing: "-0.03em", fontWeight: 500 }}
                 >
                   {stat.value}
                 </p>
-                <p className="text-base" style={{ color: SLATE_SOFT, fontWeight: 400 }}>
+                <p
+                  className="text-base"
+                  style={{ fontFamily: DISPLAY_FONT, color: SLATE_SOFT, fontWeight: 400 }}
+                >
                   {stat.label}
                 </p>
               </div>
@@ -401,13 +361,13 @@ export default function Landing() {
         <div className="container mx-auto px-6 max-w-3xl text-center relative z-10">
           <h2
             className="text-4xl md:text-6xl mb-6"
-            style={{ letterSpacing: "-0.03em", fontWeight: 600, color: SLATE, lineHeight: 1.1 }}
+            style={{ fontFamily: DISPLAY_FONT, letterSpacing: "-0.03em", fontWeight: 500, color: SLATE, lineHeight: 1.1 }}
           >
             Ready to Expand?
           </h2>
           <p
             className="text-base md:text-lg mb-10 max-w-xl mx-auto"
-            style={{ color: SLATE_SOFT, fontWeight: 400 }}
+            style={{ fontFamily: DISPLAY_FONT, color: SLATE_SOFT, fontWeight: 400 }}
           >
             At AngelFlows Media, each lead only goes to ONE contractor. Claim it before your competitor does.
           </p>
@@ -430,8 +390,8 @@ export default function Landing() {
       {/* Footer */}
       <footer className="border-t bg-white py-8 relative z-10" style={{ borderColor: "hsl(220 13% 93%)" }}>
         <div className="container mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
-          <span>AngelFlows © {new Date().getFullYear()}</span>
-          <div className="flex gap-6">
+          <span style={{ fontFamily: DISPLAY_FONT }}>AngelFlows © {new Date().getFullYear()}</span>
+          <div className="flex gap-6" style={{ fontFamily: DISPLAY_FONT }}>
             <a href="#" className="hover:text-foreground transition-colors">
               Terms
             </a>
@@ -444,6 +404,74 @@ export default function Landing() {
           </div>
         </div>
       </footer>
+    </div>
+  );
+}
+
+function HowItWorksSection() {
+  return (
+    <section
+      id="how-it-works"
+      className="relative bg-white py-16 md:py-20 border-t"
+      style={{ borderColor: "hsl(220 13% 93%)" }}
+    >
+      <div className="container mx-auto px-4 sm:px-6 max-w-7xl relative z-10">
+        <h2
+          className="text-3xl md:text-4xl text-center mb-10 md:mb-14"
+          style={{ fontFamily: DISPLAY_FONT, letterSpacing: "-0.03em", fontWeight: 500, color: SLATE, lineHeight: 1.1 }}
+        >
+          How it Works
+        </h2>
+        <div
+          className="grid grid-cols-1 md:grid-cols-3 gap-px rounded-2xl overflow-hidden border"
+          style={{ backgroundColor: "hsl(220 13% 93%)", borderColor: "hsl(220 13% 93%)" }}
+        >
+          {HOW_IT_WORKS.map((item, idx) => (
+            <RevealCard key={item.step} delay={idx * 140}>
+              <div
+                className="h-11 w-11 rounded-full flex items-center justify-center text-white text-base mb-10"
+                style={{ backgroundColor: BLUE, fontWeight: 500 }}
+              >
+                {item.step}
+              </div>
+              <h3
+                className="text-lg md:text-xl mb-3 leading-snug"
+                style={{ fontFamily: DISPLAY_FONT, color: BLUE, letterSpacing: "-0.02em", fontWeight: 500 }}
+              >
+                {item.title}
+              </h3>
+              <p
+                className="text-sm md:text-[15px] leading-relaxed"
+                style={{ fontFamily: DISPLAY_FONT, letterSpacing: "-0.005em", color: SLATE_SOFT, fontWeight: 400 }}
+              >
+                {item.description}
+              </p>
+            </RevealCard>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function RevealCard({
+  children,
+  delay = 0,
+}: {
+  children: React.ReactNode;
+  delay?: number;
+}) {
+  const { ref, inView } = useInView<HTMLDivElement>();
+  return (
+    <div
+      ref={ref}
+      className="flex flex-col items-start text-left bg-white p-8 md:p-10 min-h-[280px]"
+      style={{
+        opacity: inView ? undefined : 0,
+        animation: inView ? `slide-in-up 0.7s cubic-bezier(0.22, 1, 0.36, 1) ${delay}ms forwards` : undefined,
+      }}
+    >
+      {children}
     </div>
   );
 }
