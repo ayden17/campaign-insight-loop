@@ -83,31 +83,33 @@ const STATS = [
 
 const BLUE = "hsl(217 91% 60%)";
 const BLUE_HOVER = "hsl(217 91% 55%)";
+const SLATE = "hsl(215 25% 17%)"; // #1e293b deep slate charcoal
+const SLATE_SOFT = "hsl(215 20% 35%)";
 
 export default function Landing() {
   const navigate = useNavigate();
 
   return (
     <div
-      className="min-h-screen bg-background relative overflow-hidden"
+      className="min-h-screen bg-white relative overflow-hidden"
       style={{
         fontFamily: "'Inter', system-ui, -apple-system, sans-serif",
-        color: "hsl(222 25% 12%)",
+        color: SLATE,
         letterSpacing: "-0.01em",
       }}
     >
-      {/* Subtle grid background */}
+      {/* Very subtle grid background — only behind hero */}
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0 opacity-[0.35]"
+        className="pointer-events-none absolute inset-x-0 top-0 h-[900px] opacity-[0.18]"
         style={{
           backgroundImage:
-            "linear-gradient(to right, hsl(0 0% 90%) 1px, transparent 1px), linear-gradient(to bottom, hsl(0 0% 90%) 1px, transparent 1px)",
-          backgroundSize: "56px 56px",
+            "linear-gradient(to right, hsl(220 13% 91%) 1px, transparent 1px), linear-gradient(to bottom, hsl(220 13% 91%) 1px, transparent 1px)",
+          backgroundSize: "64px 64px",
           maskImage:
-            "radial-gradient(ellipse at 50% 30%, black 40%, transparent 75%)",
+            "radial-gradient(ellipse at 50% 25%, black 35%, transparent 70%)",
           WebkitMaskImage:
-            "radial-gradient(ellipse at 50% 30%, black 40%, transparent 75%)",
+            "radial-gradient(ellipse at 50% 25%, black 35%, transparent 70%)",
         }}
       />
 
@@ -124,31 +126,39 @@ export default function Landing() {
               loading="eager"
             />
             <p
-              className="text-sm md:text-[15px] font-semibold text-foreground/80"
-              style={{ letterSpacing: "-0.01em" }}
+              className="text-sm md:text-[15px] font-medium"
+              style={{ letterSpacing: "-0.01em", color: SLATE }}
             >
               For Contracting Businesses
             </p>
           </div>
 
           <h1
-            className="text-3xl md:text-4xl lg:text-5xl font-bold leading-[1.1] mb-4 max-w-4xl mx-auto"
-            style={{ letterSpacing: "-0.035em", color: "hsl(222 30% 14%)" }}
+            className="text-[28px] sm:text-3xl md:text-4xl lg:text-5xl font-semibold mb-4 max-w-4xl mx-auto"
+            style={{
+              letterSpacing: "-0.03em",
+              lineHeight: 1.1,
+              color: SLATE,
+            }}
           >
             Scale your Contracting Business By Getting Qualified &amp; Exclusive Appointments Without Lifting a Finger
           </h1>
 
           <p
-            className="text-sm md:text-base font-normal text-muted-foreground max-w-xl mx-auto mb-6"
-            style={{ letterSpacing: "-0.01em" }}
+            className="text-sm md:text-base font-normal max-w-xl mx-auto mb-6"
+            style={{ letterSpacing: "-0.01em", color: SLATE_SOFT }}
           >
             Don't Pay Ad Spend or Monthly Retainers, Just Pay-Per-Appointment.
           </p>
 
           <button
             onClick={() => navigate("/auth")}
-            className="h-11 px-7 rounded-xl text-white text-sm font-semibold shadow-md transition-colors"
-            style={{ backgroundColor: BLUE, letterSpacing: "-0.01em" }}
+            className="h-11 px-7 rounded-xl text-white text-sm shadow-md transition-colors"
+            style={{
+              backgroundColor: BLUE,
+              fontWeight: 500,
+              letterSpacing: "0.02em",
+            }}
             onMouseEnter={(e) =>
               (e.currentTarget.style.backgroundColor = BLUE_HOVER)
             }
