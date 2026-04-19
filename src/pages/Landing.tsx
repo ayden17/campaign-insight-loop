@@ -307,21 +307,23 @@ export default function Landing() {
       </section>
 
       {/* ───── Leads or Appointments ───── */}
-      <section className="relative py-20 md:py-28 border-t border-border/60">
+      <section
+        className="relative bg-white py-20 md:py-28 border-t"
+        style={{ borderColor: "hsl(220 13% 93%)" }}
+      >
         <div className="container mx-auto px-6 max-w-6xl relative z-10">
-          <h2 className="text-3xl md:text-5xl font-bold text-center mb-14" style={{ letterSpacing: "-0.03em" }}>
+          <h2
+            className="text-3xl md:text-5xl text-center mb-14"
+            style={{ letterSpacing: "-0.03em", fontWeight: 600, color: SLATE, lineHeight: 1.1 }}
+          >
             Leads or Appointments
           </h2>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-5">
             {SERVICES.map((service) => (
               <div
                 key={service.name}
-                className="rounded-2xl border border-border/80 bg-card p-8 flex flex-col items-center justify-center text-center transition-all hover:shadow-lg"
-                style={{
-                  backgroundImage:
-                    "linear-gradient(180deg, hsl(217 91% 60% / 0.02), transparent), linear-gradient(to right, hsl(217 91% 60% / 0.06) 1px, transparent 1px), linear-gradient(to bottom, hsl(217 91% 60% / 0.06) 1px, transparent 1px)",
-                  backgroundSize: "auto, 24px 24px, 24px 24px",
-                }}
+                className="rounded-2xl border bg-white p-8 flex flex-col items-center justify-center text-center transition-all hover:shadow-md"
+                style={{ borderColor: "hsl(220 13% 93%)" }}
               >
                 <img
                   src={service.image}
@@ -330,8 +332,8 @@ export default function Landing() {
                   loading="lazy"
                 />
                 <p
-                  className="text-lg md:text-xl font-semibold"
-                  style={{ color: BLUE, letterSpacing: "-0.02em" }}
+                  className="text-lg md:text-xl"
+                  style={{ color: BLUE, letterSpacing: "-0.02em", fontWeight: 600 }}
                 >
                   {service.name}
                 </p>
@@ -344,14 +346,18 @@ export default function Landing() {
       {/* ───── Why Us ───── */}
       <section
         id="why-us"
-        className="relative py-20 md:py-28 border-t border-border/60"
+        className="relative bg-white py-20 md:py-28 border-t"
+        style={{ borderColor: "hsl(220 13% 93%)" }}
       >
         <div className="container mx-auto px-6 max-w-6xl relative z-10">
           <div className="text-center mb-14">
-            <h2 className="text-3xl md:text-5xl font-bold mb-4" style={{ letterSpacing: "-0.03em" }}>
+            <h2
+              className="text-3xl md:text-5xl mb-4"
+              style={{ letterSpacing: "-0.03em", fontWeight: 600, color: SLATE, lineHeight: 1.1 }}
+            >
               Why Choose Us?
             </h2>
-            <p className="text-muted-foreground text-lg font-normal">
+            <p className="text-base md:text-lg" style={{ color: SLATE_SOFT, fontWeight: 400 }}>
               Connect with motivated homeowners actively searching for your services.
             </p>
           </div>
@@ -359,11 +365,8 @@ export default function Landing() {
             {STATS.map((stat) => (
               <div
                 key={stat.label}
-                className="rounded-2xl border border-border/80 bg-card p-8 flex flex-col items-start"
-                style={{
-                  background:
-                    "linear-gradient(180deg, hsl(217 91% 60% / 0.04), transparent)",
-                }}
+                className="rounded-2xl border bg-white p-8 flex flex-col items-start"
+                style={{ borderColor: "hsl(220 13% 93%)" }}
               >
                 <stat.icon
                   className="h-9 w-9 mb-6"
@@ -371,12 +374,12 @@ export default function Landing() {
                   strokeWidth={2}
                 />
                 <p
-                  className="text-4xl md:text-5xl font-bold mb-3"
-                  style={{ color: BLUE, letterSpacing: "-0.03em" }}
+                  className="text-4xl md:text-5xl mb-3"
+                  style={{ color: BLUE, letterSpacing: "-0.03em", fontWeight: 600 }}
                 >
                   {stat.value}
                 </p>
-                <p className="text-muted-foreground text-base font-normal">
+                <p className="text-base" style={{ color: SLATE_SOFT, fontWeight: 400 }}>
                   {stat.label}
                 </p>
               </div>
@@ -388,19 +391,26 @@ export default function Landing() {
       {/* ───── Testimonials / CTA ───── */}
       <section
         id="testimonials"
-        className="relative py-24 md:py-32 border-t border-border/60"
+        className="relative bg-white py-24 md:py-32 border-t"
+        style={{ borderColor: "hsl(220 13% 93%)" }}
       >
         <div className="container mx-auto px-6 max-w-3xl text-center relative z-10">
-          <h2 className="text-4xl md:text-6xl font-bold mb-6 leading-tight" style={{ letterSpacing: "-0.035em" }}>
+          <h2
+            className="text-4xl md:text-6xl mb-6"
+            style={{ letterSpacing: "-0.03em", fontWeight: 600, color: SLATE, lineHeight: 1.1 }}
+          >
             Ready to Expand?
           </h2>
-          <p className="text-base md:text-lg text-muted-foreground font-normal mb-10 max-w-xl mx-auto">
+          <p
+            className="text-base md:text-lg mb-10 max-w-xl mx-auto"
+            style={{ color: SLATE_SOFT, fontWeight: 400 }}
+          >
             At AngelFlows Media, each lead only goes to ONE contractor. Claim it before your competitor does.
           </p>
           <button
             onClick={() => navigate("/auth")}
-            className="h-12 px-8 rounded-xl text-white text-base font-semibold shadow-lg transition-colors"
-            style={{ backgroundColor: BLUE, letterSpacing: "-0.01em" }}
+            className="h-12 px-8 rounded-xl text-white text-base shadow-lg transition-colors"
+            style={{ backgroundColor: BLUE, fontWeight: 500, letterSpacing: "0.02em" }}
             onMouseEnter={(e) =>
               (e.currentTarget.style.backgroundColor = BLUE_HOVER)
             }
