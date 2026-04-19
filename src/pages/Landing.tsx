@@ -150,8 +150,8 @@ export default function Landing() {
           </Reveal>
 
           <p
-            className="text-sm md:text-base font-normal max-w-xl mx-auto mb-6"
-            style={{ letterSpacing: "-0.01em", color: SLATE_MUTED }}
+            className="text-sm md:text-base max-w-xl mx-auto mb-6"
+            style={{ fontFamily: DISPLAY_FONT, fontWeight: 400, letterSpacing: "-0.01em", color: SLATE_MUTED }}
           >
             Don't Pay Ad Spend or Monthly Retainers, Just Pay-Per-Appointment.
           </p>
