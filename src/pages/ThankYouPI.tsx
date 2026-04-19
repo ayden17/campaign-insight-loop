@@ -110,7 +110,7 @@ export default function ThankYouPI() {
                   {item.title}
                 </h3>
                 <div
-                  className="rounded-2xl p-1.5"
+                  className="rounded-2xl p-1.5 w-full"
                   style={{
                     background:
                       "linear-gradient(180deg, hsl(217 91% 60% / 0.2), hsl(217 91% 60% / 0.04))",
