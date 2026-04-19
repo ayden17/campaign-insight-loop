@@ -241,7 +241,7 @@ export default function Landing() {
             style={{ backgroundColor: "hsl(220 13% 93%)", borderColor: "hsl(220 13% 93%)" }}
           >
             {HOW_WE_HELP.map((item, idx) => (
-              <RevealCard key={item.title} delay={idx * 120}>
+              <RevealCard key={item.title} delay={idx * 100}>
                 <div
                   className="h-11 w-11 rounded-full flex items-center justify-center mb-10"
                   style={{ backgroundColor: BLUE }}
