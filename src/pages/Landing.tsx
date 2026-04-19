@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { LandingNavbar } from "@/components/landing/LandingNavbar";
 import { HeroVideoDialog } from "@/components/ui/hero-video-dialog";
+import { useInView } from "@/hooks/use-in-view";
 import dashboardAnalytics from "@/assets/dashboard-analytics.png";
 import houseIcon from "@/assets/house-icon.png";
 import serviceRoofing from "@/assets/service-roofing.png";
@@ -17,6 +18,8 @@ import serviceSiding from "@/assets/service-siding.png";
 import serviceWindow from "@/assets/service-window.png";
 import serviceBathroom from "@/assets/service-bathroom.png";
 import serviceHvac from "@/assets/service-hvac.png";
+
+const DISPLAY_FONT = "'Degular Display', 'General Sans', 'Inter', system-ui, -apple-system, sans-serif";
 
 const FEATURES = [
   "Budget-Based Billing",
