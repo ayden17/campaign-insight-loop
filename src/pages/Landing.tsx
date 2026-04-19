@@ -1,7 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import {
   Check,
-  Workflow,
   ClipboardList,
   Phone,
   Home,
@@ -12,6 +11,12 @@ import {
 import { LandingNavbar } from "@/components/landing/LandingNavbar";
 import { HeroVideoDialog } from "@/components/ui/hero-video-dialog";
 import dashboardAnalytics from "@/assets/dashboard-analytics.png";
+import houseIcon from "@/assets/house-icon.png";
+import serviceRoofing from "@/assets/service-roofing.png";
+import serviceSiding from "@/assets/service-siding.png";
+import serviceWindow from "@/assets/service-window.png";
+import serviceBathroom from "@/assets/service-bathroom.png";
+import serviceHvac from "@/assets/service-hvac.png";
 
 const FEATURES = [
   "Budget-Based Billing",
@@ -62,12 +67,12 @@ const HOW_WE_HELP = [
 ];
 
 const SERVICES = [
-  { name: "Roofing", emoji: "🏠" },
-  { name: "Siding", emoji: "🧱" },
-  { name: "Window Replacement", emoji: "🪟" },
-  { name: "Bathroom Remodeling", emoji: "🛁" },
-  { name: "Kitchen Remodeling", emoji: "🍳" },
-  { name: "HVAC", emoji: "❄️" },
+  { name: "Roofing", image: serviceRoofing },
+  { name: "Siding", image: serviceSiding },
+  { name: "Window Replacement", image: serviceWindow },
+  { name: "Bathroom Remodeling", image: serviceBathroom },
+  { name: "Kitchen Remodeling", image: serviceBathroom },
+  { name: "HVAC", image: serviceHvac },
 ];
 
 const STATS = [
@@ -111,19 +116,15 @@ export default function Landing() {
       {/* ───── Hero ───── */}
       <section id="hero" className="relative pt-28 md:pt-32 pb-8 md:pb-10">
         <div className="container mx-auto px-6 max-w-4xl text-center relative z-10">
-          <div className="flex flex-col items-center gap-2 mb-3">
-            <div
-              className="h-10 w-10 rounded-xl flex items-center justify-center"
-              style={{ backgroundColor: "hsl(217 91% 60% / 0.08)" }}
-            >
-              <Workflow
-                className="h-5 w-5"
-                style={{ color: BLUE }}
-                strokeWidth={1.75}
-              />
-            </div>
+          <div className="flex flex-col items-center gap-3 mb-4">
+            <img
+              src={houseIcon}
+              alt="AngelFlows house icon"
+              className="h-16 md:h-20 w-auto object-contain"
+              loading="eager"
+            />
             <p
-              className="text-[13px] font-light text-muted-foreground"
+              className="text-sm md:text-[15px] font-semibold text-foreground/80"
               style={{ letterSpacing: "-0.01em" }}
             >
               For Contracting Businesses
@@ -131,14 +132,14 @@ export default function Landing() {
           </div>
 
           <h1
-            className="text-2xl md:text-3xl lg:text-[38px] font-normal leading-[1.15] mb-3 max-w-3xl mx-auto"
+            className="text-3xl md:text-4xl lg:text-5xl font-bold leading-[1.1] mb-4 max-w-4xl mx-auto"
             style={{ letterSpacing: "-0.035em", color: "hsl(222 30% 14%)" }}
           >
             Scale your Contracting Business By Getting Qualified &amp; Exclusive Appointments Without Lifting a Finger
           </h1>
 
           <p
-            className="text-sm md:text-base font-light text-muted-foreground max-w-xl mx-auto mb-5"
+            className="text-sm md:text-base font-normal text-muted-foreground max-w-xl mx-auto mb-6"
             style={{ letterSpacing: "-0.01em" }}
           >
             Don't Pay Ad Spend or Monthly Retainers, Just Pay-Per-Appointment.
@@ -146,7 +147,7 @@ export default function Landing() {
 
           <button
             onClick={() => navigate("/auth")}
-            className="h-10 px-6 rounded-full text-white text-sm font-medium shadow-md transition-colors"
+            className="h-11 px-7 rounded-xl text-white text-sm font-semibold shadow-md transition-colors"
             style={{ backgroundColor: BLUE, letterSpacing: "-0.01em" }}
             onMouseEnter={(e) =>
               (e.currentTarget.style.backgroundColor = BLUE_HOVER)
@@ -191,7 +192,7 @@ export default function Landing() {
                 >
                   <Check className="h-5 w-5 text-white" strokeWidth={2.5} />
                 </div>
-                <span className="text-base md:text-lg font-medium" style={{ letterSpacing: "-0.01em" }}>
+                <span className="text-base md:text-lg font-semibold" style={{ letterSpacing: "-0.01em" }}>
                   {feature}
                 </span>
               </div>
@@ -207,7 +208,7 @@ export default function Landing() {
       >
         <div className="container mx-auto px-4 sm:px-6 max-w-7xl relative z-10">
           <h2
-            className="text-2xl md:text-4xl font-normal text-center mb-10 md:mb-14"
+            className="text-3xl md:text-4xl font-bold text-center mb-10 md:mb-14"
             style={{ letterSpacing: "-0.035em" }}
           >
             How it Works
@@ -219,19 +220,19 @@ export default function Landing() {
                 className="flex flex-col items-start text-left bg-card p-8 md:p-10 min-h-[280px]"
               >
                 <div
-                  className="h-11 w-11 rounded-full flex items-center justify-center text-white text-base font-medium mb-10"
+                  className="h-11 w-11 rounded-full flex items-center justify-center text-white text-base font-semibold mb-10"
                   style={{ backgroundColor: BLUE }}
                 >
                   {item.step}
                 </div>
                 <h3
-                  className="text-lg md:text-xl font-medium mb-3 leading-snug"
+                  className="text-lg md:text-xl font-semibold mb-3 leading-snug"
                   style={{ color: BLUE, letterSpacing: "-0.025em" }}
                 >
                   {item.title}
                 </h3>
                 <p
-                  className="text-muted-foreground text-sm md:text-[15px] font-light leading-relaxed"
+                  className="text-muted-foreground text-sm md:text-[15px] font-normal leading-relaxed"
                   style={{ letterSpacing: "-0.005em" }}
                 >
                   {item.description}
@@ -249,7 +250,7 @@ export default function Landing() {
       >
         <div className="container mx-auto px-4 sm:px-6 max-w-7xl relative z-10">
           <h2
-            className="text-2xl md:text-4xl font-normal text-center mb-10 md:mb-14"
+            className="text-3xl md:text-4xl font-bold text-center mb-10 md:mb-14"
             style={{ letterSpacing: "-0.035em" }}
           >
             How AngelFlows Helps Contractors
@@ -267,13 +268,13 @@ export default function Landing() {
                   <item.icon className="h-5 w-5 text-white" strokeWidth={1.75} />
                 </div>
                 <h3
-                  className="text-lg md:text-xl font-medium mb-3 leading-snug"
+                  className="text-lg md:text-xl font-semibold mb-3 leading-snug"
                   style={{ color: BLUE, letterSpacing: "-0.025em" }}
                 >
                   {item.title}
                 </h3>
                 <p
-                  className="text-muted-foreground text-sm md:text-[15px] font-light leading-relaxed"
+                  className="text-muted-foreground text-sm md:text-[15px] font-normal leading-relaxed"
                   style={{ letterSpacing: "-0.005em" }}
                 >
                   {item.description}
@@ -287,7 +288,7 @@ export default function Landing() {
       {/* ───── Leads or Appointments ───── */}
       <section className="relative py-20 md:py-28 border-t border-border/60">
         <div className="container mx-auto px-6 max-w-6xl relative z-10">
-          <h2 className="text-3xl md:text-5xl font-medium text-center mb-14" style={{ letterSpacing: "-0.03em" }}>
+          <h2 className="text-3xl md:text-5xl font-bold text-center mb-14" style={{ letterSpacing: "-0.03em" }}>
             Leads or Appointments
           </h2>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-5">
@@ -301,9 +302,14 @@ export default function Landing() {
                   backgroundSize: "auto, 24px 24px, 24px 24px",
                 }}
               >
-                <div className="text-6xl md:text-7xl mb-6">{service.emoji}</div>
+                <img
+                  src={service.image}
+                  alt={service.name}
+                  className="h-24 md:h-28 w-auto object-contain mb-6"
+                  loading="lazy"
+                />
                 <p
-                  className="text-lg md:text-xl font-medium"
+                  className="text-lg md:text-xl font-semibold"
                   style={{ color: BLUE, letterSpacing: "-0.02em" }}
                 >
                   {service.name}
@@ -321,10 +327,10 @@ export default function Landing() {
       >
         <div className="container mx-auto px-6 max-w-6xl relative z-10">
           <div className="text-center mb-14">
-            <h2 className="text-3xl md:text-5xl font-medium mb-4" style={{ letterSpacing: "-0.03em" }}>
+            <h2 className="text-3xl md:text-5xl font-bold mb-4" style={{ letterSpacing: "-0.03em" }}>
               Why Choose Us?
             </h2>
-            <p className="text-muted-foreground text-lg font-light">
+            <p className="text-muted-foreground text-lg font-normal">
               Connect with motivated homeowners actively searching for your services.
             </p>
           </div>
@@ -344,12 +350,12 @@ export default function Landing() {
                   strokeWidth={2}
                 />
                 <p
-                  className="text-4xl md:text-5xl font-medium mb-3"
+                  className="text-4xl md:text-5xl font-bold mb-3"
                   style={{ color: BLUE, letterSpacing: "-0.03em" }}
                 >
                   {stat.value}
                 </p>
-                <p className="text-muted-foreground text-base font-light">
+                <p className="text-muted-foreground text-base font-normal">
                   {stat.label}
                 </p>
               </div>
@@ -364,15 +370,15 @@ export default function Landing() {
         className="relative py-24 md:py-32 border-t border-border/60"
       >
         <div className="container mx-auto px-6 max-w-3xl text-center relative z-10">
-          <p className="text-sm font-medium uppercase tracking-[0.2em] text-muted-foreground mb-4">
-            Get Started
-          </p>
-          <h2 className="text-3xl md:text-5xl font-medium mb-10 leading-tight" style={{ letterSpacing: "-0.03em" }}>
-            Ready to grow your contracting business?
+          <h2 className="text-4xl md:text-6xl font-bold mb-6 leading-tight" style={{ letterSpacing: "-0.035em" }}>
+            Ready to Expand?
           </h2>
+          <p className="text-base md:text-lg text-muted-foreground font-normal mb-10 max-w-xl mx-auto">
+            At AngelFlows Media, each lead only goes to ONE contractor. Claim it before your competitor does.
+          </p>
           <button
             onClick={() => navigate("/auth")}
-            className="h-12 px-8 rounded-full text-white text-base font-medium shadow-lg transition-colors"
+            className="h-12 px-8 rounded-xl text-white text-base font-semibold shadow-lg transition-colors"
             style={{ backgroundColor: BLUE, letterSpacing: "-0.01em" }}
             onMouseEnter={(e) =>
               (e.currentTarget.style.backgroundColor = BLUE_HOVER)
@@ -381,7 +387,7 @@ export default function Landing() {
               (e.currentTarget.style.backgroundColor = BLUE)
             }
           >
-            Book a call
+            Book a Call
           </button>
         </div>
       </section>
