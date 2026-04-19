@@ -102,7 +102,7 @@ export default function ThankYouPI() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
             {FAQ_VIDEOS.map((item, idx) => (
-              <Reveal key={item.title} delay={idx * 100} className="flex flex-col">
+              <Reveal key={item.title} delay={idx * 100} className="flex flex-col items-center text-center">
                 <h3
                   className="text-lg md:text-xl mb-4"
                   style={{ fontFamily: DISPLAY_FONT, fontWeight: 400, color: BLUE, letterSpacing: "-0.02em" }}
