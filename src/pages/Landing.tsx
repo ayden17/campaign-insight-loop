@@ -137,7 +137,7 @@ export default function Landing() {
             </p>
           </div>
 
-          <h1
+          <Reveal as="h1"
             className="text-[28px] sm:text-3xl md:text-4xl lg:text-5xl font-medium mb-4 max-w-4xl mx-auto"
             style={{
               fontFamily: DISPLAY_FONT,
@@ -147,7 +147,7 @@ export default function Landing() {
             }}
           >
             Scale your Contracting Business By Getting Qualified &amp; Exclusive Appointments Without Lifting a Finger
-          </h1>
+          </Reveal>
 
           <p
             className="text-sm md:text-base font-normal max-w-xl mx-auto mb-6"
