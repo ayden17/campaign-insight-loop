@@ -88,6 +88,7 @@ const BLUE = "hsl(217 91% 60%)";
 const BLUE_HOVER = "hsl(217 91% 55%)";
 const SLATE = "hsl(215 25% 17%)"; // #1e293b deep slate charcoal
 const SLATE_SOFT = "hsl(215 20% 35%)";
+const SLATE_MUTED = "hsl(215 15% 55%)"; // lighter gray for subtitles
 
 export default function Landing() {
   const navigate = useNavigate();
@@ -136,7 +137,7 @@ export default function Landing() {
             </p>
           </div>
 
-          <h1
+          <Reveal as="h1"
             className="text-[28px] sm:text-3xl md:text-4xl lg:text-5xl font-medium mb-4 max-w-4xl mx-auto"
             style={{
               fontFamily: DISPLAY_FONT,
@@ -146,11 +147,11 @@ export default function Landing() {
             }}
           >
             Scale your Contracting Business By Getting Qualified &amp; Exclusive Appointments Without Lifting a Finger
-          </h1>
+          </Reveal>
 
           <p
             className="text-sm md:text-base font-normal max-w-xl mx-auto mb-6"
-            style={{ letterSpacing: "-0.01em", color: SLATE_SOFT }}
+            style={{ letterSpacing: "-0.01em", color: SLATE_MUTED }}
           >
             Don't Pay Ad Spend or Monthly Retainers, Just Pay-Per-Appointment.
           </p>
@@ -195,9 +196,10 @@ export default function Landing() {
 
           {/* Feature checkmarks */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-4 mt-12 md:mt-16">
-            {FEATURES.map((feature) => (
-              <div
+            {FEATURES.map((feature, idx) => (
+              <Reveal
                 key={feature}
+                delay={idx * 100}
                 className="flex flex-col items-center text-center gap-3"
               >
                 <div
@@ -208,11 +210,11 @@ export default function Landing() {
                 </div>
                 <span
                   className="text-sm md:text-[15px]"
-                  style={{ fontWeight: 400, letterSpacing: "-0.005em", color: SLATE }}
+                  style={{ fontFamily: DISPLAY_FONT, fontWeight: 400, letterSpacing: "-0.005em", color: SLATE }}
                 >
                   {feature}
                 </span>
-              </div>
+              </Reveal>
             ))}
           </div>
         </div>
@@ -228,18 +230,18 @@ export default function Landing() {
         style={{ borderColor: "hsl(220 13% 93%)" }}
       >
         <div className="container mx-auto px-4 sm:px-6 max-w-7xl relative z-10">
-          <h2
+          <Reveal as="h2"
             className="text-3xl md:text-4xl text-center mb-10 md:mb-14"
             style={{ fontFamily: DISPLAY_FONT, letterSpacing: "-0.03em", fontWeight: 500, color: SLATE, lineHeight: 1.1 }}
           >
             How AngelFlows Helps Contractors
-          </h2>
+          </Reveal>
           <div
             className="grid grid-cols-1 md:grid-cols-3 gap-px rounded-2xl overflow-hidden border"
             style={{ backgroundColor: "hsl(220 13% 93%)", borderColor: "hsl(220 13% 93%)" }}
           >
             {HOW_WE_HELP.map((item, idx) => (
-              <RevealCard key={item.title} delay={idx * 120}>
+              <RevealCard key={item.title} delay={idx * 100}>
                 <div
                   className="h-11 w-11 rounded-full flex items-center justify-center mb-10"
                   style={{ backgroundColor: BLUE }}
@@ -270,16 +272,17 @@ export default function Landing() {
         style={{ borderColor: "hsl(220 13% 93%)" }}
       >
         <div className="container mx-auto px-6 max-w-6xl relative z-10">
-          <h2
+          <Reveal as="h2"
             className="text-3xl md:text-5xl text-center mb-14"
             style={{ fontFamily: DISPLAY_FONT, letterSpacing: "-0.03em", fontWeight: 500, color: SLATE, lineHeight: 1.1 }}
           >
             Leads or Appointments
-          </h2>
+          </Reveal>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-5">
-            {SERVICES.map((service) => (
-              <div
+            {SERVICES.map((service, idx) => (
+              <Reveal
                 key={service.name}
+                delay={idx * 100}
                 className="rounded-2xl border bg-white p-8 flex flex-col items-center justify-center text-center transition-all hover:shadow-md"
                 style={{ borderColor: "hsl(220 13% 93%)" }}
               >
@@ -295,7 +298,7 @@ export default function Landing() {
                 >
                   {service.name}
                 </p>
-              </div>
+              </Reveal>
             ))}
           </div>
         </div>
@@ -309,23 +312,25 @@ export default function Landing() {
       >
         <div className="container mx-auto px-6 max-w-6xl relative z-10">
           <div className="text-center mb-14">
-            <h2
+            <Reveal as="h2"
               className="text-3xl md:text-5xl mb-4"
               style={{ fontFamily: DISPLAY_FONT, letterSpacing: "-0.03em", fontWeight: 500, color: SLATE, lineHeight: 1.1 }}
             >
               Why Choose Us?
-            </h2>
-            <p
+            </Reveal>
+            <Reveal as="p"
+              delay={100}
               className="text-base md:text-lg"
               style={{ fontFamily: DISPLAY_FONT, color: SLATE_SOFT, fontWeight: 400 }}
             >
               Connect with motivated homeowners actively searching for your services.
-            </p>
+            </Reveal>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {STATS.map((stat) => (
-              <div
+            {STATS.map((stat, idx) => (
+              <Reveal
                 key={stat.label}
+                delay={idx * 100}
                 className="rounded-2xl border bg-white p-8 flex flex-col items-start"
                 style={{ borderColor: "hsl(220 13% 93%)" }}
               >
@@ -346,7 +351,7 @@ export default function Landing() {
                 >
                   {stat.label}
                 </p>
-              </div>
+              </Reveal>
             ))}
           </div>
         </div>
@@ -359,12 +364,12 @@ export default function Landing() {
         style={{ borderColor: "hsl(220 13% 93%)" }}
       >
         <div className="container mx-auto px-6 max-w-3xl text-center relative z-10">
-          <h2
+          <Reveal as="h2"
             className="text-4xl md:text-6xl mb-6"
             style={{ fontFamily: DISPLAY_FONT, letterSpacing: "-0.03em", fontWeight: 500, color: SLATE, lineHeight: 1.1 }}
           >
             Ready to Expand?
-          </h2>
+          </Reveal>
           <p
             className="text-base md:text-lg mb-10 max-w-xl mx-auto"
             style={{ fontFamily: DISPLAY_FONT, color: SLATE_SOFT, fontWeight: 400 }}
@@ -416,18 +421,18 @@ function HowItWorksSection() {
       style={{ borderColor: "hsl(220 13% 93%)" }}
     >
       <div className="container mx-auto px-4 sm:px-6 max-w-7xl relative z-10">
-        <h2
+        <Reveal as="h2"
           className="text-3xl md:text-4xl text-center mb-10 md:mb-14"
           style={{ fontFamily: DISPLAY_FONT, letterSpacing: "-0.03em", fontWeight: 500, color: SLATE, lineHeight: 1.1 }}
         >
           How it Works
-        </h2>
+        </Reveal>
         <div
           className="grid grid-cols-1 md:grid-cols-3 gap-px rounded-2xl overflow-hidden border"
           style={{ backgroundColor: "hsl(220 13% 93%)", borderColor: "hsl(220 13% 93%)" }}
         >
           {HOW_IT_WORKS.map((item, idx) => (
-            <RevealCard key={item.step} delay={idx * 140}>
+            <RevealCard key={item.step} delay={idx * 100}>
               <div
                 className="h-11 w-11 rounded-full flex items-center justify-center text-white text-base mb-10"
                 style={{ backgroundColor: BLUE, fontWeight: 500 }}
@@ -468,10 +473,38 @@ function RevealCard({
       className="flex flex-col items-start text-left bg-white p-8 md:p-10 min-h-[280px]"
       style={{
         opacity: inView ? undefined : 0,
-        animation: inView ? `slide-in-up 0.7s cubic-bezier(0.22, 1, 0.36, 1) ${delay}ms forwards` : undefined,
+        willChange: "transform, opacity",
+        animation: inView ? `slide-in-up 0.6s ease-out ${delay}ms forwards` : undefined,
       }}
     >
       {children}
     </div>
+  );
+}
+
+type RevealProps = {
+  children: React.ReactNode;
+  delay?: number;
+  className?: string;
+  style?: React.CSSProperties;
+  as?: keyof JSX.IntrinsicElements;
+};
+
+function Reveal({ children, delay = 0, className, style, as: Tag = "div" }: RevealProps) {
+  const { ref, inView } = useInView<HTMLElement>();
+  const AnyTag = Tag as any;
+  return (
+    <AnyTag
+      ref={ref as any}
+      className={className}
+      style={{
+        ...style,
+        opacity: inView ? undefined : 0,
+        willChange: "transform, opacity",
+        animation: inView ? `slide-in-up 0.6s ease-out ${delay}ms forwards` : undefined,
+      }}
+    >
+      {children}
+    </AnyTag>
   );
 }
