@@ -8,9 +8,9 @@ import {
   Users,
   TrendingUp,
 } from "lucide-react";
+import { motion, type Variants } from "framer-motion";
 import { LandingNavbar } from "@/components/landing/LandingNavbar";
 import { HeroVideoDialog } from "@/components/ui/hero-video-dialog";
-import { useInView } from "@/hooks/use-in-view";
 import dashboardAnalytics from "@/assets/dashboard-analytics.png";
 import houseIcon from "@/assets/house-icon.png";
 import piMva from "@/assets/pi-mva.png";
