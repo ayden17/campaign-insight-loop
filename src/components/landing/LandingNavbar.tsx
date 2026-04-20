@@ -84,16 +84,16 @@ export function LandingNavbar() {
                   {item.label}
                 </a>
               ))}
-              <button
-                onClick={() => {
-                  setOpen(false);
-                  navigate("/auth");
-                }}
-                className="mt-2 h-11 rounded-xl bg-[hsl(217_91%_60%)] text-white text-sm font-semibold shadow-md hover:bg-[hsl(217_91%_55%)] transition-colors"
+              <a
+                href="https://contractors.angelflows.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => setOpen(false)}
+                className="mt-2 h-11 inline-flex items-center justify-center rounded-xl bg-[hsl(217_91%_60%)] text-white text-sm font-semibold shadow-md hover:bg-[hsl(217_91%_55%)] transition-colors"
                 style={{ letterSpacing: "0.02em" }}
               >
                 Book a call
-              </button>
+              </a>
             </nav>
           </div>
         )}
