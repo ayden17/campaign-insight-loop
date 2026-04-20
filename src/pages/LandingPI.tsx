@@ -369,31 +369,35 @@ export default function LandingPI() {
         style={{ borderColor: "hsl(220 13% 93%)" }}
       >
         <div className="container mx-auto px-6 max-w-3xl text-center relative z-10">
-          <Reveal as="h2"
-            className="text-4xl md:text-6xl mb-6"
-            style={{ fontFamily: DISPLAY_FONT, letterSpacing: "-0.03em", fontWeight: 500, color: SLATE, lineHeight: 1.1 }}
-          >
-            Ready to Grow Your Docket?
-          </Reveal>
-          <p
-            className="text-base md:text-lg mb-10 max-w-xl mx-auto"
-            style={{ fontFamily: DISPLAY_FONT, color: SLATE_SOFT, fontWeight: 400 }}
-          >
-            At AngelFlows Media, every case is exclusive. Secure your territory before your competition does.
-          </p>
-          <button
-            onClick={handleCTA}
-            className="h-12 px-8 rounded-xl text-white text-base shadow-lg transition-colors"
-            style={{ backgroundColor: BLUE, fontWeight: 500, letterSpacing: "0.02em" }}
-            onMouseEnter={(e) =>
-              (e.currentTarget.style.backgroundColor = BLUE_HOVER)
-            }
-            onMouseLeave={(e) =>
-              (e.currentTarget.style.backgroundColor = BLUE)
-            }
-          >
-            Test a Batch
-          </button>
+          <RevealGroup>
+            <Reveal as="h2"
+              className="text-4xl md:text-6xl mb-6"
+              style={{ fontFamily: DISPLAY_FONT, letterSpacing: "-0.03em", fontWeight: 500, color: SLATE, lineHeight: 1.1 }}
+            >
+              Ready to Grow Your Docket?
+            </Reveal>
+            <Reveal as="p"
+              className="text-base md:text-lg mb-10 max-w-xl mx-auto"
+              style={{ fontFamily: DISPLAY_FONT, color: SLATE_SOFT, fontWeight: 400 }}
+            >
+              At AngelFlows Media, every case is exclusive. Secure your territory before your competition does.
+            </Reveal>
+            <Reveal>
+              <button
+                onClick={handleCTA}
+                className="h-12 px-8 rounded-xl text-white text-base shadow-lg transition-colors"
+                style={{ backgroundColor: BLUE, fontWeight: 500, letterSpacing: "0.02em" }}
+                onMouseEnter={(e) =>
+                  (e.currentTarget.style.backgroundColor = BLUE_HOVER)
+                }
+                onMouseLeave={(e) =>
+                  (e.currentTarget.style.backgroundColor = BLUE)
+                }
+              >
+                Test a Batch
+              </button>
+            </Reveal>
+          </RevealGroup>
         </div>
       </section>
 
@@ -419,39 +423,41 @@ function HowItWorksSection() {
       style={{ borderColor: "hsl(220 13% 93%)" }}
     >
       <div className="container mx-auto px-4 sm:px-6 max-w-7xl relative z-10">
-        <Reveal as="h2"
-          className="text-3xl md:text-4xl text-center mb-10 md:mb-14"
-          style={{ fontFamily: DISPLAY_FONT, letterSpacing: "-0.03em", fontWeight: 500, color: SLATE, lineHeight: 1.1 }}
-        >
-          How it Works
-        </Reveal>
-        <div
-          className="grid grid-cols-1 md:grid-cols-3 gap-px rounded-2xl overflow-hidden border"
-          style={{ backgroundColor: "hsl(220 13% 93%)", borderColor: "hsl(220 13% 93%)" }}
-        >
-          {HOW_IT_WORKS.map((item, idx) => (
-            <RevealCard key={item.step} delay={idx * 100}>
-              <div
-                className="h-11 w-11 rounded-full flex items-center justify-center text-white text-base mb-10"
-                style={{ backgroundColor: BLUE, fontWeight: 500 }}
-              >
-                {item.step}
-              </div>
-              <h3
-                className="text-lg md:text-xl mb-3 leading-snug"
-                style={{ fontFamily: DISPLAY_FONT, color: BLUE, letterSpacing: "-0.02em", fontWeight: 500 }}
-              >
-                {item.title}
-              </h3>
-              <p
-                className="text-sm md:text-[15px] leading-relaxed"
-                style={{ fontFamily: DISPLAY_FONT, letterSpacing: "-0.005em", color: SLATE_SOFT, fontWeight: 400 }}
-              >
-                {item.description}
-              </p>
-            </RevealCard>
-          ))}
-        </div>
+        <RevealGroup>
+          <Reveal as="h2"
+            className="text-3xl md:text-4xl text-center mb-10 md:mb-14"
+            style={{ fontFamily: DISPLAY_FONT, letterSpacing: "-0.03em", fontWeight: 500, color: SLATE, lineHeight: 1.1 }}
+          >
+            How it Works
+          </Reveal>
+          <div
+            className="grid grid-cols-1 md:grid-cols-3 gap-px rounded-2xl overflow-hidden border"
+            style={{ backgroundColor: "hsl(220 13% 93%)", borderColor: "hsl(220 13% 93%)" }}
+          >
+            {HOW_IT_WORKS.map((item) => (
+              <RevealCard key={item.step}>
+                <div
+                  className="h-11 w-11 rounded-full flex items-center justify-center text-white text-base mb-10"
+                  style={{ backgroundColor: BLUE, fontWeight: 500 }}
+                >
+                  {item.step}
+                </div>
+                <h3
+                  className="text-lg md:text-xl mb-3 leading-snug"
+                  style={{ fontFamily: DISPLAY_FONT, color: BLUE, letterSpacing: "-0.02em", fontWeight: 500 }}
+                >
+                  {item.title}
+                </h3>
+                <p
+                  className="text-sm md:text-[15px] leading-relaxed"
+                  style={{ fontFamily: DISPLAY_FONT, letterSpacing: "-0.005em", color: SLATE_SOFT, fontWeight: 400 }}
+                >
+                  {item.description}
+                </p>
+              </RevealCard>
+            ))}
+          </div>
+        </RevealGroup>
       </div>
     </section>
   );
