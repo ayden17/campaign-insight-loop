@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import { GlassEffect } from "@/components/ui/liquid-glass";
 import angelflowsLogo from "@/assets/angelflows-logo.png";
@@ -12,7 +11,6 @@ const NAV_ITEMS = [
 ];
 
 export function LandingNavbar() {
-  const navigate = useNavigate();
   const [open, setOpen] = useState(false);
 
   return (
