@@ -122,12 +122,13 @@ export default function Landing() {
       {/* ───── Hero ───── */}
       <section id="hero" className="relative pt-28 md:pt-32 pb-8 md:pb-10">
         <div className="container mx-auto px-6 max-w-4xl text-center relative z-10">
-          <div className="flex flex-col items-center gap-3 mb-4">
+          <HeroReveal delay={0.1} className="flex flex-col items-center gap-3 mb-4">
             <img
               src={houseIcon}
               alt="AngelFlows house icon"
               className="h-16 md:h-20 w-auto object-contain"
               loading="eager"
+              decoding="async"
             />
             <p
               className="text-sm md:text-[15px] font-medium"
@@ -135,9 +136,9 @@ export default function Landing() {
             >
               For Contracting Businesses
             </p>
-          </div>
+          </HeroReveal>
 
-          <Reveal as="h1"
+          <HeroReveal as="h1" delay={0.2}
             className="text-[28px] sm:text-3xl md:text-4xl lg:text-5xl font-medium mb-4 max-w-4xl mx-auto"
             style={{
               fontFamily: DISPLAY_FONT,
@@ -147,39 +148,41 @@ export default function Landing() {
             }}
           >
             Scale your Contracting Business By Getting Qualified &amp; Exclusive Appointments Without Lifting a Finger
-          </Reveal>
+          </HeroReveal>
 
-          <p
+          <HeroReveal as="p" delay={0.4}
             className="text-sm md:text-base max-w-xl mx-auto mb-6"
             style={{ fontFamily: DISPLAY_FONT, fontWeight: 400, letterSpacing: "-0.01em", color: SLATE_MUTED }}
           >
             Don't Pay Ad Spend or Monthly Retainers, Just Pay-Per-Appointment.
-          </p>
+          </HeroReveal>
 
-          <a
-            href="https://contractors.angelflows.com/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center justify-center h-11 px-7 rounded-xl text-white text-sm shadow-md transition-colors"
-            style={{
-              backgroundColor: BLUE,
-              fontWeight: 500,
-              letterSpacing: "0.02em",
-            }}
-            onMouseEnter={(e) =>
-              (e.currentTarget.style.backgroundColor = BLUE_HOVER)
-            }
-            onMouseLeave={(e) =>
-              (e.currentTarget.style.backgroundColor = BLUE)
-            }
-          >
-            Book a call
-          </a>
+          <HeroReveal delay={0.5}>
+            <a
+              href="https://contractors.angelflows.com/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center h-11 px-7 rounded-xl text-white text-sm shadow-md transition-colors"
+              style={{
+                backgroundColor: BLUE,
+                fontWeight: 500,
+                letterSpacing: "0.02em",
+              }}
+              onMouseEnter={(e) =>
+                (e.currentTarget.style.backgroundColor = BLUE_HOVER)
+              }
+              onMouseLeave={(e) =>
+                (e.currentTarget.style.backgroundColor = BLUE)
+              }
+            >
+              Book a call
+            </a>
+          </HeroReveal>
         </div>
 
         {/* Video */}
         <div className="container mx-auto px-6 max-w-5xl mt-8 md:mt-10 relative z-10">
-          <div
+          <HeroVideoReveal
             className="rounded-3xl p-2"
             style={{
               background:
@@ -194,7 +197,7 @@ export default function Landing() {
               thumbnailAlt="AngelFlows product demo"
               className="rounded-2xl overflow-hidden"
             />
-          </div>
+          </HeroVideoReveal>
 
           {/* Feature checkmarks */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-4 mt-12 md:mt-16">
