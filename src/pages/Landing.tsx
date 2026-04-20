@@ -91,7 +91,6 @@ const SLATE_SOFT = "hsl(215 20% 35%)";
 const SLATE_MUTED = "hsl(215 15% 55%)"; // lighter gray for subtitles
 
 export default function Landing() {
-  const navigate = useNavigate();
 
   return (
     <div
