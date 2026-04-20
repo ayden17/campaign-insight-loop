@@ -44,13 +44,15 @@ export function LandingNavbar() {
             </nav>
 
             {/* Desktop CTA */}
-            <button
-              onClick={() => navigate("/auth")}
+            <a
+              href="https://contractors.angelflows.com/"
+              target="_blank"
+              rel="noopener noreferrer"
               className="hidden md:inline-flex h-10 px-5 sm:px-6 rounded-xl bg-[hsl(217_91%_60%)] text-white text-sm font-semibold shadow-md hover:bg-[hsl(217_91%_55%)] transition-colors items-center"
               style={{ letterSpacing: "-0.01em" }}
             >
               Book a call
-            </button>
+            </a>
 
             {/* Mobile hamburger */}
             <button
