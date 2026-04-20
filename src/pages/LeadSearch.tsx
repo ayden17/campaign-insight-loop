@@ -178,6 +178,34 @@ const LeadSearch = () => {
     contact: contactFilters,
   });
 
+  /* ---------- AngelFlows Audience Builder (AI prompt search) ---------- */
+  const handleAudienceBuilderSearch = async () => {
+    const query = afPrompt.trim();
+    if (!query) {
+      toast({ title: "Describe your audience", description: 'Try: "product managers at Microsoft" or "CEOs of AI startups in San Francisco".', variant: "destructive" });
+      return;
+    }
+    setAfLoading(true);
+    setAfProspects([]);
+    try {
+      const { data, error } = await supabase.functions.invoke("angelflows-audience-builder", {
+        body: { query, category: "people", type: "auto", numResults: 10 },
+      });
+      if (error) throw error;
+      const prospects = Array.isArray(data?.prospects) ? data.prospects : [];
+      setAfProspects(prospects);
+      if (prospects.length === 0) {
+        toast({ title: "No prospects found", description: "Try rephrasing — e.g. include role, company, or location.", variant: "destructive" });
+      } else {
+        toast({ title: "Audience built", description: `${prospects.length} prospects enriched with up-to-date career context.` });
+      }
+    } catch (err: any) {
+      console.error("AngelFlows Audience Builder error:", err);
+      toast({ title: "Builder error", description: err?.message || "Failed to build audience", variant: "destructive" });
+    }
+    setAfLoading(false);
+  };
+
   /* ---------- CoreSignal Search + Hydration ---------- */
   const handleSearch = async () => {
     setLoading(true);
