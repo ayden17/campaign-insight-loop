@@ -56,9 +56,11 @@ const App = () => {
         <Sonner />
         <BrowserRouter>
           <Routes>
-            <Route path="/" element={<Landing />} />
-            <Route path="/pi" element={<LandingPI />} />
+            <Route path="/" element={<LandingPI />} />
+            <Route path="/contractors" element={<Landing />} />
+            <Route path="/pi" element={<Navigate to="/" replace />} />
             <Route path="/pi/thank-you" element={<ThankYouPI />} />
+            <Route path="/thank-you" element={<ThankYouPI />} />
             <Route path="/auth" element={<AuthPage />} />
             <Route path="/reset-password" element={<ResetPasswordPage />} />
             <Route element={<ProtectedRoute />}>

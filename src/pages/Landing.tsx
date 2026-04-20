@@ -78,9 +78,9 @@ const SERVICES = [
 ];
 
 const STATS = [
-  { icon: Rocket, value: "25,000+", label: "Weekly Leads" },
-  { icon: Users, value: "10,000", label: "Daily Homeowner Visits" },
-  { icon: TrendingUp, value: "10,000", label: "Exclusive Leads Delivered" },
+  { icon: TrendingUp, value: "100,000+", label: "Exclusive Leads Delivered" },
+  { icon: Rocket, value: "2,500+", label: "Weekly Injury Inquiries" },
+  { icon: Users, value: "< 60s", label: "Lead Transfer Speed" },
 ];
 
 const BLUE = "hsl(217 91% 60%)";
