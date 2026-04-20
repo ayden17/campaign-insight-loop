@@ -124,12 +124,13 @@ export default function LandingPI() {
       {/* Hero */}
       <section id="hero" className="relative pt-28 md:pt-32 pb-8 md:pb-10">
         <div className="container mx-auto px-6 max-w-4xl text-center relative z-10">
-          <div className="flex flex-col items-center gap-3 mb-4">
+          <HeroReveal delay={0.1} className="flex flex-col items-center gap-3 mb-4">
             <img
               src={houseIcon}
               alt="AngelFlows icon"
               className="h-16 md:h-20 w-auto object-contain"
               loading="eager"
+              decoding="async"
             />
             <p
               className="text-sm md:text-[15px] font-medium"
@@ -137,7 +138,7 @@ export default function LandingPI() {
             >
               For Personal Injury Law Firms
             </p>
-          </div>
+          </HeroReveal>
 
           <HeroReveal as="h1" delay={0.2}
             className="text-[28px] sm:text-3xl md:text-4xl lg:text-5xl font-medium mb-4 max-w-4xl mx-auto"
