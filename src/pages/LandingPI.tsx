@@ -93,8 +93,9 @@ const SLATE_SOFT = "hsl(215 20% 35%)";
 const SLATE_MUTED = "hsl(215 15% 55%)";
 
 export default function LandingPI() {
-  const navigate = useNavigate();
-
+  const handleCTA = () => {
+    window.open("https://pi.angelflows.com", "_blank", "noopener,noreferrer");
+  };
   return (
     <div
       className="min-h-screen bg-white relative overflow-hidden"
