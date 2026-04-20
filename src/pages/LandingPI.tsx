@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { useRef } from "react";
 import {
   Check,
   ClipboardList,
@@ -8,7 +8,7 @@ import {
   Users,
   TrendingUp,
 } from "lucide-react";
-import { motion, type Variants } from "framer-motion";
+import { motion, useInView, type Variants } from "framer-motion";
 import { LandingNavbar } from "@/components/landing/LandingNavbar";
 import { HeroVideoDialog } from "@/components/ui/hero-video-dialog";
 import dashboardAnalytics from "@/assets/dashboard-analytics.png";
@@ -93,8 +93,9 @@ const SLATE_SOFT = "hsl(215 20% 35%)";
 const SLATE_MUTED = "hsl(215 15% 55%)";
 
 export default function LandingPI() {
-  const navigate = useNavigate();
-
+  const handleCTA = () => {
+    window.open("https://pi.angelflows.com", "_blank", "noopener,noreferrer");
+  };
   return (
     <div
       className="min-h-screen bg-white relative overflow-hidden"
@@ -138,67 +139,72 @@ export default function LandingPI() {
             </p>
           </div>
 
-          <Reveal as="h1"
-            className="text-[28px] sm:text-3xl md:text-4xl lg:text-5xl font-medium mb-4 max-w-4xl mx-auto"
-            style={{
-              fontFamily: DISPLAY_FONT,
-              letterSpacing: "-0.03em",
-              lineHeight: 1.1,
-              color: SLATE,
-            }}
-          >
-            Scale Your Law Firm With Qualified &amp; Exclusive Case Signings Without Lifting a Finger
-          </Reveal>
+          <RevealGroup>
+            <Reveal as="h1"
+              className="text-[28px] sm:text-3xl md:text-4xl lg:text-5xl font-medium mb-4 max-w-4xl mx-auto"
+              style={{
+                fontFamily: DISPLAY_FONT,
+                letterSpacing: "-0.03em",
+                lineHeight: 1.1,
+                color: SLATE,
+              }}
+            >
+              Scale Your Law Firm With Qualified &amp; Exclusive Case Signings Without Lifting a Finger
+            </Reveal>
 
-          <p
-            className="text-sm md:text-base max-w-xl mx-auto mb-6"
-            style={{ fontFamily: DISPLAY_FONT, fontWeight: 400, letterSpacing: "-0.01em", color: SLATE_MUTED }}
-          >
-            Don't Pay Ad Spend or Monthly Retainers, Just Pay-Per-Lead.
-          </p>
+            <Reveal as="p"
+              className="text-sm md:text-base max-w-xl mx-auto mb-6"
+              style={{ fontFamily: DISPLAY_FONT, fontWeight: 400, letterSpacing: "-0.01em", color: SLATE_MUTED }}
+            >
+              Don't Pay Ad Spend or Monthly Retainers, Just Pay-Per-Lead.
+            </Reveal>
 
-          <button
-            onClick={() => navigate("/auth")}
-            className="h-11 px-7 rounded-xl text-white text-sm shadow-md transition-colors"
-            style={{
-              backgroundColor: BLUE,
-              fontWeight: 500,
-              letterSpacing: "0.02em",
-            }}
-            onMouseEnter={(e) =>
-              (e.currentTarget.style.backgroundColor = BLUE_HOVER)
-            }
-            onMouseLeave={(e) =>
-              (e.currentTarget.style.backgroundColor = BLUE)
-            }
-          >
-            Test a Batch
-          </button>
+            <Reveal>
+              <button
+                onClick={handleCTA}
+                className="h-11 px-7 rounded-xl text-white text-sm shadow-md transition-colors"
+                style={{
+                  backgroundColor: BLUE,
+                  fontWeight: 500,
+                  letterSpacing: "0.02em",
+                }}
+                onMouseEnter={(e) =>
+                  (e.currentTarget.style.backgroundColor = BLUE_HOVER)
+                }
+                onMouseLeave={(e) =>
+                  (e.currentTarget.style.backgroundColor = BLUE)
+                }
+              >
+                Test a Batch
+              </button>
+            </Reveal>
+          </RevealGroup>
         </div>
 
         <div className="container mx-auto px-6 max-w-5xl mt-8 md:mt-10 relative z-10">
-          <div
-            className="rounded-3xl p-2"
-            style={{
-              background:
-                "linear-gradient(180deg, hsl(217 91% 60% / 0.25), hsl(217 91% 60% / 0.05))",
-              boxShadow: "0 30px 80px -30px hsl(217 91% 60% / 0.45)",
-            }}
-          >
-            <HeroVideoDialog
-              animationStyle="from-center"
-              videoSrc="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1"
-              thumbnailSrc={dashboardAnalytics}
-              thumbnailAlt="AngelFlows product demo"
-              className="rounded-2xl overflow-hidden"
-            />
-          </div>
+          <RevealSolo>
+            <div
+              className="rounded-3xl p-2"
+              style={{
+                background:
+                  "linear-gradient(180deg, hsl(217 91% 60% / 0.25), hsl(217 91% 60% / 0.05))",
+                boxShadow: "0 30px 80px -30px hsl(217 91% 60% / 0.45)",
+              }}
+            >
+              <HeroVideoDialog
+                animationStyle="from-center"
+                videoSrc="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1"
+                thumbnailSrc={dashboardAnalytics}
+                thumbnailAlt="AngelFlows product demo"
+                className="rounded-2xl overflow-hidden"
+              />
+            </div>
+          </RevealSolo>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-4 mt-12 md:mt-16">
-            {FEATURES.map((feature, idx) => (
+          <RevealGroup className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-4 mt-12 md:mt-16">
+            {FEATURES.map((feature) => (
               <Reveal
                 key={feature}
-                delay={idx * 100}
                 className="flex flex-col items-center text-center gap-3"
               >
                 <div
@@ -215,7 +221,7 @@ export default function LandingPI() {
                 </span>
               </Reveal>
             ))}
-          </div>
+          </RevealGroup>
         </div>
       </section>
 
@@ -227,39 +233,41 @@ export default function LandingPI() {
         style={{ borderColor: "hsl(220 13% 93%)" }}
       >
         <div className="container mx-auto px-4 sm:px-6 max-w-7xl relative z-10">
-          <Reveal as="h2"
-            className="text-3xl md:text-4xl text-center mb-10 md:mb-14"
-            style={{ fontFamily: DISPLAY_FONT, letterSpacing: "-0.03em", fontWeight: 500, color: SLATE, lineHeight: 1.1 }}
-          >
-            How AngelFlows Helps Law Firms
-          </Reveal>
-          <div
-            className="grid grid-cols-1 md:grid-cols-3 gap-px rounded-2xl overflow-hidden border"
-            style={{ backgroundColor: "hsl(220 13% 93%)", borderColor: "hsl(220 13% 93%)" }}
-          >
-            {HOW_WE_HELP.map((item, idx) => (
-              <RevealCard key={item.title} delay={idx * 100}>
-                <div
-                  className="h-11 w-11 rounded-full flex items-center justify-center mb-10"
-                  style={{ backgroundColor: BLUE }}
-                >
-                  <item.icon className="h-5 w-5 text-white" strokeWidth={1.75} />
-                </div>
-                <h3
-                  className="text-lg md:text-xl mb-3 leading-snug"
-                  style={{ fontFamily: DISPLAY_FONT, color: BLUE, letterSpacing: "-0.02em", fontWeight: 500 }}
-                >
-                  {item.title}
-                </h3>
-                <p
-                  className="text-sm md:text-[15px] leading-relaxed"
-                  style={{ fontFamily: DISPLAY_FONT, letterSpacing: "-0.005em", color: SLATE_SOFT, fontWeight: 400 }}
-                >
-                  {item.description}
-                </p>
-              </RevealCard>
-            ))}
-          </div>
+          <RevealGroup>
+            <Reveal as="h2"
+              className="text-3xl md:text-4xl text-center mb-10 md:mb-14"
+              style={{ fontFamily: DISPLAY_FONT, letterSpacing: "-0.03em", fontWeight: 500, color: SLATE, lineHeight: 1.1 }}
+            >
+              How AngelFlows Helps Law Firms
+            </Reveal>
+            <div
+              className="grid grid-cols-1 md:grid-cols-3 gap-px rounded-2xl overflow-hidden border"
+              style={{ backgroundColor: "hsl(220 13% 93%)", borderColor: "hsl(220 13% 93%)" }}
+            >
+              {HOW_WE_HELP.map((item) => (
+                <RevealCard key={item.title}>
+                  <div
+                    className="h-11 w-11 rounded-full flex items-center justify-center mb-10"
+                    style={{ backgroundColor: BLUE }}
+                  >
+                    <item.icon className="h-5 w-5 text-white" strokeWidth={1.75} />
+                  </div>
+                  <h3
+                    className="text-lg md:text-xl mb-3 leading-snug"
+                    style={{ fontFamily: DISPLAY_FONT, color: BLUE, letterSpacing: "-0.02em", fontWeight: 500 }}
+                  >
+                    {item.title}
+                  </h3>
+                  <p
+                    className="text-sm md:text-[15px] leading-relaxed"
+                    style={{ fontFamily: DISPLAY_FONT, letterSpacing: "-0.005em", color: SLATE_SOFT, fontWeight: 400 }}
+                  >
+                    {item.description}
+                  </p>
+                </RevealCard>
+              ))}
+            </div>
+          </RevealGroup>
         </div>
       </section>
 
@@ -268,37 +276,38 @@ export default function LandingPI() {
         style={{ borderColor: "hsl(220 13% 93%)" }}
       >
         <div className="container mx-auto px-6 max-w-6xl relative z-10">
-          <Reveal as="h2"
-            className="text-3xl md:text-5xl text-center mb-14"
-            style={{ fontFamily: DISPLAY_FONT, letterSpacing: "-0.03em", fontWeight: 500, color: SLATE, lineHeight: 1.1 }}
-          >
-            Cases We Deliver
-          </Reveal>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-5">
-            {SERVICES.map((service, idx) => (
-              <Reveal
-                key={service.name}
-                delay={idx * 100}
-                className="rounded-2xl border bg-white p-8 flex flex-col items-center justify-between text-center transition-all hover:shadow-md min-h-[260px] md:min-h-[280px]"
-                style={{ borderColor: "hsl(220 13% 93%)" }}
-              >
-                <div className="flex-1 flex items-center justify-center w-full">
-                  <img
-                    src={service.image}
-                    alt={service.name}
-                    className="h-28 md:h-32 w-auto max-w-full object-contain"
-                    loading="lazy"
-                  />
-                </div>
-                <p
-                  className="text-lg md:text-xl mt-6"
-                  style={{ fontFamily: DISPLAY_FONT, color: BLUE, letterSpacing: "-0.02em", fontWeight: 500 }}
+          <RevealGroup>
+            <Reveal as="h2"
+              className="text-3xl md:text-5xl text-center mb-14"
+              style={{ fontFamily: DISPLAY_FONT, letterSpacing: "-0.03em", fontWeight: 500, color: SLATE, lineHeight: 1.1 }}
+            >
+              Cases We Deliver
+            </Reveal>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-5">
+              {SERVICES.map((service) => (
+                <Reveal
+                  key={service.name}
+                  className="rounded-2xl border bg-white p-8 flex flex-col items-center justify-between text-center transition-all hover:shadow-md min-h-[260px] md:min-h-[280px]"
+                  style={{ borderColor: "hsl(220 13% 93%)" }}
                 >
-                  {service.name}
-                </p>
-              </Reveal>
-            ))}
-          </div>
+                  <div className="flex-1 flex items-center justify-center w-full">
+                    <img
+                      src={service.image}
+                      alt={service.name}
+                      className="h-28 md:h-32 w-auto max-w-full object-contain"
+                      loading="lazy"
+                    />
+                  </div>
+                  <p
+                    className="text-lg md:text-xl mt-6"
+                    style={{ fontFamily: DISPLAY_FONT, color: BLUE, letterSpacing: "-0.02em", fontWeight: 500 }}
+                  >
+                    {service.name}
+                  </p>
+                </Reveal>
+              ))}
+            </div>
+          </RevealGroup>
         </div>
       </section>
 
@@ -308,49 +317,49 @@ export default function LandingPI() {
         style={{ borderColor: "hsl(220 13% 93%)" }}
       >
         <div className="container mx-auto px-6 max-w-6xl relative z-10">
-          <div className="text-center mb-14">
-            <Reveal as="h2"
-              className="text-3xl md:text-5xl mb-4"
-              style={{ fontFamily: DISPLAY_FONT, letterSpacing: "-0.03em", fontWeight: 500, color: SLATE, lineHeight: 1.1 }}
-            >
-              Why Choose Us?
-            </Reveal>
-            <Reveal as="p"
-              delay={100}
-              className="text-base md:text-lg"
-              style={{ fontFamily: DISPLAY_FONT, color: SLATE_SOFT, fontWeight: 400 }}
-            >
-              Connect with motivated victims actively seeking legal representation.
-            </Reveal>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {STATS.map((stat, idx) => (
-              <Reveal
-                key={stat.label}
-                delay={idx * 100}
-                className="rounded-2xl border bg-white p-8 flex flex-col items-start"
-                style={{ borderColor: "hsl(220 13% 93%)" }}
+          <RevealGroup>
+            <div className="text-center mb-14">
+              <Reveal as="h2"
+                className="text-3xl md:text-5xl mb-4"
+                style={{ fontFamily: DISPLAY_FONT, letterSpacing: "-0.03em", fontWeight: 500, color: SLATE, lineHeight: 1.1 }}
               >
-                <stat.icon
-                  className="h-9 w-9 mb-6"
-                  style={{ color: BLUE }}
-                  strokeWidth={2}
-                />
-                <p
-                  className="text-4xl md:text-5xl mb-3"
-                  style={{ fontFamily: DISPLAY_FONT, color: BLUE, letterSpacing: "-0.03em", fontWeight: 500 }}
-                >
-                  {stat.value}
-                </p>
-                <p
-                  className="text-base"
-                  style={{ fontFamily: DISPLAY_FONT, color: SLATE_SOFT, fontWeight: 400 }}
-                >
-                  {stat.label}
-                </p>
+                Why Choose Us?
               </Reveal>
-            ))}
-          </div>
+              <Reveal as="p"
+                className="text-base md:text-lg"
+                style={{ fontFamily: DISPLAY_FONT, color: SLATE_SOFT, fontWeight: 400 }}
+              >
+                Connect with motivated victims actively seeking legal representation.
+              </Reveal>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {STATS.map((stat) => (
+                <Reveal
+                  key={stat.label}
+                  className="rounded-2xl border bg-white p-8 flex flex-col items-start"
+                  style={{ borderColor: "hsl(220 13% 93%)" }}
+                >
+                  <stat.icon
+                    className="h-9 w-9 mb-6"
+                    style={{ color: BLUE }}
+                    strokeWidth={2}
+                  />
+                  <p
+                    className="text-4xl md:text-5xl mb-3"
+                    style={{ fontFamily: DISPLAY_FONT, color: BLUE, letterSpacing: "-0.03em", fontWeight: 500 }}
+                  >
+                    {stat.value}
+                  </p>
+                  <p
+                    className="text-base"
+                    style={{ fontFamily: DISPLAY_FONT, color: SLATE_SOFT, fontWeight: 400 }}
+                  >
+                    {stat.label}
+                  </p>
+                </Reveal>
+              ))}
+            </div>
+          </RevealGroup>
         </div>
       </section>
 
@@ -360,31 +369,35 @@ export default function LandingPI() {
         style={{ borderColor: "hsl(220 13% 93%)" }}
       >
         <div className="container mx-auto px-6 max-w-3xl text-center relative z-10">
-          <Reveal as="h2"
-            className="text-4xl md:text-6xl mb-6"
-            style={{ fontFamily: DISPLAY_FONT, letterSpacing: "-0.03em", fontWeight: 500, color: SLATE, lineHeight: 1.1 }}
-          >
-            Ready to Grow Your Docket?
-          </Reveal>
-          <p
-            className="text-base md:text-lg mb-10 max-w-xl mx-auto"
-            style={{ fontFamily: DISPLAY_FONT, color: SLATE_SOFT, fontWeight: 400 }}
-          >
-            At AngelFlows Media, every case is exclusive. Secure your territory before your competition does.
-          </p>
-          <button
-            onClick={() => navigate("/auth")}
-            className="h-12 px-8 rounded-xl text-white text-base shadow-lg transition-colors"
-            style={{ backgroundColor: BLUE, fontWeight: 500, letterSpacing: "0.02em" }}
-            onMouseEnter={(e) =>
-              (e.currentTarget.style.backgroundColor = BLUE_HOVER)
-            }
-            onMouseLeave={(e) =>
-              (e.currentTarget.style.backgroundColor = BLUE)
-            }
-          >
-            Test a Batch
-          </button>
+          <RevealGroup>
+            <Reveal as="h2"
+              className="text-4xl md:text-6xl mb-6"
+              style={{ fontFamily: DISPLAY_FONT, letterSpacing: "-0.03em", fontWeight: 500, color: SLATE, lineHeight: 1.1 }}
+            >
+              Ready to Grow Your Docket?
+            </Reveal>
+            <Reveal as="p"
+              className="text-base md:text-lg mb-10 max-w-xl mx-auto"
+              style={{ fontFamily: DISPLAY_FONT, color: SLATE_SOFT, fontWeight: 400 }}
+            >
+              At AngelFlows Media, every case is exclusive. Secure your territory before your competition does.
+            </Reveal>
+            <Reveal>
+              <button
+                onClick={handleCTA}
+                className="h-12 px-8 rounded-xl text-white text-base shadow-lg transition-colors"
+                style={{ backgroundColor: BLUE, fontWeight: 500, letterSpacing: "0.02em" }}
+                onMouseEnter={(e) =>
+                  (e.currentTarget.style.backgroundColor = BLUE_HOVER)
+                }
+                onMouseLeave={(e) =>
+                  (e.currentTarget.style.backgroundColor = BLUE)
+                }
+              >
+                Test a Batch
+              </button>
+            </Reveal>
+          </RevealGroup>
         </div>
       </section>
 
@@ -410,39 +423,41 @@ function HowItWorksSection() {
       style={{ borderColor: "hsl(220 13% 93%)" }}
     >
       <div className="container mx-auto px-4 sm:px-6 max-w-7xl relative z-10">
-        <Reveal as="h2"
-          className="text-3xl md:text-4xl text-center mb-10 md:mb-14"
-          style={{ fontFamily: DISPLAY_FONT, letterSpacing: "-0.03em", fontWeight: 500, color: SLATE, lineHeight: 1.1 }}
-        >
-          How it Works
-        </Reveal>
-        <div
-          className="grid grid-cols-1 md:grid-cols-3 gap-px rounded-2xl overflow-hidden border"
-          style={{ backgroundColor: "hsl(220 13% 93%)", borderColor: "hsl(220 13% 93%)" }}
-        >
-          {HOW_IT_WORKS.map((item, idx) => (
-            <RevealCard key={item.step} delay={idx * 100}>
-              <div
-                className="h-11 w-11 rounded-full flex items-center justify-center text-white text-base mb-10"
-                style={{ backgroundColor: BLUE, fontWeight: 500 }}
-              >
-                {item.step}
-              </div>
-              <h3
-                className="text-lg md:text-xl mb-3 leading-snug"
-                style={{ fontFamily: DISPLAY_FONT, color: BLUE, letterSpacing: "-0.02em", fontWeight: 500 }}
-              >
-                {item.title}
-              </h3>
-              <p
-                className="text-sm md:text-[15px] leading-relaxed"
-                style={{ fontFamily: DISPLAY_FONT, letterSpacing: "-0.005em", color: SLATE_SOFT, fontWeight: 400 }}
-              >
-                {item.description}
-              </p>
-            </RevealCard>
-          ))}
-        </div>
+        <RevealGroup>
+          <Reveal as="h2"
+            className="text-3xl md:text-4xl text-center mb-10 md:mb-14"
+            style={{ fontFamily: DISPLAY_FONT, letterSpacing: "-0.03em", fontWeight: 500, color: SLATE, lineHeight: 1.1 }}
+          >
+            How it Works
+          </Reveal>
+          <div
+            className="grid grid-cols-1 md:grid-cols-3 gap-px rounded-2xl overflow-hidden border"
+            style={{ backgroundColor: "hsl(220 13% 93%)", borderColor: "hsl(220 13% 93%)" }}
+          >
+            {HOW_IT_WORKS.map((item) => (
+              <RevealCard key={item.step}>
+                <div
+                  className="h-11 w-11 rounded-full flex items-center justify-center text-white text-base mb-10"
+                  style={{ backgroundColor: BLUE, fontWeight: 500 }}
+                >
+                  {item.step}
+                </div>
+                <h3
+                  className="text-lg md:text-xl mb-3 leading-snug"
+                  style={{ fontFamily: DISPLAY_FONT, color: BLUE, letterSpacing: "-0.02em", fontWeight: 500 }}
+                >
+                  {item.title}
+                </h3>
+                <p
+                  className="text-sm md:text-[15px] leading-relaxed"
+                  style={{ fontFamily: DISPLAY_FONT, letterSpacing: "-0.005em", color: SLATE_SOFT, fontWeight: 400 }}
+                >
+                  {item.description}
+                </p>
+              </RevealCard>
+            ))}
+          </div>
+        </RevealGroup>
       </div>
     </section>
   );
@@ -453,24 +468,50 @@ const itemVariants: Variants = {
   visible: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.5, ease: "easeOut" },
+    transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] },
   },
 };
 
-function RevealCard({
-  children,
-  delay = 0,
-}: {
+const containerVariants: Variants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.12,
+      delayChildren: 0.05,
+    },
+  },
+};
+
+type RevealGroupProps = {
   children: React.ReactNode;
-  delay?: number;
-}) {
+  className?: string;
+  style?: React.CSSProperties;
+  amount?: number;
+};
+
+function RevealGroup({ children, className, style, amount = 0.2 }: RevealGroupProps) {
+  const ref = useRef<HTMLDivElement>(null);
+  const isInView = useInView(ref, { once: true, amount, margin: "0px 0px -10% 0px" });
+
+  return (
+    <motion.div
+      ref={ref}
+      variants={containerVariants}
+      initial="hidden"
+      animate={isInView ? "visible" : "hidden"}
+      className={className}
+      style={style}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+function RevealCard({ children }: { children: React.ReactNode }) {
   return (
     <motion.div
       variants={itemVariants}
-      initial="hidden"
-      whileInView="visible"
-      viewport={{ once: true, amount: 0.2 }}
-      transition={{ duration: 0.5, ease: "easeOut", delay: delay / 1000 }}
       className="flex flex-col items-start text-left bg-white p-8 md:p-10 min-h-[280px]"
       style={{ willChange: "transform, opacity" }}
     >
@@ -481,21 +522,35 @@ function RevealCard({
 
 type RevealProps = {
   children: React.ReactNode;
-  delay?: number;
   className?: string;
   style?: React.CSSProperties;
   as?: keyof JSX.IntrinsicElements;
 };
 
-function Reveal({ children, delay = 0, className, style, as: Tag = "div" }: RevealProps) {
+function Reveal({ children, className, style, as: Tag = "div" }: RevealProps) {
   const MotionTag = ((motion as any)[Tag] ?? motion.div) as any;
   return (
     <MotionTag
       variants={itemVariants}
+      className={className}
+      style={{ ...style, willChange: "transform, opacity" }}
+    >
+      {children}
+    </MotionTag>
+  );
+}
+
+// Standalone reveal for elements not inside a RevealGroup
+function RevealSolo({ children, className, style, as: Tag = "div" }: RevealProps) {
+  const MotionTag = ((motion as any)[Tag] ?? motion.div) as any;
+  const ref = useRef<HTMLElement>(null);
+  const isInView = useInView(ref as any, { once: true, amount: 0.2, margin: "0px 0px -10% 0px" });
+  return (
+    <MotionTag
+      ref={ref}
+      variants={itemVariants}
       initial="hidden"
-      whileInView="visible"
-      viewport={{ once: true, amount: 0.2 }}
-      transition={{ duration: 0.5, ease: "easeOut", delay: delay / 1000 }}
+      animate={isInView ? "visible" : "hidden"}
       className={className}
       style={{ ...style, willChange: "transform, opacity" }}
     >
