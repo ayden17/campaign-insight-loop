@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import { GlassEffect } from "@/components/ui/liquid-glass";
 import angelflowsLogo from "@/assets/angelflows-logo.png";
@@ -12,7 +11,6 @@ const NAV_ITEMS = [
 ];
 
 export function LandingNavbar() {
-  const navigate = useNavigate();
   const [open, setOpen] = useState(false);
 
   return (
@@ -44,13 +42,15 @@ export function LandingNavbar() {
             </nav>
 
             {/* Desktop CTA */}
-            <button
-              onClick={() => navigate("/auth")}
+            <a
+              href="https://contractors.angelflows.com/"
+              target="_blank"
+              rel="noopener noreferrer"
               className="hidden md:inline-flex h-10 px-5 sm:px-6 rounded-xl bg-[hsl(217_91%_60%)] text-white text-sm font-semibold shadow-md hover:bg-[hsl(217_91%_55%)] transition-colors items-center"
               style={{ letterSpacing: "-0.01em" }}
             >
               Book a call
-            </button>
+            </a>
 
             {/* Mobile hamburger */}
             <button
@@ -82,16 +82,16 @@ export function LandingNavbar() {
                   {item.label}
                 </a>
               ))}
-              <button
-                onClick={() => {
-                  setOpen(false);
-                  navigate("/auth");
-                }}
-                className="mt-2 h-11 rounded-xl bg-[hsl(217_91%_60%)] text-white text-sm font-semibold shadow-md hover:bg-[hsl(217_91%_55%)] transition-colors"
+              <a
+                href="https://contractors.angelflows.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => setOpen(false)}
+                className="mt-2 h-11 inline-flex items-center justify-center rounded-xl bg-[hsl(217_91%_60%)] text-white text-sm font-semibold shadow-md hover:bg-[hsl(217_91%_55%)] transition-colors"
                 style={{ letterSpacing: "0.02em" }}
               >
                 Book a call
-              </button>
+              </a>
             </nav>
           </div>
         )}

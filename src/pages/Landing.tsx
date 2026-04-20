@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+// removed unused useNavigate import
 import {
   Check,
   ClipboardList,
@@ -8,9 +8,9 @@ import {
   Users,
   TrendingUp,
 } from "lucide-react";
+import { motion, type Variants } from "framer-motion";
 import { LandingNavbar } from "@/components/landing/LandingNavbar";
 import { HeroVideoDialog } from "@/components/ui/hero-video-dialog";
-import { useInView } from "@/hooks/use-in-view";
 import dashboardAnalytics from "@/assets/dashboard-analytics.png";
 import houseIcon from "@/assets/house-icon.png";
 import serviceRoofing from "@/assets/service-roofing.png";
@@ -91,7 +91,6 @@ const SLATE_SOFT = "hsl(215 20% 35%)";
 const SLATE_MUTED = "hsl(215 15% 55%)"; // lighter gray for subtitles
 
 export default function Landing() {
-  const navigate = useNavigate();
 
   return (
     <div
@@ -156,9 +155,11 @@ export default function Landing() {
             Don't Pay Ad Spend or Monthly Retainers, Just Pay-Per-Appointment.
           </p>
 
-          <button
-            onClick={() => navigate("/auth")}
-            className="h-11 px-7 rounded-xl text-white text-sm shadow-md transition-colors"
+          <a
+            href="https://contractors.angelflows.com/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center justify-center h-11 px-7 rounded-xl text-white text-sm shadow-md transition-colors"
             style={{
               backgroundColor: BLUE,
               fontWeight: 500,
@@ -172,7 +173,7 @@ export default function Landing() {
             }
           >
             Book a call
-          </button>
+          </a>
         </div>
 
         {/* Video */}
@@ -376,9 +377,11 @@ export default function Landing() {
           >
             At AngelFlows Media, each lead only goes to ONE contractor. Claim it before your competitor does.
           </p>
-          <button
-            onClick={() => navigate("/auth")}
-            className="h-12 px-8 rounded-xl text-white text-base shadow-lg transition-colors"
+          <a
+            href="https://contractors.angelflows.com/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center justify-center h-12 px-8 rounded-xl text-white text-base shadow-lg transition-colors"
             style={{ backgroundColor: BLUE, fontWeight: 500, letterSpacing: "0.02em" }}
             onMouseEnter={(e) =>
               (e.currentTarget.style.backgroundColor = BLUE_HOVER)
@@ -388,7 +391,7 @@ export default function Landing() {
             }
           >
             Book a Call
-          </button>
+          </a>
         </div>
       </section>
 
@@ -459,6 +462,15 @@ function HowItWorksSection() {
   );
 }
 
+const itemVariants: Variants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.5, ease: "easeOut" },
+  },
+};
+
 function RevealCard({
   children,
   delay = 0,
@@ -466,20 +478,18 @@ function RevealCard({
   children: React.ReactNode;
   delay?: number;
 }) {
-  const { ref, inView } = useInView<HTMLDivElement>();
   return (
-    <div
-      ref={ref}
+    <motion.div
+      variants={itemVariants}
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true, amount: 0.2 }}
+      transition={{ duration: 0.5, ease: "easeOut", delay: delay / 1000 }}
       className="flex flex-col items-start text-left bg-white p-8 md:p-10 min-h-[280px]"
-      style={{
-        opacity: inView ? undefined : 0,
-        transform: inView ? undefined : "scale(0.95)",
-        willChange: "transform, opacity",
-        animation: inView ? `smooth-pop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) ${delay}ms forwards` : undefined,
-      }}
+      style={{ willChange: "transform, opacity" }}
     >
       {children}
-    </div>
+    </motion.div>
   );
 }
 
@@ -492,21 +502,18 @@ type RevealProps = {
 };
 
 function Reveal({ children, delay = 0, className, style, as: Tag = "div" }: RevealProps) {
-  const { ref, inView } = useInView<HTMLElement>();
-  const AnyTag = Tag as any;
+  const MotionTag = ((motion as any)[Tag] ?? motion.div) as any;
   return (
-    <AnyTag
-      ref={ref as any}
+    <MotionTag
+      variants={itemVariants}
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true, amount: 0.2 }}
+      transition={{ duration: 0.5, ease: "easeOut", delay: delay / 1000 }}
       className={className}
-      style={{
-        ...style,
-        opacity: inView ? undefined : 0,
-        transform: inView ? undefined : "scale(0.95)",
-        willChange: "transform, opacity",
-        animation: inView ? `smooth-pop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) ${delay}ms forwards` : undefined,
-      }}
+      style={{ ...style, willChange: "transform, opacity" }}
     >
       {children}
-    </AnyTag>
+    </MotionTag>
   );
 }
