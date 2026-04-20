@@ -139,50 +139,48 @@ export default function LandingPI() {
             </p>
           </div>
 
-          <RevealGroup>
-            <Reveal as="h1"
-              className="text-[28px] sm:text-3xl md:text-4xl lg:text-5xl font-medium mb-4 max-w-4xl mx-auto"
+          <HeroReveal as="h1" delay={0.2}
+            className="text-[28px] sm:text-3xl md:text-4xl lg:text-5xl font-medium mb-4 max-w-4xl mx-auto"
+            style={{
+              fontFamily: DISPLAY_FONT,
+              letterSpacing: "-0.03em",
+              lineHeight: 1.1,
+              color: SLATE,
+            }}
+          >
+            Scale Your Law Firm With Qualified &amp; Exclusive Case Signings Without Lifting a Finger
+          </HeroReveal>
+
+          <HeroReveal as="p" delay={0.4}
+            className="text-sm md:text-base max-w-xl mx-auto mb-6"
+            style={{ fontFamily: DISPLAY_FONT, fontWeight: 400, letterSpacing: "-0.01em", color: SLATE_MUTED }}
+          >
+            Don't Pay Ad Spend or Monthly Retainers, Just Pay-Per-Lead.
+          </HeroReveal>
+
+          <HeroReveal delay={0.5}>
+            <button
+              onClick={handleCTA}
+              className="h-11 px-7 rounded-xl text-white text-sm shadow-md transition-colors"
               style={{
-                fontFamily: DISPLAY_FONT,
-                letterSpacing: "-0.03em",
-                lineHeight: 1.1,
-                color: SLATE,
+                backgroundColor: BLUE,
+                fontWeight: 500,
+                letterSpacing: "0.02em",
               }}
+              onMouseEnter={(e) =>
+                (e.currentTarget.style.backgroundColor = BLUE_HOVER)
+              }
+              onMouseLeave={(e) =>
+                (e.currentTarget.style.backgroundColor = BLUE)
+              }
             >
-              Scale Your Law Firm With Qualified &amp; Exclusive Case Signings Without Lifting a Finger
-            </Reveal>
-
-            <Reveal as="p"
-              className="text-sm md:text-base max-w-xl mx-auto mb-6"
-              style={{ fontFamily: DISPLAY_FONT, fontWeight: 400, letterSpacing: "-0.01em", color: SLATE_MUTED }}
-            >
-              Don't Pay Ad Spend or Monthly Retainers, Just Pay-Per-Lead.
-            </Reveal>
-
-            <Reveal>
-              <button
-                onClick={handleCTA}
-                className="h-11 px-7 rounded-xl text-white text-sm shadow-md transition-colors"
-                style={{
-                  backgroundColor: BLUE,
-                  fontWeight: 500,
-                  letterSpacing: "0.02em",
-                }}
-                onMouseEnter={(e) =>
-                  (e.currentTarget.style.backgroundColor = BLUE_HOVER)
-                }
-                onMouseLeave={(e) =>
-                  (e.currentTarget.style.backgroundColor = BLUE)
-                }
-              >
-                Test a Batch
-              </button>
-            </Reveal>
-          </RevealGroup>
+              Test a Batch
+            </button>
+          </HeroReveal>
         </div>
 
         <div className="container mx-auto px-6 max-w-5xl mt-8 md:mt-10 relative z-10">
-          <RevealSolo>
+          <HeroVideoReveal>
             <div
               className="rounded-3xl p-2"
               style={{
@@ -199,7 +197,7 @@ export default function LandingPI() {
                 className="rounded-2xl overflow-hidden"
               />
             </div>
-          </RevealSolo>
+          </HeroVideoReveal>
 
           <RevealGroup className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-4 mt-12 md:mt-16">
             {FEATURES.map((feature) => (
