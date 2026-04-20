@@ -156,9 +156,11 @@ export default function Landing() {
             Don't Pay Ad Spend or Monthly Retainers, Just Pay-Per-Appointment.
           </p>
 
-          <button
-            onClick={() => navigate("/auth")}
-            className="h-11 px-7 rounded-xl text-white text-sm shadow-md transition-colors"
+          <a
+            href="https://contractors.angelflows.com/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center justify-center h-11 px-7 rounded-xl text-white text-sm shadow-md transition-colors"
             style={{
               backgroundColor: BLUE,
               fontWeight: 500,
@@ -172,7 +174,7 @@ export default function Landing() {
             }
           >
             Book a call
-          </button>
+          </a>
         </div>
 
         {/* Video */}
