@@ -1,6 +1,6 @@
+import { motion, type Variants } from "framer-motion";
 import { LandingNavbar } from "@/components/landing/LandingNavbar";
 import { HeroVideoDialog } from "@/components/ui/hero-video-dialog";
-import { useInView } from "@/hooks/use-in-view";
 import dashboardAnalytics from "@/assets/dashboard-analytics.png";
 
 const DISPLAY_FONT = "'Degular Display', 'General Sans', 'Inter', system-ui, -apple-system, sans-serif";
