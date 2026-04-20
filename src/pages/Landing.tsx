@@ -521,3 +521,35 @@ function Reveal({ children, delay = 0, className, style, as: Tag = "div" }: Reve
     </MotionTag>
   );
 }
+
+// Hero items animate immediately on mount with explicit per-element delays.
+type HeroRevealProps = RevealProps;
+function HeroReveal({ children, className, style, as: Tag = "div", delay = 0 }: HeroRevealProps) {
+  const MotionTag = ((motion as any)[Tag] ?? motion.div) as any;
+  return (
+    <MotionTag
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1], delay }}
+      className={className}
+      style={{ ...style, willChange: "transform, opacity" }}
+    >
+      {children}
+    </MotionTag>
+  );
+}
+
+// Final video reveal — slow spring slide-in for graceful entrance.
+function HeroVideoReveal({ children, className, style }: { children: React.ReactNode; className?: string; style?: React.CSSProperties }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 30 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ type: "spring", stiffness: 50, damping: 18, delay: 0.8 }}
+      className={className}
+      style={{ ...style, willChange: "transform, opacity" }}
+    >
+      {children}
+    </motion.div>
+  );
+}
