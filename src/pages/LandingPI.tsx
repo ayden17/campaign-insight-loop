@@ -139,67 +139,72 @@ export default function LandingPI() {
             </p>
           </div>
 
-          <Reveal as="h1"
-            className="text-[28px] sm:text-3xl md:text-4xl lg:text-5xl font-medium mb-4 max-w-4xl mx-auto"
-            style={{
-              fontFamily: DISPLAY_FONT,
-              letterSpacing: "-0.03em",
-              lineHeight: 1.1,
-              color: SLATE,
-            }}
-          >
-            Scale Your Law Firm With Qualified &amp; Exclusive Case Signings Without Lifting a Finger
-          </Reveal>
+          <RevealGroup>
+            <Reveal as="h1"
+              className="text-[28px] sm:text-3xl md:text-4xl lg:text-5xl font-medium mb-4 max-w-4xl mx-auto"
+              style={{
+                fontFamily: DISPLAY_FONT,
+                letterSpacing: "-0.03em",
+                lineHeight: 1.1,
+                color: SLATE,
+              }}
+            >
+              Scale Your Law Firm With Qualified &amp; Exclusive Case Signings Without Lifting a Finger
+            </Reveal>
 
-          <p
-            className="text-sm md:text-base max-w-xl mx-auto mb-6"
-            style={{ fontFamily: DISPLAY_FONT, fontWeight: 400, letterSpacing: "-0.01em", color: SLATE_MUTED }}
-          >
-            Don't Pay Ad Spend or Monthly Retainers, Just Pay-Per-Lead.
-          </p>
+            <Reveal as="p"
+              className="text-sm md:text-base max-w-xl mx-auto mb-6"
+              style={{ fontFamily: DISPLAY_FONT, fontWeight: 400, letterSpacing: "-0.01em", color: SLATE_MUTED }}
+            >
+              Don't Pay Ad Spend or Monthly Retainers, Just Pay-Per-Lead.
+            </Reveal>
 
-          <button
-            onClick={handleCTA}
-            className="h-11 px-7 rounded-xl text-white text-sm shadow-md transition-colors"
-            style={{
-              backgroundColor: BLUE,
-              fontWeight: 500,
-              letterSpacing: "0.02em",
-            }}
-            onMouseEnter={(e) =>
-              (e.currentTarget.style.backgroundColor = BLUE_HOVER)
-            }
-            onMouseLeave={(e) =>
-              (e.currentTarget.style.backgroundColor = BLUE)
-            }
-          >
-            Test a Batch
-          </button>
+            <Reveal>
+              <button
+                onClick={handleCTA}
+                className="h-11 px-7 rounded-xl text-white text-sm shadow-md transition-colors"
+                style={{
+                  backgroundColor: BLUE,
+                  fontWeight: 500,
+                  letterSpacing: "0.02em",
+                }}
+                onMouseEnter={(e) =>
+                  (e.currentTarget.style.backgroundColor = BLUE_HOVER)
+                }
+                onMouseLeave={(e) =>
+                  (e.currentTarget.style.backgroundColor = BLUE)
+                }
+              >
+                Test a Batch
+              </button>
+            </Reveal>
+          </RevealGroup>
         </div>
 
         <div className="container mx-auto px-6 max-w-5xl mt-8 md:mt-10 relative z-10">
-          <div
-            className="rounded-3xl p-2"
-            style={{
-              background:
-                "linear-gradient(180deg, hsl(217 91% 60% / 0.25), hsl(217 91% 60% / 0.05))",
-              boxShadow: "0 30px 80px -30px hsl(217 91% 60% / 0.45)",
-            }}
-          >
-            <HeroVideoDialog
-              animationStyle="from-center"
-              videoSrc="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1"
-              thumbnailSrc={dashboardAnalytics}
-              thumbnailAlt="AngelFlows product demo"
-              className="rounded-2xl overflow-hidden"
-            />
-          </div>
+          <RevealSolo>
+            <div
+              className="rounded-3xl p-2"
+              style={{
+                background:
+                  "linear-gradient(180deg, hsl(217 91% 60% / 0.25), hsl(217 91% 60% / 0.05))",
+                boxShadow: "0 30px 80px -30px hsl(217 91% 60% / 0.45)",
+              }}
+            >
+              <HeroVideoDialog
+                animationStyle="from-center"
+                videoSrc="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1"
+                thumbnailSrc={dashboardAnalytics}
+                thumbnailAlt="AngelFlows product demo"
+                className="rounded-2xl overflow-hidden"
+              />
+            </div>
+          </RevealSolo>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-4 mt-12 md:mt-16">
-            {FEATURES.map((feature, idx) => (
+          <RevealGroup className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-4 mt-12 md:mt-16">
+            {FEATURES.map((feature) => (
               <Reveal
                 key={feature}
-                delay={idx * 100}
                 className="flex flex-col items-center text-center gap-3"
               >
                 <div
@@ -216,7 +221,7 @@ export default function LandingPI() {
                 </span>
               </Reveal>
             ))}
-          </div>
+          </RevealGroup>
         </div>
       </section>
 
