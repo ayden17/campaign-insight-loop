@@ -6,7 +6,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { Search, Loader2, Download, ExternalLink, Save, SlidersHorizontal, Calendar, Briefcase, DollarSign, UserCheck, Home, MapPin, AtSign, Plus, RefreshCw, Link2, ArrowLeft, Building2, Globe, Linkedin, Lock, Users } from "lucide-react";
+import { Search, Loader2, Download, ExternalLink, Save, SlidersHorizontal, Calendar, Briefcase, DollarSign, UserCheck, Home, MapPin, AtSign, Plus, RefreshCw, Link2, ArrowLeft, Building2, Globe, Linkedin, Lock, Users, Sparkles, User as UserIcon } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
@@ -116,6 +116,11 @@ const LeadSearch = () => {
 
   // Filter dialogs
   const [openDialog, setOpenDialog] = useState<string | null>(null);
+
+  // AngelFlows Audience Builder (AI prompt -> prospects)
+  const [afPrompt, setAfPrompt] = useState("");
+  const [afLoading, setAfLoading] = useState(false);
+  const [afProspects, setAfProspects] = useState<any[]>([]);
 
   // All filter states
   const [intentFilters, setIntentFilters] = useState<IntentFilters>({ method: "keyword", keywords: [], intentScore: "medium", aiPrompt: "" });
