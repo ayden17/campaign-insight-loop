@@ -454,24 +454,50 @@ const itemVariants: Variants = {
   visible: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.5, ease: "easeOut" },
+    transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] },
   },
 };
 
-function RevealCard({
-  children,
-  delay = 0,
-}: {
+const containerVariants: Variants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.12,
+      delayChildren: 0.05,
+    },
+  },
+};
+
+type RevealGroupProps = {
   children: React.ReactNode;
-  delay?: number;
-}) {
+  className?: string;
+  style?: React.CSSProperties;
+  amount?: number;
+};
+
+function RevealGroup({ children, className, style, amount = 0.2 }: RevealGroupProps) {
+  const ref = useRef<HTMLDivElement>(null);
+  const isInView = useInView(ref, { once: true, amount, margin: "0px 0px -10% 0px" });
+
+  return (
+    <motion.div
+      ref={ref}
+      variants={containerVariants}
+      initial="hidden"
+      animate={isInView ? "visible" : "hidden"}
+      className={className}
+      style={style}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+function RevealCard({ children }: { children: React.ReactNode }) {
   return (
     <motion.div
       variants={itemVariants}
-      initial="hidden"
-      whileInView="visible"
-      viewport={{ once: true, amount: 0.2 }}
-      transition={{ duration: 0.5, ease: "easeOut", delay: delay / 1000 }}
       className="flex flex-col items-start text-left bg-white p-8 md:p-10 min-h-[280px]"
       style={{ willChange: "transform, opacity" }}
     >
@@ -482,21 +508,35 @@ function RevealCard({
 
 type RevealProps = {
   children: React.ReactNode;
-  delay?: number;
   className?: string;
   style?: React.CSSProperties;
   as?: keyof JSX.IntrinsicElements;
 };
 
-function Reveal({ children, delay = 0, className, style, as: Tag = "div" }: RevealProps) {
+function Reveal({ children, className, style, as: Tag = "div" }: RevealProps) {
   const MotionTag = ((motion as any)[Tag] ?? motion.div) as any;
   return (
     <MotionTag
       variants={itemVariants}
+      className={className}
+      style={{ ...style, willChange: "transform, opacity" }}
+    >
+      {children}
+    </MotionTag>
+  );
+}
+
+// Standalone reveal for elements not inside a RevealGroup
+function RevealSolo({ children, className, style, as: Tag = "div" }: RevealProps) {
+  const MotionTag = ((motion as any)[Tag] ?? motion.div) as any;
+  const ref = useRef<HTMLElement>(null);
+  const isInView = useInView(ref as any, { once: true, amount: 0.2, margin: "0px 0px -10% 0px" });
+  return (
+    <MotionTag
+      ref={ref}
+      variants={itemVariants}
       initial="hidden"
-      whileInView="visible"
-      viewport={{ once: true, amount: 0.2 }}
-      transition={{ duration: 0.5, ease: "easeOut", delay: delay / 1000 }}
+      animate={isInView ? "visible" : "hidden"}
       className={className}
       style={{ ...style, willChange: "transform, opacity" }}
     >
