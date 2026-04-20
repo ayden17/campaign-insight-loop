@@ -547,6 +547,69 @@ const LeadSearch = () => {
       <GenericFilterDialog open={openDialog === "date"} onOpenChange={o => !o && setOpenDialog(null)} icon={<Calendar className="h-5 w-5" />} title="Date" description="Filter by date ranges." fieldOptions={dateFields} filters={dateFilters} onChange={setDateFilters} />
       <GenericFilterDialog open={openDialog === "contact"} onOpenChange={o => !o && setOpenDialog(null)} icon={<AtSign className="h-5 w-5" />} title="Contact" description="Filter by contact availability." fieldOptions={contactFields} filters={contactFilters} onChange={setContactFilters} />
 
+      {/* AngelFlows Audience Builder — AI prompt-based prospect search */}
+      <Card className="mb-6 border-border bg-card">
+        <CardContent className="p-5">
+          <div className="flex items-center gap-2 mb-3">
+            <Sparkles className="h-4 w-4 text-foreground" />
+            <h3 className="text-sm font-semibold text-foreground">AngelFlows Audience Builder</h3>
+            <Badge variant="secondary" className="text-[10px] uppercase tracking-wide">AI</Badge>
+          </div>
+          <p className="text-xs text-muted-foreground mb-3">
+            Describe your ideal prospects in plain English. Our AI SDR finds matching people and enriches with up-to-date titles, companies, and career context.
+          </p>
+          <div className="flex gap-2">
+            <Input
+              value={afPrompt}
+              onChange={(e) => setAfPrompt(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && !afLoading && handleAudienceBuilderSearch()}
+              placeholder='e.g. "product managers at Microsoft" or "CEO of AI search startups in San Francisco"'
+              className="flex-1"
+            />
+            <Button onClick={handleAudienceBuilderSearch} disabled={afLoading} className="gap-1.5">
+              {afLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+              Build Audience
+            </Button>
+          </div>
+
+          {afProspects.length > 0 && (
+            <div className="mt-5 space-y-2">
+              <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                {afProspects.length} prospects enriched
+              </p>
+              <div className="grid gap-2 sm:grid-cols-2">
+                {afProspects.map((p, idx) => (
+                  <a
+                    key={p.id || p.url || idx}
+                    href={p.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex gap-3 rounded-lg border border-border bg-background p-3 hover:border-foreground/40 transition-colors"
+                  >
+                    {p.image ? (
+                      <img src={p.image} alt="" className="h-10 w-10 rounded-full object-cover shrink-0" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
+                    ) : (
+                      <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center shrink-0">
+                        <UserIcon className="h-5 w-5 text-muted-foreground" />
+                      </div>
+                    )}
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-medium text-foreground truncate">{p.name}</p>
+                      {p.author && p.author !== p.name && (
+                        <p className="text-xs text-muted-foreground truncate">{p.author}</p>
+                      )}
+                      {p.summary && (
+                        <p className="text-xs text-muted-foreground line-clamp-2 mt-1">{p.summary}</p>
+                      )}
+                    </div>
+                  </a>
+                ))}
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
       {/* Loading state */}
       {loading && (
         <div className="flex flex-col items-center justify-center py-24">
