@@ -1,4 +1,5 @@
 // removed unused useNavigate import
+import { useRef } from "react";
 import {
   Check,
   ClipboardList,
@@ -8,7 +9,7 @@ import {
   Users,
   TrendingUp,
 } from "lucide-react";
-import { motion, type Variants } from "framer-motion";
+import { motion, useInView, type Variants } from "framer-motion";
 import { LandingNavbar } from "@/components/landing/LandingNavbar";
 import { HeroVideoDialog } from "@/components/ui/hero-video-dialog";
 import dashboardAnalytics from "@/assets/dashboard-analytics.png";
