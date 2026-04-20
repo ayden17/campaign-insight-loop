@@ -159,7 +159,7 @@ export default function LandingPI() {
           </p>
 
           <button
-            onClick={() => navigate("/auth")}
+            onClick={handleCTA}
             className="h-11 px-7 rounded-xl text-white text-sm shadow-md transition-colors"
             style={{
               backgroundColor: BLUE,
@@ -374,7 +374,7 @@ export default function LandingPI() {
             At AngelFlows Media, every case is exclusive. Secure your territory before your competition does.
           </p>
           <button
-            onClick={() => navigate("/auth")}
+            onClick={handleCTA}
             className="h-12 px-8 rounded-xl text-white text-base shadow-lg transition-colors"
             style={{ backgroundColor: BLUE, fontWeight: 500, letterSpacing: "0.02em" }}
             onMouseEnter={(e) =>
