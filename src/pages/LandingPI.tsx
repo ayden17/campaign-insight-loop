@@ -233,39 +233,41 @@ export default function LandingPI() {
         style={{ borderColor: "hsl(220 13% 93%)" }}
       >
         <div className="container mx-auto px-4 sm:px-6 max-w-7xl relative z-10">
-          <Reveal as="h2"
-            className="text-3xl md:text-4xl text-center mb-10 md:mb-14"
-            style={{ fontFamily: DISPLAY_FONT, letterSpacing: "-0.03em", fontWeight: 500, color: SLATE, lineHeight: 1.1 }}
-          >
-            How AngelFlows Helps Law Firms
-          </Reveal>
-          <div
-            className="grid grid-cols-1 md:grid-cols-3 gap-px rounded-2xl overflow-hidden border"
-            style={{ backgroundColor: "hsl(220 13% 93%)", borderColor: "hsl(220 13% 93%)" }}
-          >
-            {HOW_WE_HELP.map((item, idx) => (
-              <RevealCard key={item.title} delay={idx * 100}>
-                <div
-                  className="h-11 w-11 rounded-full flex items-center justify-center mb-10"
-                  style={{ backgroundColor: BLUE }}
-                >
-                  <item.icon className="h-5 w-5 text-white" strokeWidth={1.75} />
-                </div>
-                <h3
-                  className="text-lg md:text-xl mb-3 leading-snug"
-                  style={{ fontFamily: DISPLAY_FONT, color: BLUE, letterSpacing: "-0.02em", fontWeight: 500 }}
-                >
-                  {item.title}
-                </h3>
-                <p
-                  className="text-sm md:text-[15px] leading-relaxed"
-                  style={{ fontFamily: DISPLAY_FONT, letterSpacing: "-0.005em", color: SLATE_SOFT, fontWeight: 400 }}
-                >
-                  {item.description}
-                </p>
-              </RevealCard>
-            ))}
-          </div>
+          <RevealGroup>
+            <Reveal as="h2"
+              className="text-3xl md:text-4xl text-center mb-10 md:mb-14"
+              style={{ fontFamily: DISPLAY_FONT, letterSpacing: "-0.03em", fontWeight: 500, color: SLATE, lineHeight: 1.1 }}
+            >
+              How AngelFlows Helps Law Firms
+            </Reveal>
+            <div
+              className="grid grid-cols-1 md:grid-cols-3 gap-px rounded-2xl overflow-hidden border"
+              style={{ backgroundColor: "hsl(220 13% 93%)", borderColor: "hsl(220 13% 93%)" }}
+            >
+              {HOW_WE_HELP.map((item) => (
+                <RevealCard key={item.title}>
+                  <div
+                    className="h-11 w-11 rounded-full flex items-center justify-center mb-10"
+                    style={{ backgroundColor: BLUE }}
+                  >
+                    <item.icon className="h-5 w-5 text-white" strokeWidth={1.75} />
+                  </div>
+                  <h3
+                    className="text-lg md:text-xl mb-3 leading-snug"
+                    style={{ fontFamily: DISPLAY_FONT, color: BLUE, letterSpacing: "-0.02em", fontWeight: 500 }}
+                  >
+                    {item.title}
+                  </h3>
+                  <p
+                    className="text-sm md:text-[15px] leading-relaxed"
+                    style={{ fontFamily: DISPLAY_FONT, letterSpacing: "-0.005em", color: SLATE_SOFT, fontWeight: 400 }}
+                  >
+                    {item.description}
+                  </p>
+                </RevealCard>
+              ))}
+            </div>
+          </RevealGroup>
         </div>
       </section>
 
@@ -274,37 +276,38 @@ export default function LandingPI() {
         style={{ borderColor: "hsl(220 13% 93%)" }}
       >
         <div className="container mx-auto px-6 max-w-6xl relative z-10">
-          <Reveal as="h2"
-            className="text-3xl md:text-5xl text-center mb-14"
-            style={{ fontFamily: DISPLAY_FONT, letterSpacing: "-0.03em", fontWeight: 500, color: SLATE, lineHeight: 1.1 }}
-          >
-            Cases We Deliver
-          </Reveal>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-5">
-            {SERVICES.map((service, idx) => (
-              <Reveal
-                key={service.name}
-                delay={idx * 100}
-                className="rounded-2xl border bg-white p-8 flex flex-col items-center justify-between text-center transition-all hover:shadow-md min-h-[260px] md:min-h-[280px]"
-                style={{ borderColor: "hsl(220 13% 93%)" }}
-              >
-                <div className="flex-1 flex items-center justify-center w-full">
-                  <img
-                    src={service.image}
-                    alt={service.name}
-                    className="h-28 md:h-32 w-auto max-w-full object-contain"
-                    loading="lazy"
-                  />
-                </div>
-                <p
-                  className="text-lg md:text-xl mt-6"
-                  style={{ fontFamily: DISPLAY_FONT, color: BLUE, letterSpacing: "-0.02em", fontWeight: 500 }}
+          <RevealGroup>
+            <Reveal as="h2"
+              className="text-3xl md:text-5xl text-center mb-14"
+              style={{ fontFamily: DISPLAY_FONT, letterSpacing: "-0.03em", fontWeight: 500, color: SLATE, lineHeight: 1.1 }}
+            >
+              Cases We Deliver
+            </Reveal>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-5">
+              {SERVICES.map((service) => (
+                <Reveal
+                  key={service.name}
+                  className="rounded-2xl border bg-white p-8 flex flex-col items-center justify-between text-center transition-all hover:shadow-md min-h-[260px] md:min-h-[280px]"
+                  style={{ borderColor: "hsl(220 13% 93%)" }}
                 >
-                  {service.name}
-                </p>
-              </Reveal>
-            ))}
-          </div>
+                  <div className="flex-1 flex items-center justify-center w-full">
+                    <img
+                      src={service.image}
+                      alt={service.name}
+                      className="h-28 md:h-32 w-auto max-w-full object-contain"
+                      loading="lazy"
+                    />
+                  </div>
+                  <p
+                    className="text-lg md:text-xl mt-6"
+                    style={{ fontFamily: DISPLAY_FONT, color: BLUE, letterSpacing: "-0.02em", fontWeight: 500 }}
+                  >
+                    {service.name}
+                  </p>
+                </Reveal>
+              ))}
+            </div>
+          </RevealGroup>
         </div>
       </section>
 
@@ -314,49 +317,49 @@ export default function LandingPI() {
         style={{ borderColor: "hsl(220 13% 93%)" }}
       >
         <div className="container mx-auto px-6 max-w-6xl relative z-10">
-          <div className="text-center mb-14">
-            <Reveal as="h2"
-              className="text-3xl md:text-5xl mb-4"
-              style={{ fontFamily: DISPLAY_FONT, letterSpacing: "-0.03em", fontWeight: 500, color: SLATE, lineHeight: 1.1 }}
-            >
-              Why Choose Us?
-            </Reveal>
-            <Reveal as="p"
-              delay={100}
-              className="text-base md:text-lg"
-              style={{ fontFamily: DISPLAY_FONT, color: SLATE_SOFT, fontWeight: 400 }}
-            >
-              Connect with motivated victims actively seeking legal representation.
-            </Reveal>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {STATS.map((stat, idx) => (
-              <Reveal
-                key={stat.label}
-                delay={idx * 100}
-                className="rounded-2xl border bg-white p-8 flex flex-col items-start"
-                style={{ borderColor: "hsl(220 13% 93%)" }}
+          <RevealGroup>
+            <div className="text-center mb-14">
+              <Reveal as="h2"
+                className="text-3xl md:text-5xl mb-4"
+                style={{ fontFamily: DISPLAY_FONT, letterSpacing: "-0.03em", fontWeight: 500, color: SLATE, lineHeight: 1.1 }}
               >
-                <stat.icon
-                  className="h-9 w-9 mb-6"
-                  style={{ color: BLUE }}
-                  strokeWidth={2}
-                />
-                <p
-                  className="text-4xl md:text-5xl mb-3"
-                  style={{ fontFamily: DISPLAY_FONT, color: BLUE, letterSpacing: "-0.03em", fontWeight: 500 }}
-                >
-                  {stat.value}
-                </p>
-                <p
-                  className="text-base"
-                  style={{ fontFamily: DISPLAY_FONT, color: SLATE_SOFT, fontWeight: 400 }}
-                >
-                  {stat.label}
-                </p>
+                Why Choose Us?
               </Reveal>
-            ))}
-          </div>
+              <Reveal as="p"
+                className="text-base md:text-lg"
+                style={{ fontFamily: DISPLAY_FONT, color: SLATE_SOFT, fontWeight: 400 }}
+              >
+                Connect with motivated victims actively seeking legal representation.
+              </Reveal>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {STATS.map((stat) => (
+                <Reveal
+                  key={stat.label}
+                  className="rounded-2xl border bg-white p-8 flex flex-col items-start"
+                  style={{ borderColor: "hsl(220 13% 93%)" }}
+                >
+                  <stat.icon
+                    className="h-9 w-9 mb-6"
+                    style={{ color: BLUE }}
+                    strokeWidth={2}
+                  />
+                  <p
+                    className="text-4xl md:text-5xl mb-3"
+                    style={{ fontFamily: DISPLAY_FONT, color: BLUE, letterSpacing: "-0.03em", fontWeight: 500 }}
+                  >
+                    {stat.value}
+                  </p>
+                  <p
+                    className="text-base"
+                    style={{ fontFamily: DISPLAY_FONT, color: SLATE_SOFT, fontWeight: 400 }}
+                  >
+                    {stat.label}
+                  </p>
+                </Reveal>
+              ))}
+            </div>
+          </RevealGroup>
         </div>
       </section>
 
