@@ -378,9 +378,11 @@ export default function Landing() {
           >
             At AngelFlows Media, each lead only goes to ONE contractor. Claim it before your competitor does.
           </p>
-          <button
-            onClick={() => navigate("/auth")}
-            className="h-12 px-8 rounded-xl text-white text-base shadow-lg transition-colors"
+          <a
+            href="https://contractors.angelflows.com/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center justify-center h-12 px-8 rounded-xl text-white text-base shadow-lg transition-colors"
             style={{ backgroundColor: BLUE, fontWeight: 500, letterSpacing: "0.02em" }}
             onMouseEnter={(e) =>
               (e.currentTarget.style.backgroundColor = BLUE_HOVER)
@@ -390,7 +392,7 @@ export default function Landing() {
             }
           >
             Book a Call
-          </button>
+          </a>
         </div>
       </section>
 
