@@ -33,18 +33,23 @@ const navSections: NavSection[] = [
     items: [
       { title: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
       { title: "Build Audience", path: "/lead-search", icon: Search },
-      { title: "Manage Pixels", path: "/pixels", icon: Scan },
-      { title: "Visitor Analytics", path: "/visitor-analytics", icon: Eye },
       { title: "Sync Audience", path: "/sync-audience", icon: Filter },
-      { title: "Customers", path: "/customers", icon: Users },
     ],
   },
   {
-    label: "Creatives",
+    label: "Ads Builder",
     items: [
       { title: "Campaigns", path: "/campaigns", icon: Megaphone },
       { title: "Ad Creatives", path: "/ad-creatives", icon: Palette },
-      { title: "Agent", path: "/agent", icon: Bot },
+      { title: "AI Funnel Builder", path: "/agent", icon: Bot },
+      { title: "Leads", path: "/customers", icon: Users },
+    ],
+  },
+  {
+    label: "SuperPixel",
+    items: [
+      { title: "Manage Pixels", path: "/pixels", icon: Scan },
+      { title: "Visitor Analytics", path: "/visitor-analytics", icon: Eye },
     ],
   },
   {
