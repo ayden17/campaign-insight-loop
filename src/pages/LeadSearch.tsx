@@ -121,6 +121,7 @@ const LeadSearch = () => {
   const [afPrompt, setAfPrompt] = useState("");
   const [afLoading, setAfLoading] = useState(false);
   const [afProspects, setAfProspects] = useState<any[]>([]);
+  const [enrichDeep, setEnrichDeep] = useState(false);
 
   // All filter states
   const [intentFilters, setIntentFilters] = useState<IntentFilters>({ method: "keyword", keywords: [], intentScore: "medium", aiPrompt: "" });
@@ -331,7 +332,8 @@ const LeadSearch = () => {
 
   /* ---------- Generate Audience (saves to DB) ---------- */
   const handleGenerateAudience = async () => {
-    if (currentAudienceIds.length === 0) {
+    // Save Audience: persist filters + company IDs + AngelFlows AI prospects
+    if (currentAudienceIds.length === 0 && afProspects.length === 0) {
       await handleSearch();
       return;
     }
@@ -341,10 +343,14 @@ const LeadSearch = () => {
       if (currentAudienceId) {
         const { data: { user } } = await supabase.auth.getUser();
         if (user) {
+          const totalSize = currentAudienceIds.length + afProspects.length;
           await supabase.from("audiences" as any).update({
             filters: getAllFiltersForSave(),
-            results: currentAudienceIds as any,
-            audience_size: currentAudienceIds.length,
+            results: {
+              companyIds: currentAudienceIds,
+              prospects: afProspects,
+            } as any,
+            audience_size: totalSize,
             status: "completed",
             last_refreshed: new Date().toISOString(),
             updated_at: new Date().toISOString(),
@@ -352,7 +358,8 @@ const LeadSearch = () => {
         }
       }
       setAudienceGenerated(true);
-      toast({ title: "Audience Generated", description: `${currentAudienceIds.length} companies saved to your audience.` });
+      const total = currentAudienceIds.length + afProspects.length;
+      toast({ title: "Audience Saved", description: `${total} records saved (${currentAudienceIds.length} companies, ${afProspects.length} prospects).` });
     } catch (err: any) {
       toast({ title: "Save Error", description: err.message, variant: "destructive" });
     }
@@ -397,12 +404,20 @@ const LeadSearch = () => {
     if (f?.housing) setHousingFilters(f.housing);
     if (f?.date) setDateFilters(f.date);
     if (f?.contact) setContactFilters(f.contact);
-    if (Array.isArray(audience.filters) || (audience as any).results) {
-      const savedResults = (audience as any).results;
-      if (Array.isArray(savedResults)) {
-        setCurrentAudienceIds(savedResults);
-        setAudienceGenerated(audience.status === "completed");
-      }
+    const savedResults = (audience as any).results;
+    if (Array.isArray(savedResults)) {
+      // Legacy format: just an array of company IDs
+      setCurrentAudienceIds(savedResults);
+      setAfProspects([]);
+      setAudienceGenerated(audience.status === "completed");
+    } else if (savedResults && typeof savedResults === "object") {
+      setCurrentAudienceIds(Array.isArray(savedResults.companyIds) ? savedResults.companyIds : []);
+      setAfProspects(Array.isArray(savedResults.prospects) ? savedResults.prospects : []);
+      setAudienceGenerated(audience.status === "completed");
+    } else {
+      setCurrentAudienceIds([]);
+      setAfProspects([]);
+      setAudienceGenerated(false);
     }
     setView("builder");
   };
