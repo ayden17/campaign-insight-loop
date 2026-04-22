@@ -86,12 +86,6 @@ export function OnboardingChecklist() {
         <h2 className="text-xl font-semibold text-foreground">
           Hello AngelFlower! 👋🏽
         </h2>
-        <p className="text-sm text-muted-foreground mt-1 leading-relaxed max-w-2xl">
-          There's profit hiding in your funnel. Follow these steps to create a
-          predictable, cashflow machine by creating high-converting funnels, ad
-          campaigns powered with intent data, and a native CRM that supports
-          email marketing to nurture your leads.
-        </p>
       </div>
 
       <CardContent className="px-6 pb-6 pt-2">

@@ -25,10 +25,7 @@ serve(async (req) => {
       category = "people",
       type = "auto",
       numResults = 10,
-      includeDomains,
-      excludeDomains,
-      startPublishedDate,
-      endPublishedDate,
+      enrich = false,
     } = body ?? {};
 
     if (!query || typeof query !== "string") {
@@ -38,20 +35,25 @@ serve(async (req) => {
       });
     }
 
+    // Exa "people" category does NOT support includeDomains/excludeDomains/dates.
+    // Encode all constraints in the natural-language `query` string.
+    const safeNum = Math.min(Math.max(Number(numResults) || 10, 1), 100);
+    const isPeople = category === "people";
     const payload: Record<string, unknown> = {
       query,
       category,
-      type,
-      numResults: Math.min(Math.max(Number(numResults) || 10, 1), 100),
+      type: enrich && isPeople ? "deep" : type,
+      numResults: safeNum,
       contents: {
-        text: { maxCharacters: 800 },
-        summary: { query: "Brief professional summary including title, company, and recent career context." },
+        text: { maxCharacters: 1200 },
+        highlights: { numSentences: 3, highlightsPerUrl: 1, query: "career role title company seniority location" },
+        summary: {
+          query: enrich
+            ? "Extract: full name, current job title, current company, location, seniority, and a 1-sentence career context."
+            : "Brief professional summary including title, company, and recent career context.",
+        },
       },
     };
-    if (Array.isArray(includeDomains) && includeDomains.length) payload.includeDomains = includeDomains;
-    if (Array.isArray(excludeDomains) && excludeDomains.length) payload.excludeDomains = excludeDomains;
-    if (startPublishedDate) payload.startPublishedDate = startPublishedDate;
-    if (endPublishedDate) payload.endPublishedDate = endPublishedDate;
 
     const response = await fetch("https://api.exa.ai/search", {
       method: "POST",
