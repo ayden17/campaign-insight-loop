@@ -18,6 +18,7 @@ import { FinancialFilterDialog, type FinancialFilters } from "@/components/audie
 import { GenericFilterDialog, type GenericFilters } from "@/components/audience/GenericFilterDialog";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 
 /* ---------- types ---------- */
 
@@ -562,7 +563,7 @@ const LeadSearch = () => {
           </Button>
           <Button onClick={handleGenerateAudience} disabled={loading || saving || hydrating} className="gap-1.5">
             {(loading || saving) ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
-            {audienceGenerated ? "Update Audience" : "Generate Audience"}
+            {audienceGenerated ? "Update Audience" : "Save Audience"}
           </Button>
         </div>
       </div>
@@ -608,20 +609,30 @@ const LeadSearch = () => {
       {/* AngelFlows Audience Builder — AI prompt-based prospect search */}
       <Card className="mb-6 border-border bg-card">
         <CardContent className="p-5">
-          <div className="flex items-center gap-2 mb-3">
-            <Sparkles className="h-4 w-4 text-foreground" />
-            <h3 className="text-sm font-semibold text-foreground">AngelFlows Audience Builder</h3>
-            <Badge variant="secondary" className="text-[10px] uppercase tracking-wide">AI</Badge>
+          <div className="flex items-start justify-between gap-4 mb-3">
+            <div>
+              <div className="flex items-center gap-2 mb-2">
+                <Sparkles className="h-4 w-4 text-foreground" />
+                <h3 className="text-sm font-semibold text-foreground">AngelFlows Audience Builder</h3>
+                <Badge variant="secondary" className="text-[10px] uppercase tracking-wide">AI</Badge>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Add optional context — your applied filters above are automatically converted into a prompt and combined with your description.
+              </p>
+            </div>
+            <div className="flex items-center gap-2 shrink-0">
+              <Label htmlFor="enrich-toggle" className="text-xs font-medium text-foreground cursor-pointer">
+                Deep Enrich
+              </Label>
+              <Switch id="enrich-toggle" checked={enrichDeep} onCheckedChange={setEnrichDeep} />
+            </div>
           </div>
-          <p className="text-xs text-muted-foreground mb-3">
-            Describe your ideal prospects in plain English. Our AI SDR finds matching people and enriches with up-to-date titles, companies, and career context.
-          </p>
           <div className="flex gap-2">
             <Input
               value={afPrompt}
               onChange={(e) => setAfPrompt(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && !afLoading && handleAudienceBuilderSearch()}
-              placeholder='e.g. "product managers at Microsoft" or "CEO of AI search startups in San Francisco"'
+              placeholder='Optional context — e.g. "founders raising Series A" (filters above will be combined automatically)'
               className="flex-1"
             />
             <Button onClick={handleAudienceBuilderSearch} disabled={afLoading} className="gap-1.5">
@@ -631,37 +642,50 @@ const LeadSearch = () => {
           </div>
 
           {afProspects.length > 0 && (
-            <div className="mt-5 space-y-2">
+            <div className="mt-5 space-y-3">
               <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                 {afProspects.length} prospects enriched
               </p>
-              <div className="grid gap-2 sm:grid-cols-2">
-                {afProspects.map((p, idx) => (
-                  <a
-                    key={p.id || p.url || idx}
-                    href={p.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex gap-3 rounded-lg border border-border bg-background p-3 hover:border-foreground/40 transition-colors"
-                  >
-                    {p.image ? (
-                      <img src={p.image} alt="" className="h-10 w-10 rounded-full object-cover shrink-0" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
-                    ) : (
-                      <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center shrink-0">
-                        <UserIcon className="h-5 w-5 text-muted-foreground" />
-                      </div>
-                    )}
-                    <div className="min-w-0 flex-1">
-                      <p className="text-sm font-medium text-foreground truncate">{p.name}</p>
-                      {p.author && p.author !== p.name && (
-                        <p className="text-xs text-muted-foreground truncate">{p.author}</p>
-                      )}
-                      {p.summary && (
-                        <p className="text-xs text-muted-foreground line-clamp-2 mt-1">{p.summary}</p>
-                      )}
-                    </div>
-                  </a>
-                ))}
+              <div className="rounded-lg border border-border overflow-hidden">
+                <Table>
+                  <TableHeader>
+                    <TableRow className="bg-muted/50">
+                      <TableHead className="text-xs font-semibold uppercase tracking-wide">Name</TableHead>
+                      <TableHead className="text-xs font-semibold uppercase tracking-wide">Title / Company</TableHead>
+                      <TableHead className="text-xs font-semibold uppercase tracking-wide">Career Context</TableHead>
+                      <TableHead className="text-xs font-semibold uppercase tracking-wide w-20">Profile</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {afProspects.map((p, idx) => (
+                      <TableRow key={p.id || p.url || idx} className="hover:bg-muted/30">
+                        <TableCell className="text-sm font-medium text-foreground">
+                          <div className="flex items-center gap-2">
+                            {p.image ? (
+                              <img src={p.image} alt="" className="h-7 w-7 rounded-full object-cover shrink-0" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
+                            ) : (
+                              <div className="h-7 w-7 rounded-full bg-muted flex items-center justify-center shrink-0">
+                                <UserIcon className="h-3.5 w-3.5 text-muted-foreground" />
+                              </div>
+                            )}
+                            <span className="truncate">{p.author || p.name}</span>
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-sm text-muted-foreground max-w-[260px] truncate">{p.name}</TableCell>
+                        <TableCell className="text-sm text-muted-foreground max-w-[420px]">
+                          <span className="line-clamp-2">{p.summary || p.snippet || "—"}</span>
+                        </TableCell>
+                        <TableCell>
+                          {p.url && (
+                            <a href={p.url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs text-primary hover:underline">
+                              <ExternalLink className="h-3.5 w-3.5" /> View
+                            </a>
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
               </div>
             </div>
           )}
