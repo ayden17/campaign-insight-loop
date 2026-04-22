@@ -18,6 +18,7 @@ import { FinancialFilterDialog, type FinancialFilters } from "@/components/audie
 import { GenericFilterDialog, type GenericFilters } from "@/components/audience/GenericFilterDialog";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 
 /* ---------- types ---------- */
 
@@ -121,6 +122,7 @@ const LeadSearch = () => {
   const [afPrompt, setAfPrompt] = useState("");
   const [afLoading, setAfLoading] = useState(false);
   const [afProspects, setAfProspects] = useState<any[]>([]);
+  const [enrichDeep, setEnrichDeep] = useState(false);
 
   // All filter states
   const [intentFilters, setIntentFilters] = useState<IntentFilters>({ method: "keyword", keywords: [], intentScore: "medium", aiPrompt: "" });
@@ -178,18 +180,61 @@ const LeadSearch = () => {
     contact: contactFilters,
   });
 
+  /* ---------- Build a natural-language Exa prompt from all applied filters ---------- */
+  const buildExaPromptFromFilters = (extra?: string): string => {
+    const parts: string[] = [];
+
+    // Business — roles / company / industry
+    if (businessFilters.jobTitles.length) parts.push(businessFilters.jobTitles.join(" or "));
+    if (businessFilters.seniority) parts.push(`${businessFilters.seniority}-level`);
+    if (businessFilters.department) parts.push(`in ${businessFilters.department}`);
+    if (businessFilters.industry) parts.push(`in the ${businessFilters.industry} industry`);
+    if (businessFilters.companyNames.length) parts.push(`at ${businessFilters.companyNames.join(", ")}`);
+    else if (businessFilters.b2bKeywords.length) parts.push(`at companies focused on ${businessFilters.b2bKeywords.join(", ")}`);
+
+    // Intent
+    if (intentFilters.keywords.length) parts.push(`interested in ${intentFilters.keywords.join(", ")}`);
+    if (intentFilters.aiPrompt) parts.push(intentFilters.aiPrompt);
+
+    // Location
+    const loc: string[] = [];
+    if (locationFilters.cities.length) loc.push(locationFilters.cities.join(", "));
+    if (locationFilters.states.length) loc.push(locationFilters.states.join(", "));
+    if (locationFilters.countryCode) loc.push(locationFilters.countryCode);
+    if (loc.length) parts.push(`based in ${loc.join(", ")}`);
+
+    // Personal
+    if (personalFilters.ageMin || personalFilters.ageMax) {
+      const range = `${personalFilters.ageMin || "?"}-${personalFilters.ageMax || "?"}`;
+      parts.push(`age ${range}`);
+    }
+    personalFilters.customFilters.forEach(f => f.field && f.value && parts.push(`${f.field}: ${f.value}`));
+
+    // Financial / family / housing — flatten custom filters
+    [...financialFilters.customFilters, ...familyFilters.customFilters, ...housingFilters.customFilters]
+      .forEach(f => f.field && f.value && parts.push(`${f.field} ${f.value}`));
+
+    // Contact requirements
+    contactFilters.customFilters.forEach(f => f.field && f.value && parts.push(`${f.field}: ${f.value}`));
+
+    const filterPrompt = parts.filter(Boolean).join(" ").trim();
+    const prompt = [extra?.trim(), filterPrompt].filter(Boolean).join(" — ");
+    return prompt;
+  };
+
   /* ---------- AngelFlows Audience Builder (AI prompt search) ---------- */
   const handleAudienceBuilderSearch = async () => {
-    const query = afPrompt.trim();
+    const promptFromFilters = buildExaPromptFromFilters(afPrompt);
+    const query = promptFromFilters.trim();
     if (!query) {
-      toast({ title: "Describe your audience", description: 'Try: "product managers at Microsoft" or "CEOs of AI startups in San Francisco".', variant: "destructive" });
+      toast({ title: "Describe your audience or apply filters", description: 'Try: "product managers at Microsoft" or apply Business / Location filters.', variant: "destructive" });
       return;
     }
     setAfLoading(true);
     setAfProspects([]);
     try {
       const { data, error } = await supabase.functions.invoke("angelflows-audience-builder", {
-        body: { query, category: "people", type: "auto", numResults: 10 },
+        body: { query, category: "people", type: "auto", numResults: 10, enrich: enrichDeep },
       });
       if (error) throw error;
       const prospects = Array.isArray(data?.prospects) ? data.prospects : [];
@@ -288,7 +333,8 @@ const LeadSearch = () => {
 
   /* ---------- Generate Audience (saves to DB) ---------- */
   const handleGenerateAudience = async () => {
-    if (currentAudienceIds.length === 0) {
+    // Save Audience: persist filters + company IDs + AngelFlows AI prospects
+    if (currentAudienceIds.length === 0 && afProspects.length === 0) {
       await handleSearch();
       return;
     }
@@ -298,10 +344,14 @@ const LeadSearch = () => {
       if (currentAudienceId) {
         const { data: { user } } = await supabase.auth.getUser();
         if (user) {
+          const totalSize = currentAudienceIds.length + afProspects.length;
           await supabase.from("audiences" as any).update({
             filters: getAllFiltersForSave(),
-            results: currentAudienceIds as any,
-            audience_size: currentAudienceIds.length,
+            results: {
+              companyIds: currentAudienceIds,
+              prospects: afProspects,
+            } as any,
+            audience_size: totalSize,
             status: "completed",
             last_refreshed: new Date().toISOString(),
             updated_at: new Date().toISOString(),
@@ -309,7 +359,8 @@ const LeadSearch = () => {
         }
       }
       setAudienceGenerated(true);
-      toast({ title: "Audience Generated", description: `${currentAudienceIds.length} companies saved to your audience.` });
+      const total = currentAudienceIds.length + afProspects.length;
+      toast({ title: "Audience Saved", description: `${total} records saved (${currentAudienceIds.length} companies, ${afProspects.length} prospects).` });
     } catch (err: any) {
       toast({ title: "Save Error", description: err.message, variant: "destructive" });
     }
@@ -354,12 +405,20 @@ const LeadSearch = () => {
     if (f?.housing) setHousingFilters(f.housing);
     if (f?.date) setDateFilters(f.date);
     if (f?.contact) setContactFilters(f.contact);
-    if (Array.isArray(audience.filters) || (audience as any).results) {
-      const savedResults = (audience as any).results;
-      if (Array.isArray(savedResults)) {
-        setCurrentAudienceIds(savedResults);
-        setAudienceGenerated(audience.status === "completed");
-      }
+    const savedResults = (audience as any).results;
+    if (Array.isArray(savedResults)) {
+      // Legacy format: just an array of company IDs
+      setCurrentAudienceIds(savedResults);
+      setAfProspects([]);
+      setAudienceGenerated(audience.status === "completed");
+    } else if (savedResults && typeof savedResults === "object") {
+      setCurrentAudienceIds(Array.isArray(savedResults.companyIds) ? savedResults.companyIds : []);
+      setAfProspects(Array.isArray(savedResults.prospects) ? savedResults.prospects : []);
+      setAudienceGenerated(audience.status === "completed");
+    } else {
+      setCurrentAudienceIds([]);
+      setAfProspects([]);
+      setAudienceGenerated(false);
     }
     setView("builder");
   };
@@ -504,7 +563,7 @@ const LeadSearch = () => {
           </Button>
           <Button onClick={handleGenerateAudience} disabled={loading || saving || hydrating} className="gap-1.5">
             {(loading || saving) ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
-            {audienceGenerated ? "Update Audience" : "Generate Audience"}
+            {audienceGenerated ? "Update Audience" : "Save Audience"}
           </Button>
         </div>
       </div>
@@ -550,20 +609,30 @@ const LeadSearch = () => {
       {/* AngelFlows Audience Builder — AI prompt-based prospect search */}
       <Card className="mb-6 border-border bg-card">
         <CardContent className="p-5">
-          <div className="flex items-center gap-2 mb-3">
-            <Sparkles className="h-4 w-4 text-foreground" />
-            <h3 className="text-sm font-semibold text-foreground">AngelFlows Audience Builder</h3>
-            <Badge variant="secondary" className="text-[10px] uppercase tracking-wide">AI</Badge>
+          <div className="flex items-start justify-between gap-4 mb-3">
+            <div>
+              <div className="flex items-center gap-2 mb-2">
+                <Sparkles className="h-4 w-4 text-foreground" />
+                <h3 className="text-sm font-semibold text-foreground">AngelFlows Audience Builder</h3>
+                <Badge variant="secondary" className="text-[10px] uppercase tracking-wide">AI</Badge>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Add optional context — your applied filters above are automatically converted into a prompt and combined with your description.
+              </p>
+            </div>
+            <div className="flex items-center gap-2 shrink-0">
+              <Label htmlFor="enrich-toggle" className="text-xs font-medium text-foreground cursor-pointer">
+                Deep Enrich
+              </Label>
+              <Switch id="enrich-toggle" checked={enrichDeep} onCheckedChange={setEnrichDeep} />
+            </div>
           </div>
-          <p className="text-xs text-muted-foreground mb-3">
-            Describe your ideal prospects in plain English. Our AI SDR finds matching people and enriches with up-to-date titles, companies, and career context.
-          </p>
           <div className="flex gap-2">
             <Input
               value={afPrompt}
               onChange={(e) => setAfPrompt(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && !afLoading && handleAudienceBuilderSearch()}
-              placeholder='e.g. "product managers at Microsoft" or "CEO of AI search startups in San Francisco"'
+              placeholder='Optional context — e.g. "founders raising Series A" (filters above will be combined automatically)'
               className="flex-1"
             />
             <Button onClick={handleAudienceBuilderSearch} disabled={afLoading} className="gap-1.5">
@@ -573,37 +642,50 @@ const LeadSearch = () => {
           </div>
 
           {afProspects.length > 0 && (
-            <div className="mt-5 space-y-2">
+            <div className="mt-5 space-y-3">
               <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                 {afProspects.length} prospects enriched
               </p>
-              <div className="grid gap-2 sm:grid-cols-2">
-                {afProspects.map((p, idx) => (
-                  <a
-                    key={p.id || p.url || idx}
-                    href={p.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex gap-3 rounded-lg border border-border bg-background p-3 hover:border-foreground/40 transition-colors"
-                  >
-                    {p.image ? (
-                      <img src={p.image} alt="" className="h-10 w-10 rounded-full object-cover shrink-0" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
-                    ) : (
-                      <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center shrink-0">
-                        <UserIcon className="h-5 w-5 text-muted-foreground" />
-                      </div>
-                    )}
-                    <div className="min-w-0 flex-1">
-                      <p className="text-sm font-medium text-foreground truncate">{p.name}</p>
-                      {p.author && p.author !== p.name && (
-                        <p className="text-xs text-muted-foreground truncate">{p.author}</p>
-                      )}
-                      {p.summary && (
-                        <p className="text-xs text-muted-foreground line-clamp-2 mt-1">{p.summary}</p>
-                      )}
-                    </div>
-                  </a>
-                ))}
+              <div className="rounded-lg border border-border overflow-hidden">
+                <Table>
+                  <TableHeader>
+                    <TableRow className="bg-muted/50">
+                      <TableHead className="text-xs font-semibold uppercase tracking-wide">Name</TableHead>
+                      <TableHead className="text-xs font-semibold uppercase tracking-wide">Title / Company</TableHead>
+                      <TableHead className="text-xs font-semibold uppercase tracking-wide">Career Context</TableHead>
+                      <TableHead className="text-xs font-semibold uppercase tracking-wide w-20">Profile</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {afProspects.map((p, idx) => (
+                      <TableRow key={p.id || p.url || idx} className="hover:bg-muted/30">
+                        <TableCell className="text-sm font-medium text-foreground">
+                          <div className="flex items-center gap-2">
+                            {p.image ? (
+                              <img src={p.image} alt="" className="h-7 w-7 rounded-full object-cover shrink-0" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
+                            ) : (
+                              <div className="h-7 w-7 rounded-full bg-muted flex items-center justify-center shrink-0">
+                                <UserIcon className="h-3.5 w-3.5 text-muted-foreground" />
+                              </div>
+                            )}
+                            <span className="truncate">{p.author || p.name}</span>
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-sm text-muted-foreground max-w-[260px] truncate">{p.name}</TableCell>
+                        <TableCell className="text-sm text-muted-foreground max-w-[420px]">
+                          <span className="line-clamp-2">{p.summary || p.snippet || "—"}</span>
+                        </TableCell>
+                        <TableCell>
+                          {p.url && (
+                            <a href={p.url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs text-primary hover:underline">
+                              <ExternalLink className="h-3.5 w-3.5" /> View
+                            </a>
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
               </div>
             </div>
           )}
