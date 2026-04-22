@@ -178,18 +178,61 @@ const LeadSearch = () => {
     contact: contactFilters,
   });
 
+  /* ---------- Build a natural-language Exa prompt from all applied filters ---------- */
+  const buildExaPromptFromFilters = (extra?: string): string => {
+    const parts: string[] = [];
+
+    // Business — roles / company / industry
+    if (businessFilters.jobTitles.length) parts.push(businessFilters.jobTitles.join(" or "));
+    if (businessFilters.seniority) parts.push(`${businessFilters.seniority}-level`);
+    if (businessFilters.department) parts.push(`in ${businessFilters.department}`);
+    if (businessFilters.industry) parts.push(`in the ${businessFilters.industry} industry`);
+    if (businessFilters.companyNames.length) parts.push(`at ${businessFilters.companyNames.join(", ")}`);
+    else if (businessFilters.b2bKeywords.length) parts.push(`at companies focused on ${businessFilters.b2bKeywords.join(", ")}`);
+
+    // Intent
+    if (intentFilters.keywords.length) parts.push(`interested in ${intentFilters.keywords.join(", ")}`);
+    if (intentFilters.aiPrompt) parts.push(intentFilters.aiPrompt);
+
+    // Location
+    const loc: string[] = [];
+    if (locationFilters.cities.length) loc.push(locationFilters.cities.join(", "));
+    if (locationFilters.states.length) loc.push(locationFilters.states.join(", "));
+    if (locationFilters.countryCode) loc.push(locationFilters.countryCode);
+    if (loc.length) parts.push(`based in ${loc.join(", ")}`);
+
+    // Personal
+    if (personalFilters.ageMin || personalFilters.ageMax) {
+      const range = `${personalFilters.ageMin || "?"}-${personalFilters.ageMax || "?"}`;
+      parts.push(`age ${range}`);
+    }
+    personalFilters.customFilters.forEach(f => f.field && f.value && parts.push(`${f.field}: ${f.value}`));
+
+    // Financial / family / housing — flatten custom filters
+    [...financialFilters.customFilters, ...familyFilters.customFilters, ...housingFilters.customFilters]
+      .forEach(f => f.field && f.value && parts.push(`${f.field} ${f.value}`));
+
+    // Contact requirements
+    contactFilters.customFilters.forEach(f => f.field && f.value && parts.push(`${f.field}: ${f.value}`));
+
+    const filterPrompt = parts.filter(Boolean).join(" ").trim();
+    const prompt = [extra?.trim(), filterPrompt].filter(Boolean).join(" — ");
+    return prompt;
+  };
+
   /* ---------- AngelFlows Audience Builder (AI prompt search) ---------- */
   const handleAudienceBuilderSearch = async () => {
-    const query = afPrompt.trim();
+    const promptFromFilters = buildExaPromptFromFilters(afPrompt);
+    const query = promptFromFilters.trim();
     if (!query) {
-      toast({ title: "Describe your audience", description: 'Try: "product managers at Microsoft" or "CEOs of AI startups in San Francisco".', variant: "destructive" });
+      toast({ title: "Describe your audience or apply filters", description: 'Try: "product managers at Microsoft" or apply Business / Location filters.', variant: "destructive" });
       return;
     }
     setAfLoading(true);
     setAfProspects([]);
     try {
       const { data, error } = await supabase.functions.invoke("angelflows-audience-builder", {
-        body: { query, category: "people", type: "auto", numResults: 10 },
+        body: { query, category: "people", type: "auto", numResults: 10, enrich: enrichDeep },
       });
       if (error) throw error;
       const prospects = Array.isArray(data?.prospects) ? data.prospects : [];
